@@ -48,6 +48,17 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
     }
   };
 
+  // Handle keyboard shortcuts for form submission
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Check for Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux)
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      if (!isGenerating && description.trim()) {
+        e.preventDefault(); // Prevent default to avoid new line insertion
+        handleSubmit(e as unknown as React.FormEvent);
+      }
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -63,6 +74,7 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
             className="min-h-[200px] text-lg"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
         </CardContent>
         <CardFooter>
@@ -72,7 +84,8 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
             size="lg"
             disabled={isGenerating || !description.trim()}
           >
-            {isGenerating ? "Generating..." : "Generate Form"}
+            {/* TODO: Add proper keyboard shortcut icons and tooltip */}
+            {isGenerating ? "Generating..." : "Generate Form (Cmd+Enter)"}
           </Button>
         </CardFooter>
       </form>
