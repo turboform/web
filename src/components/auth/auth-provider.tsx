@@ -98,13 +98,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: "No anonymous account to link" };
       }
 
-      // Update the user's email and password
+      // First, try to sign in with the provided credentials to check if the account exists
+      const { data: existingUserData, error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      // If sign-in was successful, we need to handle the case of linking the anonymous data
+      if (!signInError && existingUserData?.user) {
+        // The following part needs to be handled via admin functions since we need to transfer
+        // ownership of any forms created while anonymous to the existing account
+
+        // 1. Store the anonymous user ID to use for transferring data
+        const anonymousUserId = user.id;
+
+        // 2. Use the admin client to transfer forms from anonymous user to the existing user
+        try {
+          // Using fetch here since we need to call a server action to use the admin client
+          const response = await fetch('/api/auth/link-anonymous-data', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              anonymousUserId,
+              targetUserId: existingUserData.user.id,
+            }),
+          });
+
+          if (!response.ok) {
+            // If the data migration failed, still let the user sign in 
+            // but warn them some data might not be transferred
+            console.error('Failed to transfer anonymous data');
+          }
+        } catch (error) {
+          console.error('Error transferring anonymous data:', error);
+        }
+
+        // User is already signed in to their existing account at this point
+        setIsAnonymous(false);
+        return { success: true };
+      }
+
+      // Otherwise, let's try to update the anonymous account with the email/password
+      // This will work for new accounts when the email doesn't exist yet
       const { error } = await supabaseBrowserClient.auth.updateUser({
         email,
         password,
       });
 
       if (error) {
+        // If the update fails, it's likely because the email is already taken
+        // but the password didn't match, or some other error
         return { success: false, error: error.message };
       }
 
