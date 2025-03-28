@@ -1,14 +1,8 @@
 import { cookies } from 'next/headers';
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { COOKIE_STORAGE_KEY } from '@/lib/types/constants';
-
-export function createSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
+import { supabaseApiClient } from './api';
+import { supabaseAdminClient } from './admin';
 
 export async function authenticateUser() {
   try {
@@ -18,7 +12,7 @@ export async function authenticateUser() {
     if (!tokenBase64) {
       return {
         user: null,
-        supabase: createSupabaseAdmin(),
+        supabase: supabaseApiClient(''),
         error: NextResponse.json(
           { error: 'Unauthorized - No auth token' },
           { status: 401 }
@@ -32,7 +26,7 @@ export async function authenticateUser() {
     if (!token) {
       return {
         user: null,
-        supabase: createSupabaseAdmin(),
+        supabase: supabaseApiClient(''),
         error: NextResponse.json(
           { error: 'Unauthorized - Invalid token format' },
           { status: 401 }
@@ -40,14 +34,12 @@ export async function authenticateUser() {
       };
     }
 
-    const supabase = createSupabaseAdmin();
-
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: userError } = await supabaseAdminClient.auth.getUser(token);
 
     if (userError || !user) {
       return {
         user: null,
-        supabase,
+        supabase: supabaseApiClient(''),
         error: NextResponse.json(
           { error: 'Unauthorized - Invalid user' },
           { status: 401 }
@@ -55,13 +47,13 @@ export async function authenticateUser() {
       };
     }
 
-    return { user, supabase, error: null };
+    return { user, supabase: supabaseApiClient(token), error: null };
   } catch (error) {
     // TODO: add logging
     console.error('Authentication error:', error);
     return {
       user: null,
-      supabase: createSupabaseAdmin(),
+      supabase: supabaseApiClient(''),
       error: NextResponse.json(
         { error: 'Server error during authentication' },
         { status: 500 }
