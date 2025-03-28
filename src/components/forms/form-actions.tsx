@@ -8,6 +8,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface FormActionsProps {
   form: any;
@@ -21,16 +24,24 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
   const router = useRouter();
   const [formSaved, setFormSaved] = useState(false);
   const [formLink, setFormLink] = useState("");
+  const [shortLink, setShortLink] = useState("");
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false);
+  const [expirationDate, setExpirationDate] = useState<Date | undefined>(undefined);
 
   const saveForm = async () => {
     try {
+      // Add expiration date to the form if set
+      const formWithExpiration = {
+        ...form,
+        expires_at: expirationDate ? expirationDate.toISOString() : null
+      };
+
       const response = await fetch("/api/forms", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(formWithExpiration),
       });
 
       if (!response.ok) {
@@ -40,6 +51,7 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
       const data = await response.json();
       setFormSaved(true);
       setFormLink(`${window.location.origin}/form/${data.form.id}`);
+      setShortLink(`${window.location.origin}/f/${data.form.short_id}`);
 
       // If user is anonymous, prompt them to sign in to share the form
       if (isAnonymous) {
@@ -65,7 +77,22 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
     <>
       <CardFooter className="flex flex-col space-y-3">
         {!formSaved ? (
-          <Button onClick={saveForm} className="w-full">Save Form</Button>
+          <>
+            <div className="w-full space-y-4 mb-4">
+              <div className="space-y-2">
+                <Label htmlFor="expirationDate">Form Expiration (Optional)</Label>
+                <DatePicker 
+                  date={expirationDate} 
+                  setDate={setExpirationDate} 
+                  label="Set expiration date" 
+                />
+                <p className="text-xs text-muted-foreground">
+                  After this date, the form will no longer accept new responses.
+                </p>
+              </div>
+            </div>
+            <Button onClick={saveForm} className="w-full">Save Form</Button>
+          </>
         ) : (
           <div className="w-full space-y-3">
             {isAnonymous ? (
@@ -90,13 +117,26 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
                     <div className="mt-2 p-2 bg-muted rounded-md break-all">
                       {formLink}
                     </div>
+                    {shortLink && (
+                      <div className="mt-2">
+                        <div className="text-sm font-medium">Short link:</div>
+                        <div className="p-2 bg-muted rounded-md break-all">
+                          {shortLink}
+                        </div>
+                      </div>
+                    )}
+                    {form.expires_at && (
+                      <div className="mt-2 text-sm text-amber-600">
+                        This form will expire on {new Date(form.expires_at).toLocaleDateString()}.
+                      </div>
+                    )}
                   </AlertDescription>
                 </Alert>
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
                     onClick={() => {
-                      navigator.clipboard.writeText(formLink);
+                      navigator.clipboard.writeText(shortLink || formLink);
                       toast.success("Link copied to clipboard!");
                     }}
                   >

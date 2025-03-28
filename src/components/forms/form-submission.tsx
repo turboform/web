@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarX2 } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -12,10 +12,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { submitFormResponse } from "@/lib/supabase/actions";
 import type { FormData } from "@/lib/supabase/actions";
 
+const isFormExpired = (form: FormData): boolean => {
+  if (!form.expires_at) return false;
+
+  const expirationDate = new Date(form.expires_at);
+  const now = new Date();
+
+  return expirationDate < now;
+};
+
 export function FormSubmission({ form }: { form: FormData }) {
   const [formResponses, setFormResponses] = useState<Record<string, any>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Check if the form is expired
+  const expired = isFormExpired(form);
 
   const handleInputChange = (fieldId: string, value: any) => {
     setFormResponses(prev => ({
@@ -26,6 +38,12 @@ export function FormSubmission({ form }: { form: FormData }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent submission if form is expired
+    if (expired) {
+      toast.error("This form has expired and is no longer accepting responses");
+      return;
+    }
 
     const requiredFields = form.schema.filter((field: any) => field.required);
     const missingFields = requiredFields.filter((field: any) =>
@@ -40,7 +58,7 @@ export function FormSubmission({ form }: { form: FormData }) {
 
     try {
       setSubmitting(true);
-      
+
       const result = await submitFormResponse(form.id, formResponses);
 
       if (!result.success) {
@@ -57,6 +75,28 @@ export function FormSubmission({ form }: { form: FormData }) {
     }
   };
 
+  // Render the expiration notice when the form has expired
+  if (expired) {
+    return (
+      <div className="space-y-4">
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center justify-center p-8 text-center space-y-4">
+            <div className="relative w-24 h-24 mb-4">
+              <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-25"></div>
+              <div className="relative flex items-center justify-center w-24 h-24 bg-red-100 rounded-full">
+                <CalendarX2 className="w-12 h-12 text-red-500" />
+              </div>
+            </div>
+            <h3 className="text-xl font-semibold text-red-600">This form has expired</h3>
+            <p className="text-gray-600">
+              This form is no longer accepting responses as it has passed its expiration date.
+            </p>
+          </div>
+        </CardContent>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="space-y-4">
@@ -72,103 +112,131 @@ export function FormSubmission({ form }: { form: FormData }) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <CardContent>
-        <div className="space-y-8">
-          {form.schema.map((field: any, index: number) => (
-            <div key={field.id} className="space-y-3 pb-4 border-b border-gray-100 last:border-0">
-              <div className="font-medium text-gray-800">
-                {index + 1}. {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <CardContent className="space-y-4 pt-6">
+        {form.schema.map((field: any) => (
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id} className="text-base">
+              {field.label} {field.required && <span className="text-red-500">*</span>}
+            </Label>
+
+            {field.type === 'text' && (
+              <input
+                type="text"
+                id={field.id}
+                placeholder={field.placeholder || ''}
+                className="w-full p-2 border rounded-md"
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                required={field.required}
+              />
+            )}
+
+            {field.type === 'textarea' && (
+              <textarea
+                id={field.id}
+                placeholder={field.placeholder || ''}
+                className="w-full p-2 border rounded-md min-h-[100px]"
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                required={field.required}
+              />
+            )}
+
+            {field.type === 'checkbox' && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id={field.id}
+                  onCheckedChange={(checked) => handleInputChange(field.id, checked)}
+                />
+                <Label htmlFor={field.id} className="text-sm text-gray-600">
+                  {field.placeholder || 'Yes'}
+                </Label>
               </div>
+            )}
 
-              {field.type === 'text' && (
-                <input
-                  type="text"
-                  placeholder={field.placeholder}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  value={formResponses[field.id] || ''}
-                  onChange={(e) => handleInputChange(field.id, e.target.value)}
-                />
-              )}
+            {field.type === 'radio' && field.options && (
+              <div className="space-y-2">
+                {field.options.map((option: string, index: number) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id={`${field.id}-${index}`}
+                      name={field.id}
+                      value={option}
+                      onChange={() => handleInputChange(field.id, option)}
+                      required={field.required}
+                    />
+                    <Label htmlFor={`${field.id}-${index}`} className="text-sm text-gray-600">
+                      {option}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            )}
 
-              {field.type === 'textarea' && (
-                <textarea
-                  placeholder={field.placeholder}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  rows={4}
-                  value={formResponses[field.id] || ''}
-                  onChange={(e) => handleInputChange(field.id, e.target.value)}
-                />
-              )}
-
-              {field.type === 'radio' && field.options && (
-                <div className="space-y-3 pl-1">
-                  {field.options.map((option: string) => (
-                    <div key={option} className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        id={`${field.id}-${option}`}
-                        name={field.id}
-                        className="h-4 w-4 text-primary"
-                        value={option}
-                        checked={formResponses[field.id] === option}
-                        onChange={() => handleInputChange(field.id, option)}
-                      />
-                      <label htmlFor={`${field.id}-${option}`} className="text-gray-700">{option}</label>
-                    </div>
+            {field.type === 'select' && field.options && (
+              <Select
+                onValueChange={(value) => handleInputChange(field.id, value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={field.placeholder || 'Select an option'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {field.options.map((option: string, index: number) => (
+                    <SelectItem key={index} value={option}>
+                      {option}
+                    </SelectItem>
                   ))}
-                </div>
-              )}
+                </SelectContent>
+              </Select>
+            )}
 
-              {field.type === 'checkbox' && (
-                <div className="flex items-center space-x-2 pl-1">
-                  <Switch
-                    id={field.id}
-                    checked={!!formResponses[field.id]}
-                    onCheckedChange={(checked) => handleInputChange(field.id, checked)}
-                  />
-                  <Label htmlFor={field.id} className="text-gray-700">
-                    {formResponses[field.id] ? "Yes" : "No"}
-                  </Label>
-                </div>
-              )}
+            {field.type === 'multi_select' && field.options && (
+              <div className="border rounded-md p-3">
+                <p className="text-sm text-gray-600 mb-2">{field.placeholder || 'Select options'}</p>
+                {field.options.map((option: string, index: number) => (
+                  <div key={index} className="flex items-center space-x-2 mb-1">
+                    <input
+                      type="checkbox"
+                      id={`${field.id}-${index}`}
+                      value={option}
+                      onChange={(e) => {
+                        const currentSelections = Array.isArray(formResponses[field.id])
+                          ? [...formResponses[field.id]]
+                          : [];
 
-              {field.type === 'select' && field.options && (
-                <Select
-                  value={formResponses[field.id] || ""}
-                  onValueChange={(value) => handleInputChange(field.id, value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={field.placeholder || "Select an option"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {field.options.map((option: string) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-          ))}
-        </div>
+                        if (e.target.checked) {
+                          handleInputChange(field.id, [...currentSelections, option]);
+                        } else {
+                          handleInputChange(
+                            field.id,
+                            currentSelections.filter((item: string) => item !== option)
+                          );
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`${field.id}-${index}`} className="text-sm text-gray-600">
+                      {option}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </CardContent>
-
-      <CardFooter className="pt-4 pb-6 px-6">
+      <CardFooter>
         <Button
           type="submit"
-          className="w-full py-6 text-base font-medium"
+          className="w-full"
           disabled={submitting}
         >
           {submitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
+            <div className="flex items-center space-x-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Submitting...</span>
+            </div>
           ) : (
-            "Submit Form"
+            'Submit'
           )}
         </Button>
       </CardFooter>
