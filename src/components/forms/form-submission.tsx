@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { submitFormResponse } from "@/lib/supabase/actions";
 import type { FormData } from "@/lib/supabase/actions";
 
@@ -131,6 +132,24 @@ export function FormSubmission({ form }: { form: FormData }) {
                     {formResponses[field.id] ? "Yes" : "No"}
                   </Label>
                 </div>
+              )}
+
+              {field.type === 'select' && field.options && (
+                <Select
+                  value={formResponses[field.id] || ""}
+                  onValueChange={(value) => handleInputChange(field.id, value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={field.placeholder || "Select an option"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {field.options.map((option: string) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             </div>
           ))}
