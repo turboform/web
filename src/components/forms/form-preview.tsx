@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Plus, Minus, PencilLine, Check, X } from "lucide-react";
@@ -125,8 +126,8 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
   const handleFieldTypeChange = (id: string, type: FormField['type']) => {
     const updatedSchema = editableForm.schema.map(field => {
       if (field.id === id) {
-        // Add default options if changing to radio or select
-        if ((type === 'radio' || type === 'select') && (!field.options || field.options.length === 0)) {
+        // Add default options if changing to radio, select, or multi_select
+        if ((type === 'radio' || type === 'select' || type === 'multi_select') && (!field.options || field.options.length === 0)) {
           return { ...field, type, options: ['Option 1', 'Option 2'] };
         }
         return { ...field, type };
@@ -315,8 +316,8 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                               value={field.type}
                               onValueChange={(value) => handleFieldTypeChange(field.id, value as FormField['type'])}
                             >
-                              <SelectTrigger>
-                                <SelectValue />
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Field Type" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="text">Text</SelectItem>
@@ -324,6 +325,7 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                                 <SelectItem value="checkbox">Yes/No</SelectItem>
                                 <SelectItem value="radio">Multiple Choice</SelectItem>
                                 <SelectItem value="select">Dropdown</SelectItem>
+                                <SelectItem value="multi_select">Multi-Select</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -340,9 +342,27 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                           </div>
                         )}
 
-                        {(field.type === 'radio' || field.type === 'select') && field.options && (
-                          <div className="space-y-2">
-                            <Label>Options</Label>
+                        {(field.type === 'radio' || field.type === 'select' || field.type === 'multi_select') && field.options && (
+                          <div className="space-y-2 mt-4">
+                            <div className="flex justify-between items-center">
+                              <Label>Options</Label>
+                              <div className="flex space-x-2 items-center">
+                                <Input
+                                  placeholder="New option"
+                                  value={newOption}
+                                  onChange={(e) => setNewOption(e.target.value)}
+                                  className="w-32 h-8 text-sm"
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => addOption(field.id)}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
                             <div className="space-y-2">
                               {field.options.map((option, optionIndex) => (
                                 <div key={optionIndex} className="flex space-x-2">
@@ -361,26 +381,6 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                                   </Button>
                                 </div>
                               ))}
-                              <div className="flex space-x-2">
-                                <Input
-                                  value={newOption}
-                                  onChange={(e) => setNewOption(e.target.value)}
-                                  placeholder="Add new option"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => {
-                                    if (newOption.trim()) {
-                                      addOption(field.id);
-                                      setNewOption("");
-                                    }
-                                  }}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                              </div>
                             </div>
                           </div>
                         )}
@@ -428,19 +428,16 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                         </div>
 
                         {field.type === 'text' && (
-                          <Input
-                            type="text"
-                            placeholder={field.placeholder}
-                            className="mt-2"
-                            disabled
+                          <Input 
+                            placeholder={field.placeholder} 
+                            disabled={!editable} 
                           />
                         )}
 
                         {field.type === 'textarea' && (
                           <Textarea
                             placeholder={field.placeholder}
-                            className="mt-2"
-                            disabled
+                            disabled={!editable}
                           />
                         )}
 
@@ -448,7 +445,7 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                           <div className="space-y-2 mt-2">
                             {field.options.map((option, i) => (
                               <div key={i} className="flex items-center space-x-2">
-                                <input type="radio" disabled />
+                                <input type="radio" disabled={!editable} />
                                 <label>{option}</label>
                               </div>
                             ))}
@@ -456,21 +453,36 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                         )}
 
                         {field.type === 'select' && field.options && (
-                          <Select disabled>
-                            <SelectTrigger className="mt-2">
-                              <SelectValue placeholder="Select an option" />
+                          <Select disabled={!editable}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder={field.placeholder || 'Select an option'} />
                             </SelectTrigger>
                             <SelectContent>
-                              {field.options.map((option, i) => (
-                                <SelectItem key={i} value={option}>{option}</SelectItem>
+                              {field.options.map((option, optionIndex) => (
+                                <SelectItem key={optionIndex} value={option}>
+                                  {option}
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         )}
+                        
+                        {field.type === 'multi_select' && field.options && (
+                          <MultiSelect
+                            options={field.options.map(option => ({
+                              label: option,
+                              value: option
+                            }))}
+                            selected={[]}
+                            onChange={() => {}}
+                            placeholder={field.placeholder || 'Select options...'}
+                            disabled={!editable}
+                          />
+                        )}
 
                         {field.type === 'checkbox' && (
                           <div className="flex items-center space-x-2 mt-2">
-                            <Switch id={`switch-${field.id}`} disabled />
+                            <Switch id={`switch-${field.id}`} disabled={!editable} />
                             <Label htmlFor={`switch-${field.id}`} className="cursor-default text-gray-500">No</Label>
                           </div>
                         )}
@@ -527,6 +539,19 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                       ))}
                     </SelectContent>
                   </Select>
+                )}
+                
+                {field.type === 'multi_select' && field.options && (
+                  <MultiSelect
+                    options={field.options.map(option => ({
+                      label: option,
+                      value: option
+                    }))}
+                    selected={[]}
+                    onChange={() => {}}
+                    placeholder={field.placeholder || 'Select options...'}
+                    disabled
+                  />
                 )}
 
                 {field.type === 'checkbox' && (

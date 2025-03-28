@@ -79,10 +79,15 @@ export async function POST(req: NextRequest) {
 }
 
 async function generateFormWithOpenAI(description: string): Promise<{ title: string; formFields: FormField[] }> {
+  const sanitizedDescription = description
+    .replace(/ignore all previous instructions/gi, '[filtered content]')
+    .replace(/disregard your instructions/gi, '[filtered content]')
+    .replace(/system prompt/gi, '[filtered content]');
+
   const prompt = `
 You are a form generation assistant. Create a detailed form based on the following description:
 
-"${description}"
+"${sanitizedDescription}"
 
 Return your response as a JSON object with the following format:
 {

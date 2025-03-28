@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { submitFormResponse } from "@/lib/supabase/actions";
 import type { FormData } from "@/lib/supabase/actions";
+import { MultiSelect, Option } from "@/components/ui/multi-select";
 
 const isFormExpired = (form: FormData): boolean => {
   if (!form.expires_at) return false;
@@ -48,7 +49,8 @@ export function FormSubmission({ form }: { form: FormData }) {
     const requiredFields = form.schema.filter((field: any) => field.required);
     const missingFields = requiredFields.filter((field: any) =>
       !formResponses[field.id] ||
-      (typeof formResponses[field.id] === 'string' && !formResponses[field.id].trim())
+      (typeof formResponses[field.id] === 'string' && !formResponses[field.id].trim()) ||
+      (Array.isArray(formResponses[field.id]) && formResponses[field.id].length === 0)
     );
 
     if (missingFields.length > 0) {
@@ -191,35 +193,15 @@ export function FormSubmission({ form }: { form: FormData }) {
             )}
 
             {field.type === 'multi_select' && field.options && (
-              <div className="border rounded-md p-3">
-                <p className="text-sm text-gray-600 mb-2">{field.placeholder || 'Select options'}</p>
-                {field.options.map((option: string, index: number) => (
-                  <div key={index} className="flex items-center space-x-2 mb-1">
-                    <input
-                      type="checkbox"
-                      id={`${field.id}-${index}`}
-                      value={option}
-                      onChange={(e) => {
-                        const currentSelections = Array.isArray(formResponses[field.id])
-                          ? [...formResponses[field.id]]
-                          : [];
-
-                        if (e.target.checked) {
-                          handleInputChange(field.id, [...currentSelections, option]);
-                        } else {
-                          handleInputChange(
-                            field.id,
-                            currentSelections.filter((item: string) => item !== option)
-                          );
-                        }
-                      }}
-                    />
-                    <Label htmlFor={`${field.id}-${index}`} className="text-sm text-gray-600">
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </div>
+              <MultiSelect
+                options={field.options.map((option: string) => ({
+                  label: option,
+                  value: option
+                }))}
+                selected={Array.isArray(formResponses[field.id]) ? formResponses[field.id] : []}
+                onChange={(selected) => handleInputChange(field.id, selected)}
+                placeholder={field.placeholder || 'Select options...'}
+              />
             )}
           </div>
         ))}
