@@ -135,6 +135,7 @@ Make sure to include a sensible title for the form based on the description.
 
     // Convert OpenAI response to our FormField format and assign UUIDs
     const formFields: FormField[] = parsedResponse.fields.map((field: any) => ({
+      id: crypto.randomUUID(),
       type: field.type,
       label: field.label,
       placeholder: field.placeholder || '',

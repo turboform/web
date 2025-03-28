@@ -12,7 +12,7 @@ import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { LayoutDashboard } from "lucide-react";
 
 export default function NavBar() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAnonymous } = useAuth();
   const pathname = usePathname();
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false);
 
@@ -21,6 +21,9 @@ export default function NavBar() {
   if (hideOnPaths.includes(pathname)) {
     return null;
   }
+
+  // Determine if the user is effectively signed in (not anonymous)
+  const isEffectivelySignedIn = user && !isAnonymous;
 
   return (
     <header className="w-full border-b border-border">
@@ -40,7 +43,7 @@ export default function NavBar() {
         </Link>
 
         <nav className="flex items-center gap-4">
-          {user ? (
+          {isEffectivelySignedIn ? (
             <>
               <Link href="/dashboard">
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
@@ -95,6 +98,7 @@ export default function NavBar() {
         onSignInSuccess={() => {
           setIsSignInDialogOpen(false);
         }}
+        showAnonymousLinkingOption={isAnonymous}
       />
     </header>
   );

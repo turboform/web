@@ -15,18 +15,27 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
+import { useAuth } from "../auth/auth-provider";
 
 interface SignInDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSignInSuccess: () => void;
+  showAnonymousLinkingOption?: boolean;
 }
 
-export function SignInDialog({ isOpen, onClose, onSignInSuccess }: SignInDialogProps) {
+export function SignInDialog({
+  isOpen,
+  onClose,
+  onSignInSuccess,
+  showAnonymousLinkingOption = false
+}: SignInDialogProps) {
+  const { linkAnonymousAccount } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,6 +49,20 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess }: SignInDialogP
     try {
       setIsSigningIn(true);
       setError("");
+
+      if (showAnonymousLinkingOption) {
+        // If this is an anonymous user, we should link the account instead
+        setIsLinking(true);
+        const { success, error: linkError } = await linkAnonymousAccount(email, password);
+
+        if (!success) {
+          throw new Error(linkError);
+        }
+
+        toast.success("Your anonymous account has been converted to a registered account!");
+        onSignInSuccess();
+        return;
+      }
 
       const { error } = await supabaseBrowserClient.auth.signInWithPassword({
         email,
@@ -58,6 +81,7 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess }: SignInDialogP
       toast.error("Failed to sign in");
     } finally {
       setIsSigningIn(false);
+      setIsLinking(false);
     }
   };
 
@@ -71,6 +95,20 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess }: SignInDialogP
     try {
       setIsRegistering(true);
       setError("");
+
+      if (showAnonymousLinkingOption) {
+        // If this is an anonymous user, we should link the account instead
+        setIsLinking(true);
+        const { success, error: linkError } = await linkAnonymousAccount(email, password);
+
+        if (!success) {
+          throw new Error(linkError);
+        }
+
+        toast.success("Your anonymous account has been converted to a registered account!");
+        onSignInSuccess();
+        return;
+      }
 
       const { error } = await supabaseBrowserClient.auth.signUp({
         email,
@@ -92,13 +130,14 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess }: SignInDialogP
       toast.error("Failed to register");
     } finally {
       setIsRegistering(false);
+      setIsLinking(false);
     }
   };
 
   const signInWithGoogle = async () => {
     try {
       setError("");
-      const { error } = await supabaseBrowserClient.auth.signInWithOAuth({
+      const { error } = await supabaseBrowserClient.auth.linkIdentity({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -116,7 +155,7 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess }: SignInDialogP
   const signInWithX = async () => {
     try {
       setError("");
-      const { error } = await supabaseBrowserClient.auth.signInWithOAuth({
+      const { error } = await supabaseBrowserClient.auth.linkIdentity({
         provider: 'twitter',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -146,8 +185,16 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess }: SignInDialogP
         </DialogHeader>
 
         {error && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="mt-4">
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {showAnonymousLinkingOption && (
+          <Alert className="mt-4">
+            <AlertDescription>
+              Signing in will preserve all your anonymous form data and make it accessible from your account.
+            </AlertDescription>
           </Alert>
         )}
 
