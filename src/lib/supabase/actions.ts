@@ -1,8 +1,8 @@
 'use server';
 
-import { createSupabaseAdmin } from './server';
 import { revalidatePath } from 'next/cache';
 import { cache } from 'react';
+import { supabaseAdminClient } from './admin';
 
 export type FormData = {
   id: string;
@@ -16,9 +16,7 @@ export type FormData = {
 // Use cache to prevent redundant fetches during server rendering cycle
 export const getFormById = cache(async (formId: string): Promise<FormData | null> => {
   try {
-    const supabase = createSupabaseAdmin();
-
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdminClient
       .from('forms')
       .select('*')
       .eq('id', formId)
@@ -38,9 +36,7 @@ export const getFormById = cache(async (formId: string): Promise<FormData | null
 
 export async function submitFormResponse(formId: string, responses: Record<string, any>) {
   try {
-    const supabase = createSupabaseAdmin();
-
-    const { error } = await supabase
+    const { error } = await supabaseAdminClient
       .from('form_responses')
       .insert({
         form_id: formId,
