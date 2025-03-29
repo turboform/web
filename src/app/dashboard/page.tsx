@@ -10,8 +10,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { PlusCircle, Eye, Edit, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
+import { ProtectedPage } from '@/components/auth/protected-page';
 
-export default function Dashboard() {
+function Dashboard() {
   const [forms, setForms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -172,8 +173,8 @@ export default function Dashboard() {
                         Are you sure you want to delete this form? This action cannot be undone.
                       </p>
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => {
                             // Close the popover by clicking outside
@@ -201,3 +202,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default ProtectedPage(Dashboard);
