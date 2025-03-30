@@ -9,7 +9,7 @@
     "lint": "next lint",
     "pages:build": "npx @cloudflare/next-on-pages",
     "preview": "npm run pages:build && wrangler pages dev",
-    "deploy": "npm run pages:build && npx wrangler pages deploy",
+    "deploy": "npm run pages:build",
     "migrate-db": "supabase migration up --linked",
     "gen-db-types": "npx supabase gen types typescript --project-id krleqnhlvnyqtkqoyogw --schema public > src/lib/types/database.types.ts"
   },
@@ -52,8 +52,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "wrangler": "4.6.0"
+    "typescript": "^5"
   },
   "optionalDependencies": {
     "@tailwindcss/oxide-linux-x64-gnu": "4.0.17",
