@@ -8,15 +8,13 @@ import { getFormByShortId } from '@/lib/supabase/actions';
 
 export const revalidate = 3600; // Revalidate once per hour
 
-interface FormPageProps {
-  params: {
-    shortId: string;
-  };
-}
+type FormPageProps = Promise<{
+  shortId: string;
+}>;
 
-export async function generateMetadata({ params }: FormPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: FormPageProps }): Promise<Metadata> {
   // Destructure params to avoid the Next.js warning
-  const { shortId } = params;
+  const { shortId } = await params;
   const form = await getFormByShortId(shortId);
 
   if (!form) {
@@ -31,9 +29,9 @@ export async function generateMetadata({ params }: FormPageProps): Promise<Metad
   };
 }
 
-export default async function FormShortPage({ params }: FormPageProps) {
+export default async function FormShortPage({ params }: { params: FormPageProps }) {
   // Destructure params to avoid the Next.js warning
-  const { shortId } = params;
+  const { shortId } = await params;
   const form = await getFormByShortId(shortId);
 
   if (!form || form.is_draft) {

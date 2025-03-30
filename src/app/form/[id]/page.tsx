@@ -8,9 +8,14 @@ import { notFound } from "next/navigation";
 // Export a revalidate boundary for the page
 export const revalidate = 3600; // Revalidate at most once per hour
 
+type FormPageProps = Promise<{
+  id: string;
+}>;
+
 // Return metadata for the page based on the form data
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const form = await getFormById(params.id);
+export async function generateMetadata({ params }: { params: FormPageProps }) {
+  const { id } = await params;
+  const form = await getFormById(id);
 
   if (!form) {
     return {
@@ -25,9 +30,9 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 // Server component for Form page
-export default async function FormPage({ params }: { params: { id: string } }) {
-  const formId = params.id;
-  const form = await getFormById(formId);
+export default async function FormPage({ params }: { params: FormPageProps }) {
+  const { id } = await params;
+  const form = await getFormById(id);
 
   // If form not found, show 404
   if (!form) {
