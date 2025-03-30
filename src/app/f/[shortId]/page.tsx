@@ -8,6 +8,8 @@ import { getFormByShortId } from '@/lib/supabase/actions';
 
 export const revalidate = 3600; // Revalidate once per hour
 
+export const runtime = 'edge';
+
 type FormPageProps = Promise<{
   shortId: string;
 }>;

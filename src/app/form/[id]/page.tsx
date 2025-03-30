@@ -8,6 +8,8 @@ import { notFound } from "next/navigation";
 // Export a revalidate boundary for the page
 export const revalidate = 3600; // Revalidate at most once per hour
 
+export const runtime = 'edge';
+
 type FormPageProps = Promise<{
   id: string;
 }>;

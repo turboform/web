@@ -6,6 +6,8 @@ export const dynamic = 'force-dynamic';
 
 // TODO: double-check if this is needed in the future
 
+export const runtime = 'edge';
+
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');

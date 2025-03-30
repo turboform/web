@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateUser } from '@/lib/supabase/server';
 import { randomBytes } from 'crypto';
 
+export const runtime = 'edge';
+
 // Helper function to generate a random short ID
 function generateShortId(length = 8): string {
   return randomBytes(Math.ceil(length / 2))
@@ -85,7 +87,7 @@ export async function GET(req: NextRequest) {
 
     // Get response counts for each form
     const formIds = userForms.map(form => form.id);
-    
+
     if (formIds.length > 0) {
       const { data: responseData, error: responseError } = await supabase
         .from('form_responses')
@@ -94,13 +96,13 @@ export async function GET(req: NextRequest) {
         .select('form_id')
         .then(({ data, error }) => {
           if (error) return { data: null, error };
-          
+
           // Count responses for each form
           const counts: Record<string, number> = {};
           data?.forEach((row: any) => {
             counts[row.form_id] = (counts[row.form_id] || 0) + 1;
           });
-          
+
           return { data: counts, error: null };
         });
 

@@ -5,13 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { FormGenerator } from "@/components/forms/form-generator";
 import { FormPreview } from "@/components/forms/form-preview";
-import { FormActions } from "@/components/forms/form-actions";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
 import { useAuth } from "@/components/auth/auth-provider";
+
+export const runtime = 'edge';
 
 export default function EditFormPage() {
   const { user } = useAuth();
@@ -81,7 +81,7 @@ export default function EditFormPage() {
 
     try {
       setGenerating(true);
-      
+
       const response = await fetch("/api/generate-form", {
         method: "POST",
         headers: {
@@ -89,13 +89,13 @@ export default function EditFormPage() {
         },
         body: JSON.stringify({ description }),
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to generate form");
       }
-      
+
       const data = await response.json();
-      
+
       // Keep the ID from the original form
       const updatedForm = {
         ...data,
@@ -103,7 +103,7 @@ export default function EditFormPage() {
         user_id: originalForm.user_id,
         created_at: originalForm.created_at,
       };
-      
+
       setForm(updatedForm);
       setEditMode('preview');
       toast.success("Form updated successfully!");
@@ -118,7 +118,7 @@ export default function EditFormPage() {
   const handleSaveForm = async () => {
     try {
       setSaving(true);
-      
+
       const { error } = await supabaseBrowserClient
         .from('forms')
         .update({
@@ -127,11 +127,11 @@ export default function EditFormPage() {
           schema: form.schema
         })
         .eq('id', formId);
-      
+
       if (error) {
         throw error;
       }
-      
+
       setOriginalForm(form);
       toast.success("Form saved successfully!");
     } catch (error) {
@@ -170,9 +170,9 @@ export default function EditFormPage() {
   return (
     <div className="container max-w-3xl mx-auto py-12 px-4">
       <div className="flex items-center mb-10">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="mr-4"
           onClick={() => router.push("/dashboard")}
         >
@@ -181,7 +181,7 @@ export default function EditFormPage() {
         </Button>
         <h1 className="text-3xl font-bold">Edit Form</h1>
       </div>
-      
+
       <div className="max-w-2xl mx-auto w-full">
         {form && (
           <div className="space-y-6">
@@ -193,17 +193,17 @@ export default function EditFormPage() {
                     {editMode === 'preview' ? form.description : 'Edit your form description below'}
                   </CardDescription>
                   {editMode === 'preview' ? (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setEditMode('description')}
                     >
                       Edit Description
                     </Button>
                   ) : (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => {
                         setDescription(originalForm.description);
                         setEditMode('preview');
@@ -214,7 +214,7 @@ export default function EditFormPage() {
                   )}
                 </div>
               </CardHeader>
-              
+
               {editMode === 'description' && (
                 <CardContent>
                   <div className="space-y-4">
@@ -224,7 +224,7 @@ export default function EditFormPage() {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                     />
-                    <Button 
+                    <Button
                       onClick={handleDescriptionUpdate}
                       disabled={generating || !description.trim()}
                       className="w-full"
@@ -242,12 +242,12 @@ export default function EditFormPage() {
                 </CardContent>
               )}
             </Card>
-            
+
             {editMode === 'preview' && (
               <>
-                <FormPreview 
+                <FormPreview
                   key={`form-preview-${form.id}`}
-                  form={form} 
+                  form={form}
                   editable={true}
                   onFormChange={(updatedForm) => setForm(updatedForm)}
                 />
