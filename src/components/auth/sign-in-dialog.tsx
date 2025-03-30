@@ -278,7 +278,7 @@ export function SignInDialog({
                     className="w-full"
                     onClick={() => setShowRegisterForm(true)}
                   >
-                    Don't have an account? Register
+                    Don&apos;t have an account? Register
                   </Button>
                 </div>
               </DialogFooter>

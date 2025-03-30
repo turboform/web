@@ -16,7 +16,7 @@ export default function Home() {
       <div className="flex flex-col items-center text-center mb-10">
         <h1 className="text-4xl font-bold tracking-tight mb-4">TurboForm Builder</h1>
         <p className="text-lg text-muted-foreground max-w-2xl">
-          Create professional forms in seconds using AI. Just describe what you need, and we'll generate it for you.
+          Create professional forms in seconds using AI. Just describe what you need, and we&apos;ll generate it for you.
         </p>
       </div>
 

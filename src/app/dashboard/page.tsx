@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -97,7 +96,7 @@ function Dashboard() {
         </div>
       ) : forms.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 text-center bg-gray-50 rounded-lg border border-gray-200">
-          <h3 className="mb-3 text-xl font-medium">You haven't created any forms yet</h3>
+          <h3 className="mb-3 text-xl font-medium">You haven&apos;t created any forms yet</h3>
           <p className="mb-8 text-gray-600 max-w-md">
             Get started by creating your first form to collect data from users
           </p>

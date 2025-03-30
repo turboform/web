@@ -87,14 +87,14 @@ export default function PricingPage() {
   const { user, isAnonymous } = useAuth();
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false);
-  
+
   const handlePlanSelect = (plan: typeof pricingPlans[number]) => {
     // If user is not logged in or is anonymous, show sign in dialog
     if (!user || isAnonymous) {
       setIsSignInDialogOpen(true);
       return;
     }
-    
+
     // Otherwise, we would handle the plan selection
     // This will be implemented in the next part of the integration
     console.log("Selected plan:", plan.name);
@@ -107,7 +107,7 @@ export default function PricingPage() {
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
           Choose the right plan for your form-building needs. All plans include our core features.
         </p>
-        
+
         {/* Early Bird Banner */}
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 max-w-2xl mx-auto mb-10 flex items-center justify-center">
           <div className="text-amber-800 font-medium flex items-center gap-2">
@@ -115,7 +115,7 @@ export default function PricingPage() {
             <span>Early Bird Pricing! Limited time offer for our launch. Save up to 40% off regular prices.</span>
           </div>
         </div>
-        
+
         {/* Billing Toggle */}
         <div className="flex items-center justify-center space-x-4 mb-12">
           <button
@@ -129,7 +129,7 @@ export default function PricingPage() {
           </button>
           <div className="relative flex items-center">
             <div className="h-6 w-10 rounded-full bg-muted flex items-center p-1 cursor-pointer"
-                 onClick={() => setBillingPeriod(billingPeriod === "monthly" ? "yearly" : "monthly")}>
+              onClick={() => setBillingPeriod(billingPeriod === "monthly" ? "yearly" : "monthly")}>
               <div className={cn(
                 "h-4 w-4 rounded-full bg-primary shadow-sm transition-transform",
                 billingPeriod === "yearly" ? "translate-x-4" : "translate-x-0"
@@ -151,7 +151,7 @@ export default function PricingPage() {
       {/* First 3 plans in a row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         {pricingPlans.slice(0, 3).map((plan, index) => (
-          <div 
+          <div
             key={plan.name}
             className={cn(
               "rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg",
@@ -165,13 +165,13 @@ export default function PricingPage() {
                 </div>
               </div>
             )}
-            
+
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
               <p className="text-sm text-muted-foreground mb-4 h-12">
                 {plan.description}
               </p>
-              
+
               <div className="mb-4">
                 {plan.monthlyPrice !== null ? (
                   <>
@@ -196,7 +196,7 @@ export default function PricingPage() {
                 )}
               </div>
             </div>
-            
+
             <div className="space-y-3 mb-6">
               {plan.features.map((feature, idx) => (
                 <div key={idx} className="flex items-start">
@@ -205,8 +205,8 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-            
-            <Button 
+
+            <Button
               variant={plan.buttonVariant}
               className={cn(
                 "w-full",
@@ -219,10 +219,10 @@ export default function PricingPage() {
           </div>
         ))}
       </div>
-      
+
       {/* Enterprise plan in full width */}
       <div className="mb-16">
-        <div 
+        <div
           className="rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg max-w-4xl mx-auto grid md:grid-cols-[2fr_3fr] gap-6"
         >
           <div>
@@ -230,12 +230,12 @@ export default function PricingPage() {
             <p className="text-sm text-muted-foreground mb-4">
               {pricingPlans[3].description}
             </p>
-            
+
             <div className="mb-4">
               <span className="text-xl font-bold">Custom Pricing</span>
             </div>
-            
-            <Button 
+
+            <Button
               variant={pricingPlans[3].buttonVariant}
               className="w-full"
               onClick={() => handlePlanSelect(pricingPlans[3])}
@@ -243,7 +243,7 @@ export default function PricingPage() {
               {pricingPlans[3].buttonText}
             </Button>
           </div>
-          
+
           <div className="space-y-3">
             {pricingPlans[3].features.map((feature, idx) => (
               <div key={idx} className="flex items-start">
@@ -254,11 +254,11 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
-      
+
       {/* FAQ Section */}
       <div className="max-w-3xl mx-auto mt-20">
         <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
-        
+
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-medium mb-2">Can I switch plans later?</h3>
@@ -266,21 +266,21 @@ export default function PricingPage() {
               Yes, you can upgrade, downgrade, or cancel your plan at any time. Changes to your subscription will be applied immediately.
             </p>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-medium mb-2">What happens if I exceed my monthly response limit?</h3>
             <p className="text-muted-foreground">
-              If you reach your monthly response limit, you'll be notified and have the option to upgrade to a higher plan. No data will be lost.
+              If you reach your monthly response limit, you&apos;ll be notified and have the option to upgrade to a higher plan. No data will be lost.
             </p>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-medium mb-2">Is there a free trial?</h3>
             <p className="text-muted-foreground">
               Yes! The Tinker plan is free forever with limited features. For paid plans, we offer a 14-day free trial so you can test all features before committing.
             </p>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-medium mb-2">Do you offer discounts for nonprofits or educational institutions?</h3>
             <p className="text-muted-foreground">
@@ -289,7 +289,7 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
-      
+
       {/* Contact Section */}
       <div className="bg-primary/5 rounded-lg p-8 mt-16 text-center">
         <h2 className="text-xl font-bold mb-2">Still have questions?</h2>
@@ -300,7 +300,7 @@ export default function PricingPage() {
           <Link href="/contact">Contact Us</Link>
         </Button>
       </div>
-      
+
       {/* Sign In Dialog */}
       <SignInDialog
         isOpen={isSignInDialogOpen}
