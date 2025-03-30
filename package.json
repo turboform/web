@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "preview": "npm run pages:build && wrangler pages dev",
+    "deploy": "npm run pages:build && wrangler pages deploy",
     "migrate-db": "supabase migration up --linked",
     "gen-db-types": "npx supabase gen types typescript --project-id krleqnhlvnyqtkqoyogw --schema public > src/lib/types/database.types.ts"
   },
@@ -40,6 +43,7 @@
     "zod": "3.24.2"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "1.13.10",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
