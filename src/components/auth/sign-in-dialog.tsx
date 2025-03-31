@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -40,11 +40,26 @@ export function SignInDialog({
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [error, setError] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = useRef<any>(null);
+
+  // Force refresh the CAPTCHA token when switching between forms
+  const refreshCaptcha = () => {
+    if (turnstileRef.current && turnstileRef.current.reset) {
+      turnstileRef.current.reset();
+      setCaptchaToken("");
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       setError("Please enter both email and password");
+      return;
+    }
+
+    if (!captchaToken) {
+      setError("Please wait for the security check to complete");
+      refreshCaptcha();
       return;
     }
 
@@ -70,7 +85,7 @@ export function SignInDialog({
         email,
         password,
         options: {
-          captchaToken: captchaToken || '',
+          captchaToken: captchaToken,
         },
       });
 
@@ -84,6 +99,7 @@ export function SignInDialog({
       console.error("Error signing in:", error);
       setError(error.message || "Failed to sign in");
       toast.error("Failed to sign in");
+      refreshCaptcha();
     } finally {
       setIsSigningIn(false);
       setIsLinking(false);
@@ -94,6 +110,12 @@ export function SignInDialog({
     e.preventDefault();
     if (!email || !password) {
       setError("Please enter both email and password");
+      return;
+    }
+
+    if (!captchaToken) {
+      setError("Please wait for the security check to complete");
+      refreshCaptcha();
       return;
     }
 
@@ -119,8 +141,8 @@ export function SignInDialog({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          captchaToken: captchaToken || '',
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+          captchaToken: captchaToken,
         },
       });
 
@@ -134,6 +156,7 @@ export function SignInDialog({
       console.error("Error registering:", error);
       setError(error.message || "Failed to register");
       toast.error("Failed to register");
+      refreshCaptcha();
     } finally {
       setIsRegistering(false);
       setIsLinking(false);
@@ -142,6 +165,7 @@ export function SignInDialog({
 
   const signInWithGoogle = async () => {
     try {
+
       setError("");
       const { error } = await supabaseBrowserClient.auth.linkIdentity({
         provider: 'google',
@@ -158,11 +182,24 @@ export function SignInDialog({
     }
   };
 
+  // Listen for dialog open/close to refresh captcha
+  const handleDialogChange = (open: boolean) => {
+    if (!open) {
+      onClose();
+    } else {
+      // Reset form errors when opening the dialog
+      setError("");
+
+      // Small delay to ensure Turnstile is properly mounted
+      setTimeout(() => {
+        refreshCaptcha();
+      }, 500);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) onClose();
-    }}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{showRegisterForm ? "Create an account" : "Sign in"}</DialogTitle>
           <DialogDescription>
@@ -175,14 +212,6 @@ export function SignInDialog({
         {error && (
           <Alert variant="destructive" className="mt-4">
             <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {showAnonymousLinkingOption && (
-          <Alert className="mt-4">
-            <AlertDescription>
-              Signing in will preserve all your anonymous form data and make it accessible from your account.
-            </AlertDescription>
           </Alert>
         )}
 
@@ -212,16 +241,41 @@ export function SignInDialog({
               />
             </div>
 
+            <div className='mt-4'>
+              <Turnstile
+                ref={turnstileRef}
+                className='w-full flex items-center justify-center'
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onSuccess={(token) => setCaptchaToken(token)}
+                options={{ size: 'invisible' }}
+                onError={() => {
+                  setCaptchaToken("");
+                  setError("Security check failed. Please try again.");
+                }}
+                onExpire={() => {
+                  setCaptchaToken("");
+                  setError("Security check expired. Please refresh and try again.");
+                }}
+              />
+            </div>
+
             <DialogFooter>
               <div className="w-full flex flex-col gap-2">
-                <Button type="submit" className="w-full" disabled={isRegistering}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isRegistering || !captchaToken}
+                >
                   {isRegistering ? "Creating account..." : "Create account"}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full"
-                  onClick={() => setShowRegisterForm(false)}
+                  onClick={() => {
+                    setShowRegisterForm(false);
+                    refreshCaptcha();
+                  }}
                 >
                   Already have an account? Sign in
                 </Button>
@@ -255,16 +309,41 @@ export function SignInDialog({
                 />
               </div>
 
+              <div className='mt-4'>
+                <Turnstile
+                  ref={turnstileRef}
+                  className='w-full flex items-center justify-center'
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(token) => setCaptchaToken(token)}
+                  options={{ size: 'invisible' }}
+                  onError={() => {
+                    setCaptchaToken("");
+                    setError("Security check failed. Please try again.");
+                  }}
+                  onExpire={() => {
+                    setCaptchaToken("");
+                    setError("Security check expired. Please refresh and try again.");
+                  }}
+                />
+              </div>
+
               <DialogFooter>
                 <div className="w-full flex flex-col gap-2">
-                  <Button type="submit" className="w-full" disabled={isSigningIn}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSigningIn || !captchaToken}
+                  >
                     {isSigningIn ? "Signing in..." : "Sign in"}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     className="w-full"
-                    onClick={() => setShowRegisterForm(true)}
+                    onClick={() => {
+                      setShowRegisterForm(true);
+                      refreshCaptcha();
+                    }}
                   >
                     Don&apos;t have an account? Register
                   </Button>
@@ -291,13 +370,6 @@ export function SignInDialog({
               >
                 Google
               </Button>
-            </div>
-            <div className='mt-8'>
-              <Turnstile
-                className='w-full flex items-center justify-center'
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-                onSuccess={(token) => setCaptchaToken(token)}
-              />
             </div>
           </>
         )}
