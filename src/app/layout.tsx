@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import NavBar from "@/components/layout/nav-bar";
 import { Footer } from "@/components/layout/footer";
+import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,14 +35,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <AuthProvider>
-          <NavBar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <Toaster position="bottom-center" />
-        </AuthProvider>
+        <PostHogProvider>
+          <AuthProvider>
+            <NavBar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <Toaster position="bottom-center" />
+          </AuthProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
