@@ -11,6 +11,7 @@ type AuthContextType = {
   isLoading: boolean;
   isAnonymous: boolean;
   signOut: () => Promise<void>;
+  signInAnonymously: (captchaToken: string) => Promise<{ success: boolean; error?: string }>;
   linkAnonymousAccount: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
 };
 
@@ -35,11 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (currentSession) {
           setSession(currentSession);
           setUser(currentSession.user);
-          // Check if the user is anonymous (no email)
+          // Check if the user is anonymous
           setIsAnonymous(!!currentSession.user?.is_anonymous);
-        } else {
-          // If no session exists, create an anonymous user
-          await signInAnonymously();
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
@@ -58,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Update anonymous status
         if (newSession?.user) {
-          setIsAnonymous(!newSession.user.email);
+          setIsAnonymous(!!newSession.user.is_anonymous);
         }
 
         setIsLoading(false);
@@ -74,20 +72,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [router]);
 
-  // Function to sign in anonymously
-  const signInAnonymously = async () => {
+  // Function to create an anonymous user when needed
+  const signInAnonymously = async (captchaToken: string) => {
     try {
-      const { data, error } = await supabaseBrowserClient.auth.signInAnonymously();
-
-      if (error) {
-        throw error;
+      // If user is already signed in, don't create a new anonymous account
+      if (user) {
+        return { success: true };
       }
 
-      setIsAnonymous(!!data.user?.is_anonymous);
-      return data;
-    } catch (error) {
+      // Create an anonymous user using Supabase's built-in method
+      const { data, error } = await supabaseBrowserClient.auth.signInAnonymously({ options: { captchaToken } });
+
+      if (error) {
+        console.error("Error signing in anonymously:", error);
+        return { success: false, error: error.message };
+      }
+
+      if (data?.user) {
+        setIsAnonymous(true);
+        return { success: true };
+      }
+
+      return { success: false, error: "Failed to create anonymous account" };
+    } catch (error: any) {
       console.error("Error signing in anonymously:", error);
-      return null;
+      return { success: false, error: error.message };
     }
   };
 
@@ -170,9 +179,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Force a router refresh after signout
       router.push('/');
-
-      // Create a new anonymous user after signing out
-      await signInAnonymously();
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -185,6 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isAnonymous,
       signOut,
+      signInAnonymously,
       linkAnonymousAccount
     }}>
       {children}

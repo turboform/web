@@ -5,14 +5,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useAuth } from "@/components/auth/auth-provider";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 interface FormGeneratorProps {
   onFormGenerated: (form: any) => void;
 }
 
 export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
+  const { user, signInAnonymously } = useAuth();
   const [description, setDescription] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +28,15 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
 
     try {
       setIsGenerating(true);
+
+      // Sign in anonymously if needed (only when generating a form)
+      if (!user) {
+        const { success, error } = await signInAnonymously(captchaToken);
+        if (!success) {
+          console.error("Error signing in anonymously:", error);
+          // Continue anyway, the API will handle the case where there's no user
+        }
+      }
 
       const response = await fetch("/api/generate-form", {
         method: "POST",
@@ -89,6 +102,12 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
           </Button>
         </CardFooter>
       </form>
+      <Turnstile
+        className='w-full flex items-center justify-center'
+        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+        onSuccess={(token) => setCaptchaToken(token)}
+        options={{ size: 'invisible' }}
+      />
     </Card>
   );
 }
