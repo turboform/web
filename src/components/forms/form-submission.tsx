@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -23,9 +24,9 @@ const isFormExpired = (form: FormData): boolean => {
 };
 
 export function FormSubmission({ form }: { form: FormData }) {
+  const router = useRouter();
   const [formResponses, setFormResponses] = useState<Record<string, any>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   // Check if the form is expired
   const expired = isFormExpired(form);
@@ -67,12 +68,18 @@ export function FormSubmission({ form }: { form: FormData }) {
         throw new Error('Failed to submit form');
       }
 
-      setSubmitted(true);
+      // Show toast and redirect to the form-submitted page
       toast.success("Form submitted successfully!");
+      
+      // Short delay to allow the toast to be seen
+      setTimeout(() => {
+        // Redirect to the form-submitted page with the form name
+        router.push(`/form-submitted?formName=${encodeURIComponent(form.title)}`);
+      }, 1000);
+      
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error("Failed to submit form. Please try again.");
-    } finally {
       setSubmitting(false);
     }
   };
@@ -94,20 +101,6 @@ export function FormSubmission({ form }: { form: FormData }) {
               This form is no longer accepting responses as it has passed its expiration date.
             </p>
           </div>
-        </CardContent>
-      </div>
-    );
-  }
-
-  if (submitted) {
-    return (
-      <div className="space-y-4">
-        <CardContent className="pt-6">
-          <Alert className="bg-green-50 border-green-200">
-            <AlertDescription className="py-2">
-              Your submission was successful. Thank you for your response!
-            </AlertDescription>
-          </Alert>
         </CardContent>
       </div>
     );
