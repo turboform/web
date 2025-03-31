@@ -25,13 +25,15 @@ interface SignInDialogProps {
   showAnonymousLinkingOption?: boolean;
 }
 
+// TODO: Refine the copy on this page
+
 export function SignInDialog({
   isOpen,
   onClose,
   onSignInSuccess,
   showAnonymousLinkingOption = false
 }: SignInDialogProps) {
-  const { linkAnonymousAccount } = useAuth();
+  const { user, linkAnonymousAccount } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -67,8 +69,11 @@ export function SignInDialog({
       setIsSigningIn(true);
       setError("");
 
-      if (showAnonymousLinkingOption) {
-        // If this is an anonymous user, we should link the account instead
+      // Check if user is anonymous
+      const isAnonymousUser = !!user?.is_anonymous;
+
+      // If the current user is anonymous, link the account
+      if (isAnonymousUser) {
         setIsLinking(true);
         const { success, error: linkError } = await linkAnonymousAccount(email, password);
 
@@ -81,6 +86,7 @@ export function SignInDialog({
         return;
       }
 
+      // Otherwise, perform regular sign in
       const { error } = await supabaseBrowserClient.auth.signInWithPassword({
         email,
         password,
@@ -123,8 +129,11 @@ export function SignInDialog({
       setIsRegistering(true);
       setError("");
 
-      if (showAnonymousLinkingOption) {
-        // If this is an anonymous user, we should link the account instead
+      // Check if user is anonymous
+      const isAnonymousUser = !!user?.is_anonymous;
+
+      // If the current user is anonymous, link the account
+      if (isAnonymousUser) {
         setIsLinking(true);
         const { success, error: linkError } = await linkAnonymousAccount(email, password);
 
@@ -137,6 +146,7 @@ export function SignInDialog({
         return;
       }
 
+      // Otherwise, perform regular registration
       const { error } = await supabaseBrowserClient.auth.signUp({
         email,
         password,
@@ -167,17 +177,42 @@ export function SignInDialog({
     try {
 
       setError("");
-      const { error } = await supabaseBrowserClient.auth.linkIdentity({
-        provider: 'google',
+
+      const isAnonymousUser = !!user?.is_anonymous;
+
+      // If the current user is anonymous, link the account
+      if (isAnonymousUser) {
+        setIsLinking(true);
+        const { data, error } = await supabaseBrowserClient.auth.linkIdentity({
+          provider: "google",
+          options: {
+            redirectTo: `${window.location.origin}/dashboard`,
+          },
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        toast.success("Your anonymous account has been converted to a registered account!");
+        onSignInSuccess();
+        return;
+      }
+
+      // The browser will be redirected to Google's OAuth page, and then back to our callback URL
+      await supabaseBrowserClient.auth.signInWithOAuth({
+        provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/dashboard`,
+          // Don't skip the browser redirect - we want the full OAuth flow
+          skipBrowserRedirect: false,
         },
       });
 
-      if (error) throw error;
+      // This code won't execute immediately as the browser will redirect
     } catch (error: any) {
-      console.error("Error signing in with Google:", error);
-      setError(error.message || "Failed to sign in with Google");
+      console.error("Error starting Google sign-in:", error);
+      setError(error.message || "Failed to start Google sign-in");
       toast.error("Failed to sign in with Google");
     }
   };
@@ -201,16 +236,22 @@ export function SignInDialog({
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{showRegisterForm ? "Create an account" : "Sign in"}</DialogTitle>
+          <DialogTitle>
+            {showAnonymousLinkingOption
+              ? "Convert to a Registered Account"
+              : showRegisterForm
+                ? "Create an Account"
+                : "Sign In"}
+          </DialogTitle>
           <DialogDescription>
-            {showRegisterForm
-              ? "Create an account to save and share your forms"
-              : "Sign in to save and share your forms"}
+            {showAnonymousLinkingOption
+              ? "Convert your anonymous account to a registered account to save your forms."
+              : "Sign in or create an account to save and share your forms."}
           </DialogDescription>
         </DialogHeader>
 
         {error && (
-          <Alert variant="destructive" className="mt-4">
+          <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}

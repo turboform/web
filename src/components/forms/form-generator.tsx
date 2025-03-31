@@ -95,7 +95,7 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
             type="submit"
             className="w-full"
             size="lg"
-            disabled={isGenerating || !description.trim()}
+            disabled={isGenerating}
           >
             {/* TODO: Add proper keyboard shortcut icons and tooltip */}
             {isGenerating ? "Generating..." : "Generate Form (Cmd+Enter)"}
