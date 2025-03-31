@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
 import { useAuth } from "../auth/auth-provider";
+import { Turnstile } from '@marsidev/react-turnstile'
 
 interface SignInDialogProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ export function SignInDialog({
   const [isLinking, setIsLinking] = useState(false);
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +69,9 @@ export function SignInDialog({
       const { error } = await supabaseBrowserClient.auth.signInWithPassword({
         email,
         password,
+        options: {
+          captchaToken: captchaToken || '',
+        },
       });
 
       if (error) {
@@ -115,6 +120,7 @@ export function SignInDialog({
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          captchaToken: captchaToken || '',
         },
       });
 
@@ -149,24 +155,6 @@ export function SignInDialog({
       console.error("Error signing in with Google:", error);
       setError(error.message || "Failed to sign in with Google");
       toast.error("Failed to sign in with Google");
-    }
-  };
-
-  const signInWithX = async () => {
-    try {
-      setError("");
-      const { error } = await supabaseBrowserClient.auth.linkIdentity({
-        provider: 'twitter',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) throw error;
-    } catch (error: any) {
-      console.error("Error signing in with X:", error);
-      setError(error.message || "Failed to sign in with X");
-      toast.error("Failed to sign in with X");
     }
   };
 
@@ -294,7 +282,7 @@ export function SignInDialog({
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -303,14 +291,13 @@ export function SignInDialog({
               >
                 Google
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={signInWithX}
-              >
-                X
-              </Button>
+            </div>
+            <div className='mt-8'>
+              <Turnstile
+                className='w-full flex items-center justify-center'
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onSuccess={(token) => setCaptchaToken(token)}
+              />
             </div>
           </>
         )}
