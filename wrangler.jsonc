@@ -5,5 +5,16 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
-  "pages_build_output_dir": ".vercel/output/static"
+  "pages_build_output_dir": ".vercel/output/static",
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://krleqnhlvnyqtkqoyogw.supabase.co",
+    "SUPABASE_URL": "https://krleqnhlvnyqtkqoyogw.supabase.co",
+    "NEXT_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAABDJBdKrAc35rNYp",
+    "NEXT_PUBLIC_POSTHOG_KEY": "phc_4ozFzjv9pS6t7nEKHvYzwTt7uLBNhRvx65jlkpoirtV",
+    "NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID": "price_1R8pY3GSS5XC9znca9MI7G8W",
+    "NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID": "price_1R8pZQGSS5XC9znctdxrxOxj",
+    "NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID": "price_1R8pc0GSS5XC9zncDhljuzTa",
+    "NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID": "price_1R8pcnGSS5XC9zncfrC8Cn9r",
+    "API_BASE_URL": "https://internal-workers-prd.turboform.ai"
+  }
 }
