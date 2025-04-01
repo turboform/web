@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { PlusCircle, Eye, Edit, Trash2, AlertTriangle, BarChart } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { PlusCircle, Eye, Edit, Trash2, AlertTriangle, BarChart, Globe, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
 import { ProtectedPage } from '@/components/auth/protected-page';
@@ -13,10 +13,14 @@ import { useAuth } from '@/components/auth/auth-provider';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/utils';
 import { Form } from '@/lib/types/form';
+import axios from 'axios';
+import { useState } from 'react';
 
 function Dashboard() {
   const router = useRouter();
   const { session } = useAuth();
+  const [formToDelete, setFormToDelete] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data, error, isLoading, mutate } = useSWR(session?.access_token ? [
     '/api/forms',
@@ -39,9 +43,36 @@ function Dashboard() {
       // Update the forms list
       await mutate();
       toast.success("Form deleted successfully");
+      setDeleteDialogOpen(false);
     } catch (error) {
       console.error("Error deleting form:", error);
       toast.error("Failed to delete form");
+    }
+  };
+
+  const handleTogglePublish = async (formId: string, currentStatus: boolean) => {
+    try {
+      const response = await axios.post(
+        '/api/forms/publish',
+        { formId, isPublished: !currentStatus },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        await mutate();
+        toast.success(currentStatus 
+          ? "Form has been unpublished and is now in draft mode" 
+          : "Form has been published and is now live"
+        );
+      }
+    } catch (error) {
+      console.error("Error toggling form publish status:", error);
+      toast.error("Failed to update form status");
     }
   };
 
@@ -90,7 +121,15 @@ function Dashboard() {
           {(data?.forms || []).map((form) => (
             <Card key={form.id} className="overflow-hidden shadow-sm border-gray-200 flex flex-col">
               <CardHeader className="p-6 pb-3">
-                <CardTitle className="text-xl font-semibold truncate">{form.title}</CardTitle>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-xl font-semibold truncate">{form.title}</CardTitle>
+                  <div className={`px-2 py-1 text-xs rounded-full ${form.is_draft 
+                    ? 'bg-yellow-100 text-yellow-800' 
+                    : 'bg-green-100 text-green-800'}`}
+                  >
+                    {form.is_draft ? 'Draft' : 'Published'}
+                  </div>
+                </div>
                 <CardDescription className="text-sm text-gray-500 mt-1">
                   Created {new Date(form.created_at || '').toLocaleDateString()}
                 </CardDescription>
@@ -112,7 +151,7 @@ function Dashboard() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="grid grid-cols-4 gap-2 p-6 pt-0">
+              <CardFooter className="grid grid-cols-5 gap-2 p-6 pt-0">
                 <Button
                   variant="outline"
                   size="sm"
@@ -140,48 +179,65 @@ function Dashboard() {
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
                 </Button>
-                <Popover>
-                  <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => handleTogglePublish(form.id, !form.is_draft)}
+                  title={form.is_draft ? "Publish this form" : "Unpublish this form"}
+                >
+                  {form.is_draft 
+                    ? <Globe className="w-4 h-4 mr-1" /> 
+                    : <Lock className="w-4 h-4 mr-1" />
+                  }
+                  {form.is_draft ? "Publish" : "Draft"}
+                </Button>
+                <Dialog open={deleteDialogOpen && formToDelete === form.id} onOpenChange={(open) => {
+                  setDeleteDialogOpen(open);
+                  if (!open) setFormToDelete(null);
+                }}>
+                  <DialogTrigger asChild>
                     <Button
                       variant="outline"
                       size="sm"
                       className="w-full justify-center text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        setFormToDelete(form.id);
+                        setDeleteDialogOpen(true);
+                      }}
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
                       Delete
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-4">
-                    <div className="space-y-4">
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
                       <div className="flex items-center gap-2 text-amber-500">
                         <AlertTriangle className="h-5 w-5" />
-                        <h4 className="font-medium">Confirm deletion</h4>
+                        <DialogTitle>Confirm deletion</DialogTitle>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <DialogDescription className="pt-2">
                         Are you sure you want to delete this form? This action cannot be undone.
-                      </p>
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            // Close the popover by clicking outside
-                            document.body.click();
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDeleteForm(form.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex justify-end gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDeleteDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => formToDelete && handleDeleteForm(formToDelete)}
+                      >
+                        Delete
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardFooter>
             </Card>
           ))}
