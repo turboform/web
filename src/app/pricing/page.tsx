@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Star } from "lucide-react";
+import { Check, Loader2, Star } from "lucide-react";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { getStripe } from "@/lib/stripe/client";
+import { toast } from "sonner";
+import axios from "axios";
 
 const pricingPlans = [
   {
@@ -32,6 +35,11 @@ const pricingPlans = [
     description: "For growing teams and professionals who need more responses and AI insights.",
     monthlyPrice: 29,
     yearlyPrice: 290,
+    earlyBirdMonthlyPrice: 15,
+    earlyBirdYearlyPrice: 150,
+    hasDiscount: true,
+    monthlyPriceId: process.env.NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID,
+    yearlyPriceId: process.env.NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID,
     features: [
       "Up to 5,000 responses per month",
       "Advanced AI-driven data analysis",
@@ -50,6 +58,11 @@ const pricingPlans = [
     description: "For power users and businesses that demand deep insights and automation.",
     monthlyPrice: 79,
     yearlyPrice: 790,
+    earlyBirdMonthlyPrice: 39,
+    earlyBirdYearlyPrice: 390,
+    hasDiscount: true,
+    monthlyPriceId: process.env.NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID,
+    yearlyPriceId: process.env.NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID,
     features: [
       "Unlimited responses",
       "AI-powered response predictions & trends",
@@ -84,20 +97,80 @@ const pricingPlans = [
 ];
 
 export default function PricingPage() {
-  const { user, isAnonymous } = useAuth();
+  const { session, user, isAnonymous } = useAuth();
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<typeof pricingPlans[number] | null>(null);
 
-  const handlePlanSelect = (plan: typeof pricingPlans[number]) => {
+  const handlePlanSelect = async (plan: typeof pricingPlans[number]) => {
     // If user is not logged in or is anonymous, show sign in dialog
     if (!user || isAnonymous) {
+      setSelectedPlan(plan); // Store the selected plan for after sign-in
       setIsSignInDialogOpen(true);
       return;
     }
 
-    // Otherwise, we would handle the plan selection
-    // This will be implemented in the next part of the integration
-    console.log("Selected plan:", plan.name);
+    try {
+      setLoadingPlanId(plan.name);
+      setIsLoading(true);
+
+      // Determine which price ID to use based on billing period
+      const priceId = billingPeriod === "monthly"
+        ? plan.monthlyPriceId
+        : plan.yearlyPriceId;
+
+      if (!priceId) {
+        toast.error("This plan is not available for purchase yet");
+        return;
+      }
+
+      const stripe = await getStripe();
+      if (!stripe) {
+        toast.error("Failed to load payment processor");
+        return;
+      }
+
+      // Call our API endpoint to create a checkout session
+      const result = await axios.post('/api/stripe/session', { priceId },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      if (result.data.error) {
+        toast.error(result.data.error.message || "Failed to create checkout session");
+        return;
+      }
+
+      if (result.data?.sessionId) {
+        await stripe.redirectToCheckout({ sessionId: result.data.sessionId });
+      } else {
+        toast.error("Invalid response from server");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Failed to start checkout process");
+    } finally {
+      setIsLoading(false);
+      setLoadingPlanId(null);
+    }
+  };
+
+  // Handle successful sign-in, continue with payment if a plan was selected
+  const handleSignInSuccess = () => {
+    setIsSignInDialogOpen(false);
+    // If a plan was selected before signing in, continue with that plan
+    if (selectedPlan) {
+      const plan = selectedPlan;
+      setSelectedPlan(null);
+      // Process the payment in the next tick to ensure the auth state is updated
+      setTimeout(() => handlePlanSelect(plan), 0);
+    }
   };
 
   return (
@@ -109,11 +182,15 @@ export default function PricingPage() {
         </p>
 
         {/* Early Bird Banner */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 max-w-2xl mx-auto mb-10 flex items-center justify-center">
-          <div className="text-amber-800 font-medium flex items-center gap-2">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 max-w-3xl mx-auto mb-10 flex flex-col items-center justify-center">
+          <div className="text-amber-800 font-medium flex items-center gap-2 mb-2">
             <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-            <span>Early Bird Pricing! Limited time offer for our launch. Save up to 40% off regular prices.</span>
+            <span className="font-bold">EARLY BIRD PRICING</span>
+            <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
           </div>
+          <p className="text-amber-700 text-center">
+            Limited time offer! Get 48% off Flow plan and 50% off Optimize plan. Prices will increase soon.
+          </p>
         </div>
 
         {/* Billing Toggle */}
@@ -175,9 +252,18 @@ export default function PricingPage() {
               <div className="mb-4">
                 {plan.monthlyPrice !== null ? (
                   <>
-                    <span className="text-3xl font-bold">
-                      ${billingPeriod === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
-                    </span>
+                    {plan.hasDiscount ? (
+                      <span className="text-3xl font-bold">
+                        ${billingPeriod === "monthly" ? plan.earlyBirdMonthlyPrice : plan.earlyBirdYearlyPrice}
+                        <span className="text-muted-foreground text-sm ml-1 line-through">
+                          ${billingPeriod === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-3xl font-bold">
+                        ${billingPeriod === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
+                      </span>
+                    )}
                     {plan.monthlyPrice > 0 && (
                       <>
                         <span className="text-muted-foreground text-sm ml-1">
@@ -210,11 +296,20 @@ export default function PricingPage() {
               variant={plan.buttonVariant}
               className={cn(
                 "w-full",
-                plan.isPopular ? "bg-primary hover:bg-primary/90" : ""
+                plan.isPopular ? "bg-primary hover:bg-primary/90" : "",
+                isLoading && loadingPlanId === plan.name ? "bg-primary/50 text-primary-foreground" : ""
               )}
               onClick={() => handlePlanSelect(plan)}
+              disabled={isLoading && loadingPlanId === plan.name}
             >
-              {plan.buttonText}
+              {isLoading && loadingPlanId === plan.name ? (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="ml-2">Processing...</span>
+                </div>
+              ) : (
+                plan.buttonText
+              )}
             </Button>
           </div>
         ))}
@@ -305,7 +400,7 @@ export default function PricingPage() {
       <SignInDialog
         isOpen={isSignInDialogOpen}
         onClose={() => setIsSignInDialogOpen(false)}
-        onSignInSuccess={() => setIsSignInDialogOpen(false)}
+        onSignInSuccess={handleSignInSuccess}
       />
     </div>
   );
