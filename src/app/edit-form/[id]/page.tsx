@@ -4,17 +4,20 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar } from "lucide-react";
 import { FormPreview } from "@/components/forms/form-preview";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
 import { useAuth } from "@/components/auth/auth-provider";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Label } from "@/components/ui/label";
+import axios from 'axios';
 
 export const runtime = 'edge';
 
 export default function EditFormPage() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const params = useParams();
   const formId = params.id as string;
   const router = useRouter();
@@ -26,6 +29,7 @@ export default function EditFormPage() {
   const [editMode, setEditMode] = useState<'description' | 'preview'>('preview');
   const [description, setDescription] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [expirationDate, setExpirationDate] = useState<Date | undefined>(undefined);
 
   // Fetch the form data when the component mounts
   useEffect(() => {
@@ -52,6 +56,11 @@ export default function EditFormPage() {
           toast.error("You don't have permission to edit this form");
           router.push("/dashboard");
           return;
+        }
+
+        // Parse expiration date if it exists
+        if (data.expires_at) {
+          setExpirationDate(new Date(data.expires_at));
         }
 
         setOriginalForm(data);
@@ -120,20 +129,28 @@ export default function EditFormPage() {
     try {
       setSaving(true);
 
-      const { error } = await supabaseBrowserClient
-        .from('forms')
-        .update({
-          title: form.title,
-          description: form.description,
-          schema: form.schema
-        })
-        .eq('id', formId);
+      const response = await axios.put<{ form: any }>(`/api/forms/${formId}`, {
+        title: form.title,
+        description: form.description,
+        schema: form.schema,
+        expires_at: expirationDate ? expirationDate.toISOString() : null,
+      },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+        });
 
-      if (error) {
-        throw error;
+      if (!response.data) {
+        throw new Error('Failed to save form');
       }
 
-      setOriginalForm(form);
+      const { form: updatedForm } = response.data;
+
+      // Update the original form data with the latest changes
+      setOriginalForm(updatedForm);
+
       toast.success("Form saved successfully!");
     } catch (error) {
       console.error("Error saving form:", error);
@@ -145,19 +162,21 @@ export default function EditFormPage() {
 
   if (loading) {
     return (
-      <div className="container max-w-3xl mx-auto py-16 flex flex-col items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-gray-600">Loading form...</p>
+      <div className="container flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="mt-4">Loading form...</p>
+        </div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="container max-w-3xl mx-auto py-16 px-4">
-        <Card>
+      <div className="container flex flex-col items-center justify-center min-h-screen">
+        <Card className="max-w-md w-full">
           <CardHeader>
-            <CardTitle>Sign In Required</CardTitle>
+            <CardTitle>Access Denied</CardTitle>
             <CardDescription>You need to sign in to edit this form</CardDescription>
           </CardHeader>
           <CardContent>
@@ -246,6 +265,43 @@ export default function EditFormPage() {
 
             {editMode === 'preview' && (
               <>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center">
+                      <Calendar className="mr-2 h-5 w-5 text-muted-foreground" />
+                      <CardTitle className="text-lg">Form Expiration</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Set a date when this form will stop accepting responses
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <Label htmlFor="expirationDate">Expiration Date (Optional)</Label>
+                      <DatePicker
+                        date={expirationDate}
+                        setDate={setExpirationDate}
+                        label="Set expiration date"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {expirationDate
+                          ? `This form will stop accepting responses after ${expirationDate.toLocaleDateString()} at ${expirationDate.toLocaleTimeString()}.`
+                          : "After this date, the form will no longer accept new responses."}
+                      </p>
+                      {expirationDate && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => setExpirationDate(undefined)}
+                        >
+                          Remove Expiration
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <FormPreview
                   key={`form-preview-${form.id}`}
                   form={form}

@@ -254,6 +254,12 @@ function Dashboard() {
                   </DialogContent>
                 </Dialog>
               </CardFooter>
+              {
+                !!form.expires_at &&
+                <p className='text-xs text-gray-700 text-center'>
+                  Form responses accepted until {new Date(form.expires_at).toLocaleDateString()}
+                </p>
+              }
             </Card>
           ))}
         </div>
