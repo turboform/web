@@ -40,7 +40,7 @@ export default function NavBar() {
               priority
             />
           </div>
-          <span className="font-bold text-lg">TurboForm</span>
+          <span className="font-bold text-lg">Turboform.ai</span>
         </Link>
 
         {/* Desktop Navigation */}
