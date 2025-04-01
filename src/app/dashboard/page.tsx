@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PlusCircle, Eye, Edit, Trash2, AlertTriangle, BarChart, Globe, Lock } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PlusCircle, Eye, Edit, Trash2, AlertTriangle, BarChart, Globe, Lock, MoreVertical, Copy, Link } from "lucide-react";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
 import { ProtectedPage } from '@/components/auth/protected-page';
@@ -65,8 +66,8 @@ function Dashboard() {
 
       if (response.data.success) {
         await mutate();
-        toast.success(currentStatus 
-          ? "Form has been unpublished and is now in draft mode" 
+        toast.success(currentStatus
+          ? "Form has been unpublished and is now in draft mode"
           : "Form has been published and is now live"
         );
       }
@@ -74,6 +75,12 @@ function Dashboard() {
       console.error("Error toggling form publish status:", error);
       toast.error("Failed to update form status");
     }
+  };
+
+  const copyShortLink = (shortId: string) => {
+    const shortLink = `${window.location.origin}/f/${shortId}`;
+    navigator.clipboard.writeText(shortLink);
+    toast.success("Link copied to clipboard!");
   };
 
   return (
@@ -119,23 +126,23 @@ function Dashboard() {
       ) : (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {(data?.forms || []).map((form) => (
-            <Card key={form.id} className="overflow-hidden shadow-sm border-gray-200 flex flex-col">
+            <Card key={form.id} className="relative overflow-hidden shadow-sm border-gray-200 flex flex-col">
               <CardHeader className="p-6 pb-3">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-xl font-semibold truncate">{form.title}</CardTitle>
-                  <div className={`px-2 py-1 text-xs rounded-full ${form.is_draft 
-                    ? 'bg-yellow-100 text-yellow-800' 
+                  <div className={`px-2 py-1 text-xs rounded-full absolute top-2 right-2 ${form.is_draft
+                    ? 'bg-yellow-100 text-yellow-800'
                     : 'bg-green-100 text-green-800'}`}
                   >
                     {form.is_draft ? 'Draft' : 'Published'}
                   </div>
                 </div>
-                <CardDescription className="text-sm text-gray-500 mt-1">
+                <CardDescription className="text-sm text-gray-500 mt-1 line-clamp-1">
                   Created {new Date(form.created_at || '').toLocaleDateString()}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-2 flex-grow">
-                <p className="mb-3 text-sm text-gray-600 line-clamp-3">
+                <p className="mb-3 text-sm text-gray-600 line-clamp-2">
                   {form.description || "No description"}
                 </p>
                 <div className="flex justify-between">
@@ -151,34 +158,18 @@ function Dashboard() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="grid grid-cols-5 gap-2 p-6 pt-0">
+              <CardFooter className="grid grid-cols-3 gap-2 p-6 pt-0">
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full justify-center"
-                  onClick={() => router.push(`/form/${form.id}`)}
+                  onClick={() => copyShortLink(form.short_id)}
+                  title="Copy form link"
                 >
-                  <Eye className="w-4 h-4 mr-1" />
-                  View
+                  <Link className="w-4 h-4 mr-1" />
+                  Share
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-center"
-                  onClick={() => router.push(`/responses/${form.id}`)}
-                >
-                  <BarChart className="w-4 h-4 mr-1" />
-                  Analyze
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-center"
-                  onClick={() => router.push(`/edit-form/${form.id}`)}
-                >
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -186,30 +177,54 @@ function Dashboard() {
                   onClick={() => handleTogglePublish(form.id, !form.is_draft)}
                   title={form.is_draft ? "Publish this form" : "Unpublish this form"}
                 >
-                  {form.is_draft 
-                    ? <Globe className="w-4 h-4 mr-1" /> 
+                  {form.is_draft
+                    ? <Globe className="w-4 h-4 mr-1" />
                     : <Lock className="w-4 h-4 mr-1" />
                   }
                   {form.is_draft ? "Publish" : "Draft"}
                 </Button>
-                <Dialog open={deleteDialogOpen && formToDelete === form.id} onOpenChange={(open) => {
-                  setDeleteDialogOpen(open);
-                  if (!open) setFormToDelete(null);
-                }}>
-                  <DialogTrigger asChild>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full justify-center text-red-500 hover:text-red-600 hover:bg-red-50"
+                      className="w-full justify-center"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                      <span className="sr-only">More options</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => router.push(`/form/${form.id}`)}>
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Form
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push(`/edit-form/${form.id}`)}>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Form
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push(`/responses/${form.id}`)}>
+                      <BarChart className="w-4 h-4 mr-2" />
+                      Analyze Responses
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-500 focus:text-red-500"
                       onClick={() => {
                         setFormToDelete(form.id);
                         setDeleteDialogOpen(true);
                       }}
                     >
-                      <Trash2 className="w-4 h-4 mr-1" />
-                      Delete
-                    </Button>
-                  </DialogTrigger>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Form
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Dialog open={deleteDialogOpen && formToDelete === form.id} onOpenChange={(open) => {
+                  setDeleteDialogOpen(open);
+                  if (!open) setFormToDelete(null);
+                }}>
                   <DialogContent>
                     <DialogHeader>
                       <div className="flex items-center gap-2 text-amber-500">
