@@ -7,19 +7,29 @@ import { Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { TimePicker } from "@/components/ui/time-picker"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-interface DatePickerProps {
+interface DateTimePickerProps {
   date: Date | undefined
   setDate: (date: Date | undefined) => void
   label?: string
 }
 
-export function DatePicker({ date, setDate, label = "Pick a date" }: DatePickerProps) {
+export function DateTimePicker({ 
+  date, 
+  setDate, 
+  label = "Pick a date and time"
+}: DateTimePickerProps) {
+  
+  const formattedDate = date 
+    ? format(date, "PPP 'at' p") 
+    : label
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -31,7 +41,7 @@ export function DatePicker({ date, setDate, label = "Pick a date" }: DatePickerP
           )}
         >
           <Calendar className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>{label}</span>}
+          {formattedDate}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -41,6 +51,11 @@ export function DatePicker({ date, setDate, label = "Pick a date" }: DatePickerP
           onSelect={setDate}
           initialFocus
         />
+        {date && (
+          <div className="p-3 border-t border-border">
+            <TimePicker date={date} setDate={setDate} />
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   )

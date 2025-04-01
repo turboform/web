@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
 import { useAuth } from "@/components/auth/auth-provider";
-import { DatePicker } from "@/components/ui/date-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Label } from "@/components/ui/label";
 import axios from 'axios';
 
@@ -278,10 +278,10 @@ export default function EditFormPage() {
                   <CardContent>
                     <div className="space-y-2">
                       <Label htmlFor="expirationDate">Expiration Date (Optional)</Label>
-                      <DatePicker
+                      <DateTimePicker
                         date={expirationDate}
                         setDate={setExpirationDate}
-                        label="Set expiration date"
+                        label="Set expiration date and time"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
                         {expirationDate
