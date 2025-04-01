@@ -7,13 +7,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Turnstile } from '@marsidev/react-turnstile';
+import axios from 'axios';
 
 interface FormGeneratorProps {
   onFormGenerated: (form: any) => void;
 }
 
 export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
-  const { user, signInAnonymously } = useAuth();
+  const { user, session, signInAnonymously } = useAuth();
   const [description, setDescription] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
@@ -38,19 +39,20 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
         }
       }
 
-      const response = await fetch("/api/generate-form", {
-        method: "POST",
+      const response = await axios.post("/api/generate-form", {
+        description,
+      }, {
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ description }),
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        }
       });
 
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error("Failed to generate form");
       }
 
-      const data = await response.json();
+      const data = response.data;
       onFormGenerated(data);
       toast.success("Form generated successfully!");
     } catch (error) {

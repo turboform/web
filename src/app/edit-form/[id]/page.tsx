@@ -73,6 +73,7 @@ export default function EditFormPage() {
     }
   }, [formId, router, user]);
 
+  // TODO: check this logic
   const handleDescriptionUpdate = async () => {
     if (description.trim() === originalForm.description.trim()) {
       setEditMode('preview');
