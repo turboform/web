@@ -197,7 +197,7 @@ export default function EditFormPage() {
           onClick={() => router.push("/dashboard")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
+          Dashboard
         </Button>
         <h1 className="text-3xl font-bold">Edit Form</h1>
       </div>

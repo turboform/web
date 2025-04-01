@@ -68,17 +68,17 @@ const ResponsesPage = () => {
 
   // Fetch form details using SWR
   const { data: formData, error: formError, isLoading: formLoading } = useSWR(
-    session?.access_token ? 
-      [`/api/forms?id=${formId}`, session?.access_token] : 
-      null, 
+    session?.access_token ?
+      [`/api/forms/${formId}`, session?.access_token] :
+      null,
     ([url, token]) => fetcher<{ form: Form }>(url, token)
   );
 
   // Fetch form responses using SWR
   const { data: responsesData, error: responsesError, isLoading: responsesLoading } = useSWR(
-    session?.access_token ? 
-      [`/api/responses?id=${formId}`, session?.access_token] : 
-      null, 
+    session?.access_token ?
+      [`/api/responses/${formId}`, session?.access_token] :
+      null,
     ([url, token]) => fetcher<{ responses: Response[] }>(url, token)
   );
 
@@ -86,14 +86,14 @@ const ResponsesPage = () => {
   if (formError) {
     toast.error("Failed to load form details");
   }
-  
+
   if (responsesError) {
     toast.error("Failed to load form responses");
   }
 
   // Determine overall loading state
   const isLoading = formLoading || responsesLoading;
-  
+
   // Get data from SWR responses
   const form = formData?.form || null;
   const responses = responsesData?.responses || [];
@@ -318,7 +318,7 @@ const ResponsesPage = () => {
           <Button variant="ghost" asChild className="mr-4" size="sm">
             <Link href="/dashboard">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
+              Dashboard
             </Link>
           </Button>
           <div>
