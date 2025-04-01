@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const runtime = 'edge';
+
 // API endpoint to create a Stripe checkout session
 export async function POST(request: NextRequest) {
   try {

@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server'
 
+export const runtime = 'edge';
+
 export async function GET(request: NextRequest) {
   try {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
