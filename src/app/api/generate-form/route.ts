@@ -13,7 +13,15 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
   try {
     // Authenticate the user
-    const { user, supabase, error } = await authenticateUser();
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token format' },
+        { status: 401 }
+      );
+    }
+
+    const { user, supabase, error } = await authenticateUser(token);
 
     // If authentication failed, return the error response
     if (error) {
@@ -40,7 +48,7 @@ export async function POST(req: NextRequest) {
           user_id: user?.id,
           title,
           description,
-          schema: formFields,
+          schema: JSON.stringify(formFields), // Cast to JSON type
           is_draft: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -54,7 +62,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json({
-        id: form?.Id,
+        id: form?.id,
         title,
         description,
         schema: formFields,

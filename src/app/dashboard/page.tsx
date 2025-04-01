@@ -1,52 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { PlusCircle, Eye, Edit, Trash2, AlertTriangle } from "lucide-react";
+import { PlusCircle, Eye, Edit, Trash2, AlertTriangle, BarChart } from "lucide-react";
 import { toast } from "sonner";
 import { supabaseBrowserClient } from "@/lib/supabase/browser";
 import { ProtectedPage } from '@/components/auth/protected-page';
+import { useAuth } from '@/components/auth/auth-provider';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/utils';
+import { Form } from '@/lib/types/form';
 
 function Dashboard() {
-  const [forms, setForms] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { session } = useAuth();
 
-  // Fetch forms when the component mounts
-  useEffect(() => {
-    async function fetchForms() {
-      try {
-        const response = await fetch("/api/forms", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch forms");
-        }
-
-        const data = await response.json();
-        setForms(data.forms || []);
-      } catch (error) {
-        console.error("Error fetching forms:", error);
-        toast.error("Failed to load your forms");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchForms();
-  }, []);
+  const { data, error, isLoading, mutate } = useSWR(session?.access_token ? [
+    '/api/forms',
+    session?.access_token
+  ] : null, ([url, token]) => fetcher<{ forms: Form[] }>(url, token), { revalidateOnFocus: true })
 
   const handleDeleteForm = async (formId: string) => {
     try {
       // Using the supabase browser client directly since it's already initialized
+      // TODO: move this to API
       const { error } = await supabaseBrowserClient
         .from("forms")
         .delete()
@@ -57,7 +37,7 @@ function Dashboard() {
       }
 
       // Update the forms list
-      setForms(forms.filter(form => form.id !== formId));
+      await mutate();
       toast.success("Form deleted successfully");
     } catch (error) {
       console.error("Error deleting form:", error);
@@ -75,7 +55,7 @@ function Dashboard() {
         </Button>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <Card key={i} className="overflow-hidden shadow-sm border-gray-200">
@@ -94,7 +74,7 @@ function Dashboard() {
             </Card>
           ))}
         </div>
-      ) : forms.length === 0 ? (
+      ) : data?.forms.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 text-center bg-gray-50 rounded-lg border border-gray-200">
           <h3 className="mb-3 text-xl font-medium">You haven&apos;t created any forms yet</h3>
           <p className="mb-8 text-gray-600 max-w-md">
@@ -107,12 +87,12 @@ function Dashboard() {
         </div>
       ) : (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {forms.map((form) => (
+          {(data?.forms || []).map((form) => (
             <Card key={form.id} className="overflow-hidden shadow-sm border-gray-200 flex flex-col">
               <CardHeader className="p-6 pb-3">
                 <CardTitle className="text-xl font-semibold truncate">{form.title}</CardTitle>
                 <CardDescription className="text-sm text-gray-500 mt-1">
-                  Created {new Date(form.created_at).toLocaleDateString()}
+                  Created {new Date(form.created_at || '').toLocaleDateString()}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-2 flex-grow">
@@ -132,15 +112,24 @@ function Dashboard() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="grid grid-cols-3 gap-3 p-6 pt-0">
+              <CardFooter className="grid grid-cols-4 gap-2 p-6 pt-0">
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full justify-center"
                   onClick={() => router.push(`/form/${form.id}`)}
                 >
-                  <Eye className="w-4 h-4 mr-2" />
+                  <Eye className="w-4 h-4 mr-1" />
                   View
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center"
+                  onClick={() => router.push(`/responses/${form.id}`)}
+                >
+                  <BarChart className="w-4 h-4 mr-1" />
+                  Analyze
                 </Button>
                 <Button
                   variant="outline"
@@ -148,7 +137,7 @@ function Dashboard() {
                   className="w-full justify-center"
                   onClick={() => router.push(`/edit-form/${form.id}`)}
                 >
-                  <Edit className="w-4 h-4 mr-2" />
+                  <Edit className="w-4 h-4 mr-1" />
                   Edit
                 </Button>
                 <Popover>
@@ -158,7 +147,7 @@ function Dashboard() {
                       size="sm"
                       className="w-full justify-center text-red-500 hover:text-red-600 hover:bg-red-50"
                     >
-                      <Trash2 className="w-4 h-4 mr-2" />
+                      <Trash2 className="w-4 h-4 mr-1" />
                       Delete
                     </Button>
                   </PopoverTrigger>

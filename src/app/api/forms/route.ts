@@ -15,10 +15,18 @@ function generateShortId(length = 8): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token format' },
+        { status: 401 }
+      );
+    }
+
     const { title, description, schema, expires_at } = await req.json();
 
     // Authenticate the user (will now work with anonymous users too)
-    const { user, supabase, error } = await authenticateUser();
+    const { user, supabase, error } = await authenticateUser(token);
 
     // If authentication failed, return the error response
     if (error) {
@@ -63,7 +71,15 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     // Authenticate the user
-    const { user, supabase, error } = await authenticateUser();
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token format' },
+        { status: 401 }
+      );
+    }
+
+    const { user, supabase, error } = await authenticateUser(token);
 
     // If authentication failed, return the error response
     if (error) {
@@ -111,7 +127,7 @@ export async function GET(req: NextRequest) {
       if (!responseError && responseData) {
         // Add response counts to forms
         userForms.forEach(form => {
-          form.responseCount = responseData[form.id] || 0;
+          (form as any).responseCount = responseData[form.id] || 0; // TODO: fix this hack
         });
       }
     }
