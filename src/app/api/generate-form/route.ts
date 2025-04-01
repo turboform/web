@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     try {
       // Generate form fields using OpenAI
-      const { title, formFields } = await generateFormWithOpenAI(description);
+      const { title, formFields, enhancedDescription } = await generateFormWithOpenAI(description);
 
       // Save the form as a draft
       const { data: form, error: saveError } = await supabase
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         .insert({
           user_id: user?.id,
           title,
-          description,
+          description: enhancedDescription, // Use the enhanced description
           schema: JSON.stringify(formFields), // Cast to JSON type
           is_draft: true,
           created_at: new Date().toISOString(),
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         id: form?.id,
         title,
-        description,
+        description: enhancedDescription, // Return the enhanced description
         schema: formFields,
         is_draft: true
       });
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function generateFormWithOpenAI(description: string): Promise<{ title: string; formFields: FormField[] }> {
+async function generateFormWithOpenAI(description: string): Promise<{ title: string; formFields: FormField[]; enhancedDescription: string }> {
   const sanitizedDescription = description
     .replace(/ignore all previous instructions/gi, '[filtered content]')
     .replace(/disregard your instructions/gi, '[filtered content]')
@@ -100,6 +100,7 @@ You are a form generation assistant. Create a detailed form based on the followi
 Return your response as a JSON object with the following format:
 {
   "title": "Form title based on the description",
+  "description": "A polished, friendly and professional description/introduction for the form that explains its purpose clearly to respondents",
   "fields": [
     {
       "id": "field1",
@@ -120,6 +121,8 @@ The form should capture all the information requested in the description. Use ap
 - radio: For multiple choice questions with one answer
 - select: For dropdown selection questions
 - multi_select: For multi-select dropdown selection questions
+
+For the description, write 2-3 sentences that warmly welcomes the user, briefly explains the purpose of the form, and mentions any important details like estimated completion time.
 
 Make sure to include a sensible title for the form based on the description.
 `;
@@ -148,6 +151,9 @@ Make sure to include a sensible title for the form based on the description.
       throw new Error('Invalid form structure');
     }
 
+    // Get the enhanced description or fall back to original if not available
+    const enhancedDescription = parsedResponse.description || description;
+
     // Convert OpenAI response to our FormField format and assign UUIDs
     const formFields: FormField[] = parsedResponse.fields.map((field: any) => ({
       id: crypto.randomUUID(),
@@ -160,14 +166,16 @@ Make sure to include a sensible title for the form based on the description.
 
     return {
       title: parsedResponse.title,
-      formFields
+      formFields,
+      enhancedDescription
     };
   } catch (error) {
     console.error('Error parsing OpenAI response:', error);
     // Fallback to generate a basic title if parsing fails
     return {
       title: generateFallbackTitle(description),
-      formFields: []
+      formFields: [],
+      enhancedDescription: description
     };
   }
 }

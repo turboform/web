@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { Suspense } from "react";
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { FormSubmission } from '@/components/forms/form-submission';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Loader2 } from "lucide-react";
 import { getFormByShortId } from '@/lib/supabase/actions';
 
@@ -55,6 +56,12 @@ export default async function FormShortPage({ params }: { params: FormPageProps 
         }>
           <FormSubmission form={form} />
         </Suspense>
+        
+        <CardFooter className="flex justify-center pt-6 pb-4 text-xs text-muted-foreground">
+          <Link href="/" className="hover:text-primary transition-colors">
+            Powered by TurboForm
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );
