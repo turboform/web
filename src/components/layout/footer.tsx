@@ -2,9 +2,25 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+
+  const pathname = usePathname();
+  const hideOnPaths = ['/f/*'];
+  // Check if current path matches any pattern in hideOnPaths (including wildcards)
+  if (hideOnPaths.some(pattern => {
+    // Convert wildcard pattern to regex
+    if (pattern.includes('*')) {
+      const regexPattern = new RegExp('^' + pattern.replace('*', '.*') + '$');
+      return regexPattern.test(pathname);
+    }
+    // Direct comparison for exact matches
+    return pattern === pathname;
+  })) {
+    return null;
+  }
 
   return (
     <footer className="border-t py-6 mt-auto bg-background">

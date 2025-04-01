@@ -18,8 +18,17 @@ export default function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Skip rendering on specific pages if needed
-  const hideOnPaths = ['/auth/callback'];
-  if (hideOnPaths.includes(pathname)) {
+  const hideOnPaths = ['/f/*'];
+  // Check if current path matches any pattern in hideOnPaths (including wildcards)
+  if (hideOnPaths.some(pattern => {
+    // Convert wildcard pattern to regex
+    if (pattern.includes('*')) {
+      const regexPattern = new RegExp('^' + pattern.replace('*', '.*') + '$');
+      return regexPattern.test(pathname);
+    }
+    // Direct comparison for exact matches
+    return pattern === pathname;
+  })) {
     return null;
   }
 
