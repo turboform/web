@@ -257,7 +257,7 @@ function Dashboard() {
               {
                 !!form.expires_at &&
                 <p className='text-xs text-gray-700 text-center'>
-                  Form responses accepted until {new Date(form.expires_at).toLocaleDateString()}
+                  Form responses accepted until {new Date(form.expires_at).toLocaleDateString()} at {new Date(form.expires_at).toLocaleTimeString('en-US', { hour12: false })}
                 </p>
               }
             </Card>

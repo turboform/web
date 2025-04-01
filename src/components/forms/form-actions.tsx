@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
-import { DatePicker } from "@/components/ui/date-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 
@@ -80,10 +80,10 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
             <div className="w-full space-y-4 mb-4">
               <div className="space-y-2">
                 <Label htmlFor="expirationDate">Form Expiration (Optional)</Label>
-                <DatePicker
+                <DateTimePicker
                   date={expirationDate}
                   setDate={setExpirationDate}
-                  label="Set expiration date"
+                  label="Set expiration date and time"
                 />
                 <p className="text-xs text-muted-foreground">
                   After this date, the form will no longer accept new responses.
@@ -126,7 +126,7 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
                     )}
                     {form.expires_at && (
                       <div className="mt-2 text-sm text-amber-600">
-                        This form will expire on {new Date(form.expires_at).toLocaleDateString()}.
+                        This form will expire on {new Date(form.expires_at).toLocaleDateString()} at {new Date(form.expires_at).toLocaleTimeString()}.
                       </div>
                     )}
                   </AlertDescription>
