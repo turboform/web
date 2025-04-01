@@ -1,9 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdminClient } from '@/lib/supabase/admin';
+import { authenticateUser } from '@/lib/supabase/server';
 
 export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
+  // TODO: NB - add good check here, if abused users can use this endpoint to transfer data to other users.
+  // Check that the user is authenticated and has the right permissions
+  const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return NextResponse.json(
+      { error: 'Unauthorized - Invalid token format' },
+      { status: 401 }
+    );
+  }
+
+  const { user, supabase, error } = await authenticateUser(token);
+
+  // If authentication failed, return the error response
+  if (error) {
+    return error;
+  }
+
   try {
     const { anonymousUserId, targetUserId } = await req.json();
 

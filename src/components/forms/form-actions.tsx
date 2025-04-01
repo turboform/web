@@ -9,8 +9,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import axios from "axios";
 
 interface FormActionsProps {
   form: any;
@@ -20,7 +20,7 @@ interface FormActionsProps {
 }
 
 export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create New Form" }: FormActionsProps) {
-  const { isAnonymous } = useAuth();
+  const { isAnonymous, session } = useAuth();
   const router = useRouter();
   const [formSaved, setFormSaved] = useState(false);
   const [formLink, setFormLink] = useState("");
@@ -36,19 +36,18 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
         expires_at: expirationDate ? expirationDate.toISOString() : null
       };
 
-      const response = await fetch("/api/forms", {
-        method: "POST",
+      const response = await axios.post("/api/forms", formWithExpiration, {
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify(formWithExpiration),
       });
 
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error("Failed to save form");
       }
 
-      const data = await response.json();
+      const data = response.data;
       setFormSaved(true);
       setFormLink(`${window.location.origin}/form/${data.form.id}`);
       setShortLink(`${window.location.origin}/f/${data.form.short_id}`);
@@ -81,10 +80,10 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = "Create 
             <div className="w-full space-y-4 mb-4">
               <div className="space-y-2">
                 <Label htmlFor="expirationDate">Form Expiration (Optional)</Label>
-                <DatePicker 
-                  date={expirationDate} 
-                  setDate={setExpirationDate} 
-                  label="Set expiration date" 
+                <DatePicker
+                  date={expirationDate}
+                  setDate={setExpirationDate}
+                  label="Set expiration date"
                 />
                 <p className="text-xs text-muted-foreground">
                   After this date, the form will no longer accept new responses.

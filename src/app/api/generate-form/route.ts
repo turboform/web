@@ -125,7 +125,9 @@ Make sure to include a sensible title for the form based on the description.
 `;
 
   const completion = await openai.chat.completions.create({
-    model: 'o1',
+    model: 'gpt-3.5-turbo', // Using a faster model instead of o1
+    temperature: 0.7, // Lower temperature for more predictable results
+    max_tokens: 2000, // Limit token usage
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: "You are a helpful assistant that generates form structures based on descriptions." },

@@ -124,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // 2. Use the admin client to transfer forms from anonymous user to the existing user
         try {
           // Using fetch here since we need to call a server action to use the admin client
+          // TODO: NB - add good check here, if abused users can use this endpoint to transfer data to other users.
           const response = await fetch('/api/auth/link-anonymous-data', {
             method: 'POST',
             headers: {
