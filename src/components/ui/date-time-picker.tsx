@@ -20,14 +20,14 @@ interface DateTimePickerProps {
   label?: string
 }
 
-export function DateTimePicker({ 
-  date, 
-  setDate, 
+export function DateTimePicker({
+  date,
+  setDate,
   label = "Pick a date and time"
 }: DateTimePickerProps) {
-  
-  const formattedDate = date 
-    ? format(date, "PPP 'at' p") 
+
+  const formattedDate = date
+    ? format(date, "PPP 'at' p")
     : label
 
   return (
@@ -51,11 +51,9 @@ export function DateTimePicker({
           onSelect={setDate}
           initialFocus
         />
-        {date && (
-          <div className="p-3 border-t border-border">
-            <TimePicker date={date} setDate={setDate} />
-          </div>
-        )}
+        <div className="p-3 border-t border-border">
+          <TimePicker date={date} setDate={setDate} />
+        </div>
       </PopoverContent>
     </Popover>
   )
