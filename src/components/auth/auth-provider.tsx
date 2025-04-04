@@ -1,117 +1,119 @@
-"use client";
+'use client'
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabaseBrowserClient } from "@/lib/supabase/browser";
-import { useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from 'react'
+import { User, Session } from '@supabase/supabase-js'
+import { supabaseBrowserClient } from '@/lib/supabase/browser'
+import { useRouter } from 'next/navigation'
 
 type AuthContextType = {
-  user: User | null;
-  session: Session | null;
-  isLoading: boolean;
-  isAnonymous: boolean;
-  signOut: () => Promise<void>;
-  signInAnonymously: (captchaToken: string) => Promise<{ success: boolean; error?: string }>;
-  linkAnonymousAccount: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-};
+  user: User | null
+  session: Session | null
+  isLoading: boolean
+  isAnonymous: boolean
+  signOut: () => Promise<void>
+  signInAnonymously: (captchaToken: string) => Promise<{ success: boolean; error?: string }>
+  linkAnonymousAccount: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+}
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAnonymous, setIsAnonymous] = useState(false);
-  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isAnonymous, setIsAnonymous] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     // First, try to get the current session
     const initializeAuth = async () => {
       try {
-        setIsLoading(true);
+        setIsLoading(true)
 
         // Get the current session
-        const { data: { session: currentSession } } = await supabaseBrowserClient.auth.getSession();
+        const {
+          data: { session: currentSession },
+        } = await supabaseBrowserClient.auth.getSession()
 
         if (currentSession) {
-          setSession(currentSession);
-          setUser(currentSession.user);
+          setSession(currentSession)
+          setUser(currentSession.user)
           // Check if the user is anonymous
-          setIsAnonymous(!!currentSession.user?.is_anonymous);
+          setIsAnonymous(!!currentSession.user?.is_anonymous)
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        console.error('Error initializing auth:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    initializeAuth();
+    initializeAuth()
 
     // Set up auth state change listener
-    const { data: { subscription } } = supabaseBrowserClient.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
+    const {
+      data: { subscription },
+    } = supabaseBrowserClient.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession)
+      setUser(newSession?.user ?? null)
 
-        // Update anonymous status
-        if (newSession?.user) {
-          setIsAnonymous(!!newSession.user.is_anonymous);
-        }
-
-        setIsLoading(false);
-
-        // Force a router refresh when auth state changes
-        // This ensures all server components reflect the new auth state
-        router.refresh();
+      // Update anonymous status
+      if (newSession?.user) {
+        setIsAnonymous(!!newSession.user.is_anonymous)
       }
-    );
+
+      setIsLoading(false)
+
+      // Force a router refresh when auth state changes
+      // This ensures all server components reflect the new auth state
+      router.refresh()
+    })
 
     return () => {
-      subscription.unsubscribe();
-    };
-  }, [router]);
+      subscription.unsubscribe()
+    }
+  }, [router])
 
   // Function to create an anonymous user when needed
   const signInAnonymously = async (captchaToken: string) => {
     try {
       // If user is already signed in, don't create a new anonymous account
       if (user) {
-        return { success: true };
+        return { success: true }
       }
 
       // Create an anonymous user using Supabase's built-in method
-      const { data, error } = await supabaseBrowserClient.auth.signInAnonymously({ options: { captchaToken } });
+      const { data, error } = await supabaseBrowserClient.auth.signInAnonymously({ options: { captchaToken } })
 
       if (error) {
-        console.error("Error signing in anonymously:", error);
-        return { success: false, error: error.message };
+        console.error('Error signing in anonymously:', error)
+        return { success: false, error: error.message }
       }
 
       if (data?.user) {
-        setIsAnonymous(true);
-        return { success: true };
+        setIsAnonymous(true)
+        return { success: true }
       }
 
-      return { success: false, error: "Failed to create anonymous account" };
+      return { success: false, error: 'Failed to create anonymous account' }
     } catch (error: any) {
-      console.error("Error signing in anonymously:", error);
-      return { success: false, error: error.message };
+      console.error('Error signing in anonymously:', error)
+      return { success: false, error: error.message }
     }
-  };
+  }
 
   // Function to link anonymous account to a real email/password
   const linkAnonymousAccount = async (email: string, password: string) => {
     try {
       if (!isAnonymous || !user) {
-        return { success: false, error: "No anonymous account to link" };
+        return { success: false, error: 'No anonymous account to link' }
       }
 
       // First, try to sign in with the provided credentials to check if the account exists
       const { data: existingUserData, error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
         email,
         password,
-      });
+      })
 
       // If sign-in was successful, we need to handle the case of linking the anonymous data
       if (!signInError && existingUserData?.user) {
@@ -119,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // ownership of any forms created while anonymous to the existing account
 
         // 1. Store the anonymous user ID to use for transferring data
-        const anonymousUserId = user.id;
+        const anonymousUserId = user.id
 
         // 2. Use the admin client to transfer forms from anonymous user to the existing user
         try {
@@ -134,20 +136,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               anonymousUserId,
               targetUserId: existingUserData.user.id,
             }),
-          });
+          })
 
           if (!response.ok) {
-            // If the data migration failed, still let the user sign in 
+            // If the data migration failed, still let the user sign in
             // but warn them some data might not be transferred
-            console.error('Failed to transfer anonymous data');
+            console.error('Failed to transfer anonymous data')
           }
         } catch (error) {
-          console.error('Error transferring anonymous data:', error);
+          console.error('Error transferring anonymous data:', error)
         }
 
         // User is already signed in to their existing account at this point
-        setIsAnonymous(false);
-        return { success: true };
+        setIsAnonymous(false)
+        return { success: true }
       }
 
       // Otherwise, let's try to update the anonymous account with the email/password
@@ -155,55 +157,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabaseBrowserClient.auth.updateUser({
         email,
         password,
-      });
+      })
 
       if (error) {
         // If the update fails, it's likely because the email is already taken
         // but the password didn't match, or some other error
-        return { success: false, error: error.message };
+        return { success: false, error: error.message }
       }
 
-      setIsAnonymous(false);
-      return { success: true };
+      setIsAnonymous(false)
+      return { success: true }
     } catch (error: any) {
-      console.error("Error linking account:", error);
-      return { success: false, error: error.message };
+      console.error('Error linking account:', error)
+      return { success: false, error: error.message }
     }
-  };
+  }
 
   const signOut = async () => {
     try {
-      await supabaseBrowserClient.auth.signOut();
-      setUser(null);
-      setSession(null);
-      setIsAnonymous(false);
+      await supabaseBrowserClient.auth.signOut()
+      setUser(null)
+      setSession(null)
+      setIsAnonymous(false)
 
       // Force a router refresh after signout
-      router.push('/');
+      router.push('/')
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error('Error signing out:', error)
     }
-  };
+  }
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      isLoading,
-      isAnonymous,
-      signOut,
-      signInAnonymously,
-      linkAnonymousAccount
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        isLoading,
+        isAnonymous,
+        signOut,
+        signInAnonymously,
+        linkAnonymousAccount,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider')
   }
-  return context;
+  return context
 }

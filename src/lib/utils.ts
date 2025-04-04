@@ -1,6 +1,6 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import axios from 'axios';
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+import axios from 'axios'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,11 +22,9 @@ export function formatCurrency(amount: number | null, currency: string = 'USD'):
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(value)
 }
 
 export const fetcher = <T>(url: string, token: string) =>
-  axios
-    .get(url, { headers: { Authorization: `Bearer ${token}` } })
-    .then((res) => res.data as T);
+  axios.get(url, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.data as T)

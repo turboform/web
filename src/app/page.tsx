@@ -1,26 +1,26 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { FormGenerator } from "@/components/forms/form-generator";
-import { FormPreview } from "@/components/forms/form-preview";
-import { FormActions } from "@/components/forms/form-actions";
-import { SignInDialog } from "@/components/auth/sign-in-dialog";
-import { toast } from "sonner";
-import { ArrowRight, Sparkles, Clock, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from '@/components/auth/auth-provider';
+import { useState } from 'react'
+import { FormGenerator } from '@/components/forms/form-generator'
+import { FormPreview } from '@/components/forms/form-preview'
+import { FormActions } from '@/components/forms/form-actions'
+import { SignInDialog } from '@/components/auth/sign-in-dialog'
+import { toast } from 'sonner'
+import { ArrowRight, Sparkles, Clock, Share2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/components/auth/auth-provider'
 
 export default function Home() {
-  const { user } = useAuth();
-  const [generatedForm, setGeneratedForm] = useState<any>(null);
-  const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false);
+  const { user } = useAuth()
+  const [generatedForm, setGeneratedForm] = useState<any>(null)
+  const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
 
   const examplePrompts = [
-    "Customer satisfaction survey with ratings and open feedback questions",
-    "Job application form with experience, education, and skills sections",
-    "Event registration form with attendee details and meal preferences",
-    "Product feedback form with ratings and improvement suggestions"
-  ];
+    'Customer satisfaction survey with ratings and open feedback questions',
+    'Job application form with experience, education, and skills sections',
+    'Event registration form with attendee details and meal preferences',
+    'Product feedback form with ratings and improvement suggestions',
+  ]
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -41,14 +41,18 @@ export default function Home() {
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-medium mb-2">AI-Powered Design</h3>
-              <p className="text-sm text-muted-foreground">Describe what you need and watch AI craft the perfect form</p>
+              <p className="text-sm text-muted-foreground">
+                Describe what you need and watch AI craft the perfect form
+              </p>
             </div>
             <div className="flex flex-col items-center text-center p-4">
               <div className="bg-primary/10 p-3 rounded-full mb-4">
                 <Clock className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-medium mb-2">Save Hours</h3>
-              <p className="text-sm text-muted-foreground">Create in seconds what would take hours with traditional tools</p>
+              <p className="text-sm text-muted-foreground">
+                Create in seconds what would take hours with traditional tools
+              </p>
             </div>
             <div className="flex flex-col items-center text-center p-4">
               <div className="bg-primary/10 p-3 rounded-full mb-4">
@@ -70,12 +74,12 @@ export default function Home() {
                     key={index}
                     className="text-sm p-2 bg-background rounded border border-border hover:border-primary/50 hover:bg-muted/80 cursor-pointer transition-colors"
                     onClick={() => {
-                      const textareaElement = document.querySelector('textarea');
+                      const textareaElement = document.querySelector('textarea')
                       if (textareaElement) {
-                        textareaElement.value = prompt;
+                        textareaElement.value = prompt
                         // Trigger the onChange event
-                        const event = new Event('input', { bubbles: true });
-                        textareaElement.dispatchEvent(event);
+                        const event = new Event('input', { bubbles: true })
+                        textareaElement.dispatchEvent(event)
                       }
                     }}
                   >
@@ -124,10 +128,10 @@ export default function Home() {
         isOpen={isSignInDialogOpen}
         onClose={() => setIsSignInDialogOpen(false)}
         onSignInSuccess={() => {
-          toast.success("Signed in successfully!");
-          setIsSignInDialogOpen(false);
+          toast.success('Signed in successfully!')
+          setIsSignInDialogOpen(false)
         }}
       />
     </div>
-  );
+  )
 }

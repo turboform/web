@@ -9,7 +9,17 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Database } from '@/lib/types/database.types'
 import { formatCurrency } from '@/lib/utils'
 import axios from 'axios'
-import { AlertCircle, CalendarClock, CheckCircle2, Clock, CreditCard, Mail, XCircle, ArrowRight, Package } from 'lucide-react'
+import {
+  AlertCircle,
+  CalendarClock,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Mail,
+  XCircle,
+  ArrowRight,
+  Package,
+} from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
@@ -30,11 +40,9 @@ const AccountPageWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="container max-w-5xl py-10 px-4 md:px-6 mx-auto">
     <h1 className="text-3xl font-bold mb-2 text-center">Account</h1>
     <p className="text-muted-foreground mb-8 text-center">Manage your account and subscription</p>
-    <div className="grid gap-6">
-      {children}
-    </div>
+    <div className="grid gap-6">{children}</div>
   </div>
-);
+)
 
 function AccountPage() {
   const { user, session, isLoading: authLoading } = useAuth()
@@ -50,8 +58,8 @@ function AccountPage() {
         // We'll implement this API endpoint later
         const response = await axios.get('/api/user', {
           headers: {
-            'Authorization': `Bearer ${session.access_token}`
-          }
+            Authorization: `Bearer ${session.access_token}`,
+          },
         })
 
         if (response.data?.subscription) {
@@ -77,13 +85,25 @@ function AccountPage() {
 
     switch (status) {
       case 'active':
-        return <Badge variant="default" className="bg-gray-600 hover:bg-gray-600">Active</Badge>
+        return (
+          <Badge variant="default" className="bg-gray-600 hover:bg-gray-600">
+            Active
+          </Badge>
+        )
       case 'canceled':
-        return <Badge variant="secondary" className="bg-orange-500 text-white hover:bg-orange-600">Canceled</Badge>
+        return (
+          <Badge variant="secondary" className="bg-orange-500 text-white hover:bg-orange-600">
+            Canceled
+          </Badge>
+        )
       case 'past_due':
         return <Badge variant="destructive">Past Due</Badge>
       case 'incomplete':
-        return <Badge variant="outline" className="border-yellow-500 text-yellow-500">Incomplete</Badge>
+        return (
+          <Badge variant="outline" className="border-yellow-500 text-yellow-500">
+            Incomplete
+          </Badge>
+        )
       default:
         return <Badge variant="outline">{status}</Badge>
     }
@@ -118,12 +138,12 @@ function AccountPage() {
         <div className="h-[480px] mb-6 relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-border to-transparent opacity-10 animate-pulse" />
         </div>
-        
+
         <div className="h-[220px] relative rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-border to-transparent opacity-10 animate-pulse" />
         </div>
       </AccountPageWrapper>
-    );
+    )
   }
 
   return (
@@ -137,9 +157,7 @@ function AccountPage() {
                   <CardTitle>{subscription.price?.product?.name || 'Subscription'}</CardTitle>
                   {getStatusBadge(subscription.status)}
                 </div>
-                <CardDescription>
-                  Manage your subscription and billing details
-                </CardDescription>
+                <CardDescription>Manage your subscription and billing details</CardDescription>
               </div>
               <div className="flex items-center justify-end">
                 {subscription.price && (
@@ -147,9 +165,7 @@ function AccountPage() {
                     <p className="text-2xl font-bold">
                       {formatCurrency(subscription.price.unit_amount || 0, subscription.price.currency || 'USD')}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      per {subscription.price.interval || 'month'}
-                    </p>
+                    <p className="text-sm text-muted-foreground">per {subscription.price.interval || 'month'}</p>
                   </div>
                 )}
               </div>
@@ -162,24 +178,33 @@ function AccountPage() {
                 {getStatusIcon(subscription.status)}
                 <div>
                   <p className="font-medium">
-                    {subscription.status === 'active' && !subscription.cancel_at_period_end && 'Your subscription is active'}
-                    {subscription.status === 'active' && subscription.cancel_at_period_end && 'Your subscription is set to cancel'}
+                    {subscription.status === 'active' &&
+                      !subscription.cancel_at_period_end &&
+                      'Your subscription is active'}
+                    {subscription.status === 'active' &&
+                      subscription.cancel_at_period_end &&
+                      'Your subscription is set to cancel'}
                     {subscription.status === 'canceled' && 'Your subscription has been canceled'}
                     {subscription.status === 'past_due' && 'Your payment is past due'}
                     {subscription.status === 'incomplete' && 'Your subscription setup is incomplete'}
-                    {!['active', 'canceled', 'past_due', 'incomplete'].includes(subscription.status || '') && 'Subscription status: ' + subscription.status}
+                    {!['active', 'canceled', 'past_due', 'incomplete'].includes(subscription.status || '') &&
+                      'Subscription status: ' + subscription.status}
                   </p>
                   <p className="text-muted-foreground mt-1">
-                    {subscription.status === 'active' && !subscription.cancel_at_period_end && `Next payment on ${new Date(subscription.current_period_end).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}`}
-                    {subscription.status === 'active' && subscription.cancel_at_period_end && `Access until ${new Date(subscription.current_period_end).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}`}
+                    {subscription.status === 'active' &&
+                      !subscription.cancel_at_period_end &&
+                      `Next payment on ${new Date(subscription.current_period_end).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}`}
+                    {subscription.status === 'active' &&
+                      subscription.cancel_at_period_end &&
+                      `Access until ${new Date(subscription.current_period_end).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}`}
                     {subscription.status === 'canceled' && 'Your subscription has ended'}
                     {subscription.status === 'past_due' && 'Please update your payment method'}
                     {subscription.status === 'incomplete' && 'Please complete your subscription setup'}
@@ -207,11 +232,13 @@ function AccountPage() {
                     </p>
                     <p className="text-sm">
                       <span className="text-muted-foreground">Started on: </span>
-                      <span>{new Date(subscription.created).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}</span>
+                      <span>
+                        {new Date(subscription.created).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -226,30 +253,36 @@ function AccountPage() {
                     <p className="text-sm">
                       <span className="text-muted-foreground">Price: </span>
                       <span className="font-medium">
-                        {subscription.price ?
-                          `${formatCurrency(subscription.price.unit_amount || 0, subscription.price.currency || 'USD')} / ${subscription.price.interval || 'month'}` :
-                          'N/A'}
+                        {subscription.price
+                          ? `${formatCurrency(subscription.price.unit_amount || 0, subscription.price.currency || 'USD')} / ${subscription.price.interval || 'month'}`
+                          : 'N/A'}
                       </span>
                     </p>
                     <p className="text-sm">
                       <span className="text-muted-foreground">Current period: </span>
-                      <span>{new Date(subscription.current_period_start).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })} - {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}</span>
+                      <span>
+                        {new Date(subscription.current_period_start).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}{' '}
+                        -{' '}
+                        {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </span>
                     </p>
                     <p className="text-sm">
                       <span className="text-muted-foreground">Renewal date: </span>
-                      <span className="font-medium">{new Date(subscription.current_period_end).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}</span>
+                      <span className="font-medium">
+                        {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -260,11 +293,13 @@ function AccountPage() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Subscription Ending</AlertTitle>
                   <AlertDescription>
-                    Your subscription will end on {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
+                    Your subscription will end on{' '}
+                    {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
-                    })}. You will lose access to premium features after this date.
+                      day: 'numeric',
+                    })}
+                    . You will lose access to premium features after this date.
                   </AlertDescription>
                 </Alert>
               )}
@@ -293,9 +328,7 @@ function AccountPage() {
         <Card className="overflow-hidden border-border/50 shadow-sm transition-all duration-200 hover:shadow-md">
           <CardHeader className="pb-4">
             <CardTitle>No Active Subscription</CardTitle>
-            <CardDescription>
-              Upgrade to a paid plan to access premium features and increased limits
-            </CardDescription>
+            <CardDescription>Upgrade to a paid plan to access premium features and increased limits</CardDescription>
           </CardHeader>
           <CardContent className="pb-6">
             <div className="space-y-4">
@@ -334,15 +367,13 @@ function AccountPage() {
           </CardFooter>
         </Card>
       )}
-        
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl">Account</CardTitle>
-              <CardDescription>
-                Manage your account settings
-              </CardDescription>
+              <CardDescription>Manage your account settings</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -360,18 +391,22 @@ function AccountPage() {
               <Clock className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="font-medium text-muted-foreground">Created</p>
-                <p>{user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                }) : 'N/A'}</p>
+                <p>
+                  {user?.created_at
+                    ? new Date(user.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    : 'N/A'}
+                </p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
     </AccountPageWrapper>
-  );
+  )
 }
 
 export default ProtectedPage(AccountPage)

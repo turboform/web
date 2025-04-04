@@ -1,48 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdminClient } from '@/lib/supabase/admin';
-import { authenticateUser } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdminClient } from '@/lib/supabase/admin'
+import { authenticateUser } from '@/lib/supabase/server'
 
-export const runtime = 'edge';
+export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   // TODO: NB - add good check here, if abused users can use this endpoint to transfer data to other users.
   // Check that the user is authenticated and has the right permissions
-  const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = req.headers.get('Authorization')?.replace('Bearer ', '')
   if (!token) {
-    return NextResponse.json(
-      { error: 'Unauthorized - Invalid token format' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized - Invalid token format' }, { status: 401 })
   }
 
-  const { user, supabase, error } = await authenticateUser(token);
+  const { user, supabase, error } = await authenticateUser(token)
 
   // If authentication failed, return the error response
   if (error) {
-    return error;
+    return error
   }
 
   try {
-    const { anonymousUserId, targetUserId } = await req.json();
+    const { anonymousUserId, targetUserId } = await req.json()
 
     if (!anonymousUserId || !targetUserId) {
-      return NextResponse.json({ error: 'Missing required user IDs' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required user IDs' }, { status: 400 })
     }
 
     // Transfer all forms from the anonymous user to the registered user
     const { error: transferError } = await supabaseAdminClient
       .from('forms')
       .update({ user_id: targetUserId })
-      .eq('user_id', anonymousUserId);
+      .eq('user_id', anonymousUserId)
 
     if (transferError) {
-      console.error('Error transferring forms:', transferError);
-      return NextResponse.json({ error: 'Failed to transfer forms' }, { status: 500 });
+      console.error('Error transferring forms:', transferError)
+      return NextResponse.json({ error: 'Failed to transfer forms' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error in link-anonymous-data:', error);
-    return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
+    console.error('Error in link-anonymous-data:', error)
+    return NextResponse.json({ error: 'Failed to process request' }, { status: 500 })
   }
 }

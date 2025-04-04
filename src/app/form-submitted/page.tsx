@@ -1,25 +1,27 @@
-"use client";
+'use client'
 
-import { useState, Suspense } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState, Suspense } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { CheckCircle2, ArrowRight, Sparkles } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 function FormSubmittedContent() {
-  const searchParams = useSearchParams();
-  const formName = searchParams.get("formName") || "The form";
-  const [animateCheckmark, setAnimateCheckmark] = useState(true);
+  const searchParams = useSearchParams()
+  const formName = searchParams.get('formName') || 'The form'
+  const [animateCheckmark, setAnimateCheckmark] = useState(true)
 
   return (
     <div className="flex flex-col items-center text-center">
       {/* Success Animation */}
-      <div className={cn(
-        "flex items-center justify-center h-24 w-24 mb-6 transition-all duration-700",
-        animateCheckmark ? "scale-100" : "scale-0"
-      )}>
+      <div
+        className={cn(
+          'flex items-center justify-center h-24 w-24 mb-6 transition-all duration-700',
+          animateCheckmark ? 'scale-100' : 'scale-0'
+        )}
+      >
         <CheckCircle2
           className="h-24 w-24 text-primary/90"
           strokeWidth={1.5}
@@ -27,32 +29,20 @@ function FormSubmittedContent() {
         />
       </div>
 
-      <h1 className="text-3xl md:text-4xl font-bold mb-4">
-        Thank You!
-      </h1>
+      <h1 className="text-3xl md:text-4xl font-bold mb-4">Thank You!</h1>
 
-      <p className="text-xl text-muted-foreground mb-10 max-w-xl">
-        {formName} has been submitted successfully.
-      </p>
+      <p className="text-xl text-muted-foreground mb-10 max-w-xl">{formName} has been submitted successfully.</p>
 
       <div className="w-full max-w-2xl bg-muted/50 rounded-xl p-8 mb-12">
         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
           <div className="flex-shrink-0">
             <div className="relative w-20 h-20 md:w-28 md:h-28">
-              <Image
-                src="/images/logo.png"
-                alt="TurboForm Logo"
-                fill
-                className="object-cover rounded-md"
-                priority
-              />
+              <Image src="/images/logo.png" alt="TurboForm Logo" fill className="object-cover rounded-md" priority />
             </div>
           </div>
 
           <div className="flex-1 text-left">
-            <h2 className="text-xl md:text-2xl font-bold mb-2">
-              Create Your Own Forms with TurboForm
-            </h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-2">Create Your Own Forms with TurboForm</h2>
             <p className="text-muted-foreground mb-4">
               Build beautiful, intelligent forms like this one in seconds using AI—no design skills required.
             </p>
@@ -86,9 +76,7 @@ function FormSubmittedContent() {
             <path d="M12 6v6l4 2" />
           </svg>
           <h3 className="font-medium mb-1">Quick Setup</h3>
-          <p className="text-sm text-muted-foreground text-center">
-            Create and share forms in seconds, not hours
-          </p>
+          <p className="text-sm text-muted-foreground text-center">Create and share forms in seconds, not hours</p>
         </div>
 
         <div className="flex flex-col items-center p-4 rounded-lg border border-border">
@@ -116,24 +104,24 @@ function FormSubmittedContent() {
         </Button>
       </Link>
     </div>
-  );
+  )
 }
 
 export default function FormSubmittedPage() {
   return (
     <div className="container max-w-4xl mx-auto py-16 px-4">
-      <Suspense fallback={
-        <div className="flex flex-col items-center text-center">
-          <div className="h-24 w-24 mb-6 flex items-center justify-center">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      <Suspense
+        fallback={
+          <div className="flex flex-col items-center text-center">
+            <div className="h-24 w-24 mb-6 flex items-center justify-center">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">Thank You!</h1>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            Thank You!
-          </h1>
-        </div>
-      }>
+        }
+      >
         <FormSubmittedContent />
       </Suspense>
     </div>
-  );
+  )
 }

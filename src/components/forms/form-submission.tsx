@@ -1,88 +1,88 @@
-'use client';
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { CardContent, CardFooter } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, CalendarX2 } from "lucide-react";
-import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { submitFormResponse } from "@/lib/supabase/actions";
-import type { FormData } from "@/lib/supabase/actions";
-import { MultiSelect, Option } from "@/components/ui/multi-select";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { CardContent, CardFooter } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Loader2, CalendarX2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { submitFormResponse } from '@/lib/supabase/actions'
+import type { FormData } from '@/lib/supabase/actions'
+import { MultiSelect, Option } from '@/components/ui/multi-select'
 
 const isFormExpired = (form: FormData): boolean => {
-  if (!form.expires_at) return false;
+  if (!form.expires_at) return false
 
-  const expirationDate = new Date(form.expires_at);
-  const now = new Date();
+  const expirationDate = new Date(form.expires_at)
+  const now = new Date()
 
-  return expirationDate < now;
-};
+  return expirationDate < now
+}
 
 export function FormSubmission({ form }: { form: FormData }) {
-  const router = useRouter();
-  const [formResponses, setFormResponses] = useState<Record<string, any>>({});
-  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter()
+  const [formResponses, setFormResponses] = useState<Record<string, any>>({})
+  const [submitting, setSubmitting] = useState(false)
 
   // Check if the form is expired
-  const expired = isFormExpired(form);
+  const expired = isFormExpired(form)
 
   const handleInputChange = (fieldId: string, value: any) => {
-    setFormResponses(prev => ({
+    setFormResponses((prev) => ({
       ...prev,
-      [fieldId]: value
-    }));
-  };
+      [fieldId]: value,
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Prevent submission if form is expired
     if (expired) {
-      toast.error("This form has expired and is no longer accepting responses");
-      return;
+      toast.error('This form has expired and is no longer accepting responses')
+      return
     }
 
-    const requiredFields = form.schema.filter((field: any) => field.required);
-    const missingFields = requiredFields.filter((field: any) =>
-      !formResponses[field.id] ||
-      (typeof formResponses[field.id] === 'string' && !formResponses[field.id].trim()) ||
-      (Array.isArray(formResponses[field.id]) && formResponses[field.id].length === 0)
-    );
+    const requiredFields = form.schema.filter((field: any) => field.required)
+    const missingFields = requiredFields.filter(
+      (field: any) =>
+        !formResponses[field.id] ||
+        (typeof formResponses[field.id] === 'string' && !formResponses[field.id].trim()) ||
+        (Array.isArray(formResponses[field.id]) && formResponses[field.id].length === 0)
+    )
 
     if (missingFields.length > 0) {
-      toast.error(`Please fill in all required fields (${missingFields.length} missing)`);
-      return;
+      toast.error(`Please fill in all required fields (${missingFields.length} missing)`)
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
 
-      const result = await submitFormResponse(form.id, formResponses);
+      const result = await submitFormResponse(form.id, formResponses)
 
       if (!result.success) {
-        throw new Error('Failed to submit form');
+        throw new Error('Failed to submit form')
       }
 
       // Show toast and redirect to the form-submitted page
-      toast.success("Form submitted successfully!");
-      
+      toast.success('Form submitted successfully!')
+
       // Short delay to allow the toast to be seen
       setTimeout(() => {
         // Redirect to the form-submitted page with the form name
-        router.push(`/form-submitted?formName=${encodeURIComponent(form.title)}`);
-      }, 1000);
-      
+        router.push(`/form-submitted?formName=${encodeURIComponent(form.title)}`)
+      }, 1000)
     } catch (error) {
-      console.error('Error submitting form:', error);
-      toast.error("Failed to submit form. Please try again.");
-      setSubmitting(false);
+      console.error('Error submitting form:', error)
+      toast.error('Failed to submit form. Please try again.')
+      setSubmitting(false)
     }
-  };
+  }
 
   // Render the expiration notice when the form has expired
   if (expired) {
@@ -103,7 +103,7 @@ export function FormSubmission({ form }: { form: FormData }) {
           </div>
         </CardContent>
       </div>
-    );
+    )
   }
 
   return (
@@ -138,10 +138,7 @@ export function FormSubmission({ form }: { form: FormData }) {
 
             {field.type === 'checkbox' && (
               <div className="flex items-center space-x-2">
-                <Switch
-                  id={field.id}
-                  onCheckedChange={(checked) => handleInputChange(field.id, checked)}
-                />
+                <Switch id={field.id} onCheckedChange={(checked) => handleInputChange(field.id, checked)} />
                 <Label htmlFor={field.id} className="text-sm text-gray-600">
                   {field.placeholder || 'Yes'}
                 </Label>
@@ -169,9 +166,7 @@ export function FormSubmission({ form }: { form: FormData }) {
             )}
 
             {field.type === 'select' && field.options && (
-              <Select
-                onValueChange={(value) => handleInputChange(field.id, value)}
-              >
+              <Select onValueChange={(value) => handleInputChange(field.id, value)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder={field.placeholder || 'Select an option'} />
                 </SelectTrigger>
@@ -189,7 +184,7 @@ export function FormSubmission({ form }: { form: FormData }) {
               <MultiSelect
                 options={field.options.map((option: string) => ({
                   label: option,
-                  value: option
+                  value: option,
                 }))}
                 selected={Array.isArray(formResponses[field.id]) ? formResponses[field.id] : []}
                 onChange={(selected) => handleInputChange(field.id, selected)}
@@ -200,11 +195,7 @@ export function FormSubmission({ form }: { form: FormData }) {
         ))}
       </CardContent>
       <CardFooter>
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={submitting}
-        >
+        <Button type="submit" className="w-full" disabled={submitting}>
           {submitting ? (
             <div className="flex items-center space-x-2">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -216,5 +207,5 @@ export function FormSubmission({ form }: { form: FormData }) {
         </Button>
       </CardFooter>
     </form>
-  );
+  )
 }

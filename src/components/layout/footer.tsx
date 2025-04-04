@@ -1,25 +1,27 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
+import Link from 'next/link'
+import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear()
 
-  const pathname = usePathname();
-  const hideOnPaths = ['/f/*'];
+  const pathname = usePathname()
+  const hideOnPaths = ['/f/*']
   // Check if current path matches any pattern in hideOnPaths (including wildcards)
-  if (hideOnPaths.some(pattern => {
-    // Convert wildcard pattern to regex
-    if (pattern.includes('*')) {
-      const regexPattern = new RegExp('^' + pattern.replace('*', '.*') + '$');
-      return regexPattern.test(pathname);
-    }
-    // Direct comparison for exact matches
-    return pattern === pathname;
-  })) {
-    return null;
+  if (
+    hideOnPaths.some((pattern) => {
+      // Convert wildcard pattern to regex
+      if (pattern.includes('*')) {
+        const regexPattern = new RegExp('^' + pattern.replace('*', '.*') + '$')
+        return regexPattern.test(pathname)
+      }
+      // Direct comparison for exact matches
+      return pattern === pathname
+    })
+  ) {
+    return null
   }
 
   return (
@@ -41,9 +43,7 @@ export function Footer() {
               </div>
               <span className="font-semibold text-base">TurboForm</span>
             </Link>
-            <p className="text-sm text-muted-foreground mt-1">
-              &copy; {currentYear} TurboForm
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">&copy; {currentYear} TurboForm</p>
           </div>
 
           {/* Right column: Links */}
@@ -60,5 +60,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
+  )
 }

@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { useState, useRef } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { useState, useRef } from 'react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -11,18 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
-import { supabaseBrowserClient } from "@/lib/supabase/browser";
-import { useAuth } from "../auth/auth-provider";
+} from '@/components/ui/dialog'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { toast } from 'sonner'
+import { supabaseBrowserClient } from '@/lib/supabase/browser'
+import { useAuth } from '../auth/auth-provider'
 import { Turnstile } from '@marsidev/react-turnstile'
 
 interface SignInDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSignInSuccess: () => void;
-  showAnonymousLinkingOption?: boolean;
+  isOpen: boolean
+  onClose: () => void
+  onSignInSuccess: () => void
+  showAnonymousLinkingOption?: boolean
 }
 
 // TODO: Refine the copy on this page
@@ -31,59 +31,59 @@ export function SignInDialog({
   isOpen,
   onClose,
   onSignInSuccess,
-  showAnonymousLinkingOption = false
+  showAnonymousLinkingOption = false,
 }: SignInDialogProps) {
-  const { user, linkAnonymousAccount } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [isLinking, setIsLinking] = useState(false);
-  const [showRegisterForm, setShowRegisterForm] = useState(false);
-  const [error, setError] = useState("");
-  const [captchaToken, setCaptchaToken] = useState("");
-  const turnstileRef = useRef<any>(null);
+  const { user, linkAnonymousAccount } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSigningIn, setIsSigningIn] = useState(false)
+  const [isRegistering, setIsRegistering] = useState(false)
+  const [isLinking, setIsLinking] = useState(false)
+  const [showRegisterForm, setShowRegisterForm] = useState(false)
+  const [error, setError] = useState('')
+  const [captchaToken, setCaptchaToken] = useState('')
+  const turnstileRef = useRef<any>(null)
 
   // Force refresh the CAPTCHA token when switching between forms
   const refreshCaptcha = () => {
     if (turnstileRef.current && turnstileRef.current.reset) {
-      turnstileRef.current.reset();
-      setCaptchaToken("");
+      turnstileRef.current.reset()
+      setCaptchaToken('')
     }
-  };
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!email || !password) {
-      setError("Please enter both email and password");
-      return;
+      setError('Please enter both email and password')
+      return
     }
 
     if (!captchaToken) {
-      setError("Please wait for the security check to complete");
-      refreshCaptcha();
-      return;
+      setError('Please wait for the security check to complete')
+      refreshCaptcha()
+      return
     }
 
     try {
-      setIsSigningIn(true);
-      setError("");
+      setIsSigningIn(true)
+      setError('')
 
       // Check if user is anonymous
-      const isAnonymousUser = !!user?.is_anonymous;
+      const isAnonymousUser = !!user?.is_anonymous
 
       // If the current user is anonymous, link the account
       if (isAnonymousUser) {
-        setIsLinking(true);
-        const { success, error: linkError } = await linkAnonymousAccount(email, password);
+        setIsLinking(true)
+        const { success, error: linkError } = await linkAnonymousAccount(email, password)
 
         if (!success) {
-          throw new Error(linkError);
+          throw new Error(linkError)
         }
 
-        toast.success("Your anonymous account has been converted to a registered account!");
-        onSignInSuccess();
-        return;
+        toast.success('Your anonymous account has been converted to a registered account!')
+        onSignInSuccess()
+        return
       }
 
       // Otherwise, perform regular sign in
@@ -93,57 +93,57 @@ export function SignInDialog({
         options: {
           captchaToken: captchaToken,
         },
-      });
+      })
 
       if (error) {
-        throw error;
+        throw error
       }
 
-      toast.success("Signed in successfully!");
-      onSignInSuccess();
+      toast.success('Signed in successfully!')
+      onSignInSuccess()
     } catch (error: any) {
-      console.error("Error signing in:", error);
-      setError(error.message || "Failed to sign in");
-      toast.error("Failed to sign in");
-      refreshCaptcha();
+      console.error('Error signing in:', error)
+      setError(error.message || 'Failed to sign in')
+      toast.error('Failed to sign in')
+      refreshCaptcha()
     } finally {
-      setIsSigningIn(false);
-      setIsLinking(false);
+      setIsSigningIn(false)
+      setIsLinking(false)
     }
-  };
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!email || !password) {
-      setError("Please enter both email and password");
-      return;
+      setError('Please enter both email and password')
+      return
     }
 
     if (!captchaToken) {
-      setError("Please wait for the security check to complete");
-      refreshCaptcha();
-      return;
+      setError('Please wait for the security check to complete')
+      refreshCaptcha()
+      return
     }
 
     try {
-      setIsRegistering(true);
-      setError("");
+      setIsRegistering(true)
+      setError('')
 
       // Check if user is anonymous
-      const isAnonymousUser = !!user?.is_anonymous;
+      const isAnonymousUser = !!user?.is_anonymous
 
       // If the current user is anonymous, link the account
       if (isAnonymousUser) {
-        setIsLinking(true);
-        const { success, error: linkError } = await linkAnonymousAccount(email, password);
+        setIsLinking(true)
+        const { success, error: linkError } = await linkAnonymousAccount(email, password)
 
         if (!success) {
-          throw new Error(linkError);
+          throw new Error(linkError)
         }
 
-        toast.success("Your anonymous account has been converted to a registered account!");
-        onSignInSuccess();
-        return;
+        toast.success('Your anonymous account has been converted to a registered account!')
+        onSignInSuccess()
+        return
       }
 
       // Otherwise, perform regular registration
@@ -154,83 +154,82 @@ export function SignInDialog({
           emailRedirectTo: `${window.location.origin}/dashboard`,
           captchaToken: captchaToken,
         },
-      });
+      })
 
       if (error) {
-        throw error;
+        throw error
       }
 
-      toast.success("Registration successful! Please check your email to confirm your account.");
-      setShowRegisterForm(false);
+      toast.success('Registration successful! Please check your email to confirm your account.')
+      setShowRegisterForm(false)
     } catch (error: any) {
-      console.error("Error registering:", error);
-      setError(error.message || "Failed to register");
-      toast.error("Failed to register");
-      refreshCaptcha();
+      console.error('Error registering:', error)
+      setError(error.message || 'Failed to register')
+      toast.error('Failed to register')
+      refreshCaptcha()
     } finally {
-      setIsRegistering(false);
-      setIsLinking(false);
+      setIsRegistering(false)
+      setIsLinking(false)
     }
-  };
+  }
 
   const signInWithGoogle = async () => {
     try {
+      setError('')
 
-      setError("");
-
-      const isAnonymousUser = !!user?.is_anonymous;
+      const isAnonymousUser = !!user?.is_anonymous
 
       // If the current user is anonymous, link the account
       if (isAnonymousUser) {
-        setIsLinking(true);
+        setIsLinking(true)
         const { data, error } = await supabaseBrowserClient.auth.linkIdentity({
-          provider: "google",
+          provider: 'google',
           options: {
             redirectTo: `${window.location.origin}/dashboard`,
           },
-        });
+        })
 
         if (error) {
-          throw new Error(error.message);
+          throw new Error(error.message)
         }
 
-        toast.success("Your anonymous account has been converted to a registered account!");
-        onSignInSuccess();
-        return;
+        toast.success('Your anonymous account has been converted to a registered account!')
+        onSignInSuccess()
+        return
       }
 
       // The browser will be redirected to Google's OAuth page, and then back to our callback URL
       await supabaseBrowserClient.auth.signInWithOAuth({
-        provider: "google",
+        provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
           // Don't skip the browser redirect - we want the full OAuth flow
           skipBrowserRedirect: false,
         },
-      });
+      })
 
       // This code won't execute immediately as the browser will redirect
     } catch (error: any) {
-      console.error("Error starting Google sign-in:", error);
-      setError(error.message || "Failed to start Google sign-in");
-      toast.error("Failed to sign in with Google");
+      console.error('Error starting Google sign-in:', error)
+      setError(error.message || 'Failed to start Google sign-in')
+      toast.error('Failed to sign in with Google')
     }
-  };
+  }
 
   // Listen for dialog open/close to refresh captcha
   const handleDialogChange = (open: boolean) => {
     if (!open) {
-      onClose();
+      onClose()
     } else {
       // Reset form errors when opening the dialog
-      setError("");
+      setError('')
 
       // Small delay to ensure Turnstile is properly mounted
       setTimeout(() => {
-        refreshCaptcha();
-      }, 500);
+        refreshCaptcha()
+      }, 500)
     }
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
@@ -238,15 +237,15 @@ export function SignInDialog({
         <DialogHeader>
           <DialogTitle>
             {showAnonymousLinkingOption
-              ? "Convert to a Registered Account"
+              ? 'Convert to a Registered Account'
               : showRegisterForm
-                ? "Create an Account"
-                : "Sign In"}
+                ? 'Create an Account'
+                : 'Sign In'}
           </DialogTitle>
           <DialogDescription>
             {showAnonymousLinkingOption
-              ? "Convert your anonymous account to a registered account to save your forms."
-              : "Sign in or create an account to save and share your forms."}
+              ? 'Convert your anonymous account to a registered account to save your forms.'
+              : 'Sign in or create an account to save and share your forms.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -282,40 +281,36 @@ export function SignInDialog({
               />
             </div>
 
-            <div className='mt-4'>
+            <div className="mt-4">
               <Turnstile
                 ref={turnstileRef}
-                className='w-full flex items-center justify-center'
+                className="w-full flex items-center justify-center"
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                 onSuccess={(token) => setCaptchaToken(token)}
                 options={{ size: 'invisible' }}
                 onError={() => {
-                  setCaptchaToken("");
-                  setError("Security check failed. Please try again.");
+                  setCaptchaToken('')
+                  setError('Security check failed. Please try again.')
                 }}
                 onExpire={() => {
-                  setCaptchaToken("");
-                  setError("Security check expired. Please refresh and try again.");
+                  setCaptchaToken('')
+                  setError('Security check expired. Please refresh and try again.')
                 }}
               />
             </div>
 
             <DialogFooter>
               <div className="w-full flex flex-col gap-2">
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isRegistering || !captchaToken}
-                >
-                  {isRegistering ? "Creating account..." : "Create account"}
+                <Button type="submit" className="w-full" disabled={isRegistering || !captchaToken}>
+                  {isRegistering ? 'Creating account...' : 'Create account'}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full"
                   onClick={() => {
-                    setShowRegisterForm(false);
-                    refreshCaptcha();
+                    setShowRegisterForm(false)
+                    refreshCaptcha()
                   }}
                 >
                   Already have an account? Sign in
@@ -350,40 +345,36 @@ export function SignInDialog({
                 />
               </div>
 
-              <div className='mt-4'>
+              <div className="mt-4">
                 <Turnstile
                   ref={turnstileRef}
-                  className='w-full flex items-center justify-center'
+                  className="w-full flex items-center justify-center"
                   siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                   onSuccess={(token) => setCaptchaToken(token)}
                   options={{ size: 'invisible' }}
                   onError={() => {
-                    setCaptchaToken("");
-                    setError("Security check failed. Please try again.");
+                    setCaptchaToken('')
+                    setError('Security check failed. Please try again.')
                   }}
                   onExpire={() => {
-                    setCaptchaToken("");
-                    setError("Security check expired. Please refresh and try again.");
+                    setCaptchaToken('')
+                    setError('Security check expired. Please refresh and try again.')
                   }}
                 />
               </div>
 
               <DialogFooter>
                 <div className="w-full flex flex-col gap-2">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isSigningIn || !captchaToken}
-                  >
-                    {isSigningIn ? "Signing in..." : "Sign in"}
+                  <Button type="submit" className="w-full" disabled={isSigningIn || !captchaToken}>
+                    {isSigningIn ? 'Signing in...' : 'Sign in'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     className="w-full"
                     onClick={() => {
-                      setShowRegisterForm(true);
-                      refreshCaptcha();
+                      setShowRegisterForm(true)
+                      refreshCaptcha()
                     }}
                   >
                     Don&apos;t have an account? Register
@@ -397,20 +388,18 @@ export function SignInDialog({
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
+                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                size='lg'
-                onClick={signInWithGoogle}
-              >
-                <svg width="800px" height="800px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className='mr-1 h-8 w-8'>
+              <Button type="button" variant="outline" className="w-full" size="lg" onClick={signInWithGoogle}>
+                <svg
+                  width="800px"
+                  height="800px"
+                  viewBox="0 0 48 48"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mr-1 h-8 w-8"
+                >
                   <title>google</title>
                   <g id="Layer_2" data-name="Layer 2">
                     <g id="invisible_box" data-name="invisible box">
@@ -422,12 +411,12 @@ export function SignInDialog({
                     </g>
                   </g>
                 </svg>
-                <span className='font-semibold'>Sign in with Google</span>
+                <span className="font-semibold">Sign in with Google</span>
               </Button>
             </div>
           </>
         )}
       </DialogContent>
     </Dialog>
-  );
+  )
 }

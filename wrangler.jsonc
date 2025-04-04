@@ -2,9 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "web",
   "compatibility_date": "2025-03-27",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "pages_build_output_dir": ".vercel/output/static",
   "vars": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://krleqnhlvnyqtkqoyogw.supabase.co",
@@ -15,6 +13,6 @@
     "NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID": "price_1R8pZQGSS5XC9znctdxrxOxj",
     "NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID": "price_1R8pc0GSS5XC9zncDhljuzTa",
     "NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID": "price_1R8pcnGSS5XC9zncfrC8Cn9r",
-    "API_BASE_URL": "https://internal-workers-prd.turboform.ai"
-  }
+    "API_BASE_URL": "https://internal-workers-prd.turboform.ai",
+  },
 }

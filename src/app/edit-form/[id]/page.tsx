@@ -1,110 +1,106 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Calendar } from "lucide-react";
-import { FormPreview } from "@/components/forms/form-preview";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-import { supabaseBrowserClient } from "@/lib/supabase/browser";
-import { useAuth } from "@/components/auth/auth-provider";
-import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { Label } from "@/components/ui/label";
-import axios from 'axios';
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ArrowLeft, Loader2, Calendar } from 'lucide-react'
+import { FormPreview } from '@/components/forms/form-preview'
+import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
+import { supabaseBrowserClient } from '@/lib/supabase/browser'
+import { useAuth } from '@/components/auth/auth-provider'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
+import { Label } from '@/components/ui/label'
+import axios from 'axios'
 
-export const runtime = 'edge';
+export const runtime = 'edge'
 
 export default function EditFormPage() {
-  const { user, session } = useAuth();
-  const params = useParams();
-  const formId = params.id as string;
-  const router = useRouter();
+  const { user, session } = useAuth()
+  const params = useParams()
+  const formId = params.id as string
+  const router = useRouter()
 
-  const [originalForm, setOriginalForm] = useState<any>(null);
-  const [form, setForm] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editMode, setEditMode] = useState<'description' | 'preview'>('preview');
-  const [description, setDescription] = useState("");
-  const [generating, setGenerating] = useState(false);
-  const [expirationDate, setExpirationDate] = useState<Date | undefined>(undefined);
+  const [originalForm, setOriginalForm] = useState<any>(null)
+  const [form, setForm] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [editMode, setEditMode] = useState<'description' | 'preview'>('preview')
+  const [description, setDescription] = useState('')
+  const [generating, setGenerating] = useState(false)
+  const [expirationDate, setExpirationDate] = useState<Date | undefined>(undefined)
 
   // Fetch the form data when the component mounts
   useEffect(() => {
     const fetchForm = async () => {
       try {
-        const { data, error } = await supabaseBrowserClient
-          .from('forms')
-          .select('*')
-          .eq('id', formId)
-          .single();
+        const { data, error } = await supabaseBrowserClient.from('forms').select('*').eq('id', formId).single()
 
         if (error) {
-          throw error;
+          throw error
         }
 
         if (!data) {
-          toast.error("Form not found");
-          router.push("/dashboard");
-          return;
+          toast.error('Form not found')
+          router.push('/dashboard')
+          return
         }
 
         // Check if user is the owner of the form
         if (user?.id !== data.user_id) {
-          toast.error("You don't have permission to edit this form");
-          router.push("/dashboard");
-          return;
+          toast.error("You don't have permission to edit this form")
+          router.push('/dashboard')
+          return
         }
 
         // Parse expiration date if it exists
         if (data.expires_at) {
-          setExpirationDate(new Date(data.expires_at));
+          setExpirationDate(new Date(data.expires_at))
         }
 
-        setOriginalForm(data);
-        setForm(data);
-        setDescription(data.description);
+        setOriginalForm(data)
+        setForm(data)
+        setDescription(data.description)
       } catch (error) {
-        console.error('Error fetching form:', error);
-        toast.error("Failed to load form. It may not exist.");
-        router.push("/dashboard");
+        console.error('Error fetching form:', error)
+        toast.error('Failed to load form. It may not exist.')
+        router.push('/dashboard')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
     if (user) {
-      fetchForm();
+      fetchForm()
     } else {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [formId, router, user]);
+  }, [formId, router, user])
 
   // TODO: check this logic
   const handleDescriptionUpdate = async () => {
     if (description.trim() === originalForm.description.trim()) {
-      setEditMode('preview');
-      return;
+      setEditMode('preview')
+      return
     }
 
     try {
-      setGenerating(true);
+      setGenerating(true)
 
-      const response = await fetch("/api/generate-form", {
-        method: "POST",
+      const response = await fetch('/api/generate-form', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ description }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Failed to generate form");
+        throw new Error('Failed to generate form')
       }
 
-      const data = await response.json();
+      const data = await response.json()
 
       // Keep the ID from the original form
       const updatedForm = {
@@ -112,53 +108,56 @@ export default function EditFormPage() {
         id: originalForm.id,
         user_id: originalForm.user_id,
         created_at: originalForm.created_at,
-      };
+      }
 
-      setForm(updatedForm);
-      setEditMode('preview');
-      toast.success("Form updated successfully!");
+      setForm(updatedForm)
+      setEditMode('preview')
+      toast.success('Form updated successfully!')
     } catch (error) {
-      console.error("Error updating form:", error);
-      toast.error("Failed to update form. Please try again.");
+      console.error('Error updating form:', error)
+      toast.error('Failed to update form. Please try again.')
     } finally {
-      setGenerating(false);
+      setGenerating(false)
     }
-  };
+  }
 
   const handleSaveForm = async () => {
     try {
-      setSaving(true);
+      setSaving(true)
 
-      const response = await axios.put<{ form: any }>(`/api/forms/${formId}`, {
-        title: form.title,
-        description: form.description,
-        schema: form.schema,
-        expires_at: expirationDate ? expirationDate.toISOString() : null,
-      },
+      const response = await axios.put<{ form: any }>(
+        `/api/forms/${formId}`,
+        {
+          title: form.title,
+          description: form.description,
+          schema: form.schema,
+          expires_at: expirationDate ? expirationDate.toISOString() : null,
+        },
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
+            Authorization: `Bearer ${session?.access_token}`,
           },
-        });
+        }
+      )
 
       if (!response.data) {
-        throw new Error('Failed to save form');
+        throw new Error('Failed to save form')
       }
 
-      const { form: updatedForm } = response.data;
+      const { form: updatedForm } = response.data
 
       // Update the original form data with the latest changes
-      setOriginalForm(updatedForm);
+      setOriginalForm(updatedForm)
 
-      toast.success("Form saved successfully!");
+      toast.success('Form saved successfully!')
     } catch (error) {
-      console.error("Error saving form:", error);
-      toast.error("Failed to save form. Please try again.");
+      console.error('Error saving form:', error)
+      toast.error('Failed to save form. Please try again.')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -168,7 +167,7 @@ export default function EditFormPage() {
           <p className="mt-4">Loading form...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (!user) {
@@ -180,22 +179,17 @@ export default function EditFormPage() {
             <CardDescription>You need to sign in to edit this form</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push("/")}>Go to Homepage</Button>
+            <Button onClick={() => router.push('/')}>Go to Homepage</Button>
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
     <div className="container max-w-3xl mx-auto py-12 px-4">
       <div className="flex items-center mb-10">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mr-4"
-          onClick={() => router.push("/dashboard")}
-        >
+        <Button variant="ghost" size="sm" className="mr-4" onClick={() => router.push('/dashboard')}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Dashboard
         </Button>
@@ -213,11 +207,7 @@ export default function EditFormPage() {
                     {editMode === 'preview' ? form.description : 'Edit your form description below'}
                   </CardDescription>
                   {editMode === 'preview' ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setEditMode('description')}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setEditMode('description')}>
                       Edit Description
                     </Button>
                   ) : (
@@ -225,8 +215,8 @@ export default function EditFormPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        setDescription(originalForm.description);
-                        setEditMode('preview');
+                        setDescription(originalForm.description)
+                        setEditMode('preview')
                       }}
                     >
                       Cancel
@@ -255,7 +245,7 @@ export default function EditFormPage() {
                           Updating...
                         </>
                       ) : (
-                        "Update Form"
+                        'Update Form'
                       )}
                     </Button>
                   </div>
@@ -271,9 +261,7 @@ export default function EditFormPage() {
                       <Calendar className="mr-2 h-5 w-5 text-muted-foreground" />
                       <CardTitle className="text-lg">Form Expiration</CardTitle>
                     </div>
-                    <CardDescription>
-                      Set a date when this form will stop accepting responses
-                    </CardDescription>
+                    <CardDescription>Set a date when this form will stop accepting responses</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
@@ -286,7 +274,7 @@ export default function EditFormPage() {
                       <p className="text-xs text-muted-foreground mt-1">
                         {expirationDate
                           ? `This form will stop accepting responses after ${expirationDate.toLocaleDateString()} at ${expirationDate.toLocaleTimeString()}.`
-                          : "After this date, the form will no longer accept new responses."}
+                          : 'After this date, the form will no longer accept new responses.'}
                       </p>
                       {expirationDate && (
                         <Button
@@ -309,23 +297,17 @@ export default function EditFormPage() {
                   onFormChange={(updatedForm) => setForm(updatedForm)}
                 />
                 <div className="flex justify-end space-x-4 mt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push("/dashboard")}
-                  >
+                  <Button variant="outline" onClick={() => router.push('/dashboard')}>
                     Cancel
                   </Button>
-                  <Button
-                    onClick={handleSaveForm}
-                    disabled={saving}
-                  >
+                  <Button onClick={handleSaveForm} disabled={saving}>
                     {saving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Saving...
                       </>
                     ) : (
-                      "Save Changes"
+                      'Save Changes'
                     )}
                   </Button>
                 </div>
@@ -335,5 +317,5 @@ export default function EditFormPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

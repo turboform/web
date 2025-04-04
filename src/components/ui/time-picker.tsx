@@ -1,15 +1,11 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Clock } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import * as React from 'react'
+import { Clock } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 interface TimePickerProps {
   date: Date | undefined
@@ -17,10 +13,10 @@ interface TimePickerProps {
   label?: string
 }
 
-export function TimePicker({ date, setDate, label = "Pick a time" }: TimePickerProps) {
+export function TimePicker({ date, setDate, label = 'Pick a time' }: TimePickerProps) {
   // Generate hours options (0-23)
   const hours = Array.from({ length: 24 }, (_, i) => i)
-  
+
   // Generate minutes options (0, 15, 30, 45)
   const minutes = [0, 15, 30, 45]
 
@@ -53,10 +49,10 @@ export function TimePicker({ date, setDate, label = "Pick a time" }: TimePickerP
   // Format time display
   const formatTimeDisplay = () => {
     if (!date) return label
-    
+
     const hours = date.getHours()
     const minutes = date.getMinutes()
-    
+
     // Format as HH:MM
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   }
@@ -65,11 +61,8 @@ export function TimePicker({ date, setDate, label = "Pick a time" }: TimePickerP
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant={"outline"}
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground"
-          )}
+          variant={'outline'}
+          className={cn('w-full justify-start text-left font-normal', !date && 'text-muted-foreground')}
         >
           <Clock className="mr-2 h-4 w-4" />
           {formatTimeDisplay()}
@@ -92,7 +85,7 @@ export function TimePicker({ date, setDate, label = "Pick a time" }: TimePickerP
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="flex flex-col space-y-1">
             <span className="text-xs text-muted-foreground">Minutes</span>
             <Select defaultValue={currentMinute.toString()} onValueChange={handleMinuteChange}>

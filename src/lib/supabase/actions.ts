@@ -1,83 +1,73 @@
-'use server';
+'use server'
 
-import { revalidatePath } from 'next/cache';
-import { cache } from 'react';
-import { supabaseAdminClient } from './admin';
+import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
+import { supabaseAdminClient } from './admin'
 
 export type FormData = {
-  id: string;
-  short_id: string;
-  title: string;
-  description: string;
-  schema: any[];
-  created_at: string;
-  user_id: string;
-  expires_at?: string;
-  is_public?: boolean;
-  is_draft?: boolean;
-};
+  id: string
+  short_id: string
+  title: string
+  description: string
+  schema: any[]
+  created_at: string
+  user_id: string
+  expires_at?: string
+  is_public?: boolean
+  is_draft?: boolean
+}
 
 // Use cache to prevent redundant fetches during server rendering cycle
 export const getFormById = cache(async (formId: string): Promise<FormData | null> => {
   try {
-    const { data, error } = await supabaseAdminClient
-      .from('forms')
-      .select('*')
-      .eq('id', formId)
-      .single();
+    const { data, error } = await supabaseAdminClient.from('forms').select('*').eq('id', formId).single()
 
     if (error) {
-      console.error('Error fetching form:', error);
-      return null;
+      console.error('Error fetching form:', error)
+      return null
     }
 
-    return data as FormData;
+    return data as FormData
   } catch (error) {
-    console.error('Error in getFormById:', error);
-    return null;
+    console.error('Error in getFormById:', error)
+    return null
   }
-});
+})
 
 // Get form by short ID
 export const getFormByShortId = cache(async (shortId: string): Promise<FormData | null> => {
   try {
-    const { data, error } = await supabaseAdminClient
-      .from('forms')
-      .select('*')
-      .eq('short_id', shortId)
-      .single();
+    const { data, error } = await supabaseAdminClient.from('forms').select('*').eq('short_id', shortId).single()
 
     if (error) {
-      console.error('Error fetching form by short ID:', error);
-      return null;
+      console.error('Error fetching form by short ID:', error)
+      return null
     }
 
-    return data as FormData;
+    return data as FormData
   } catch (error) {
-    console.error('Error in getFormByShortId:', error);
-    return null;
+    console.error('Error in getFormByShortId:', error)
+    return null
   }
-});
+})
 
 export async function submitFormResponse(formId: string, responses: Record<string, any>) {
   try {
-    const { error } = await supabaseAdminClient
-      .from('form_responses')
-      .insert({
-        form_id: formId,
-        responses
-      });
+    const { error } = await supabaseAdminClient.from('form_responses').insert({
+      form_id: formId,
+      responses,
+    })
 
     if (error) {
-      throw error;
+      throw error
     }
 
     // Invalidate the cache for this form page
-    revalidatePath(`/form/${formId}`);
+    revalidatePath(`/form/${formId}`)
 
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error('Error submitting form response:', error);
-    return { success: false, error };
+    console.error('Error submitting form response:', error)
+    return { success: false, error }
   }
 }

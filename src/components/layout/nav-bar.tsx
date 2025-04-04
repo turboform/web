@@ -1,39 +1,41 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useAuth } from "@/components/auth/auth-provider";
-import { SignInDialog } from "@/components/auth/sign-in-dialog";
-import { Flame, LayoutDashboard, Menu, X } from "lucide-react";
+import { useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { usePathname } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useAuth } from '@/components/auth/auth-provider'
+import { SignInDialog } from '@/components/auth/sign-in-dialog'
+import { Flame, LayoutDashboard, Menu, X } from 'lucide-react'
 
 export default function NavBar() {
-  const { user, signOut, isAnonymous } = useAuth();
-  const pathname = usePathname();
-  const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut, isAnonymous } = useAuth()
+  const pathname = usePathname()
+  const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Skip rendering on specific pages if needed
-  const hideOnPaths = ['/f/*'];
+  const hideOnPaths = ['/f/*']
   // Check if current path matches any pattern in hideOnPaths (including wildcards)
-  if (hideOnPaths.some(pattern => {
-    // Convert wildcard pattern to regex
-    if (pattern.includes('*')) {
-      const regexPattern = new RegExp('^' + pattern.replace('*', '.*') + '$');
-      return regexPattern.test(pathname);
-    }
-    // Direct comparison for exact matches
-    return pattern === pathname;
-  })) {
-    return null;
+  if (
+    hideOnPaths.some((pattern) => {
+      // Convert wildcard pattern to regex
+      if (pattern.includes('*')) {
+        const regexPattern = new RegExp('^' + pattern.replace('*', '.*') + '$')
+        return regexPattern.test(pathname)
+      }
+      // Direct comparison for exact matches
+      return pattern === pathname
+    })
+  ) {
+    return null
   }
 
   // Determine if the user is effectively signed in (not anonymous)
-  const isEffectivelySignedIn = user && !isAnonymous;
+  const isEffectivelySignedIn = user && !isAnonymous
 
   return (
     <header className="w-full border-b border-border">
@@ -78,10 +80,7 @@ export default function NavBar() {
                     >
                       <Avatar>
                         {user.user_metadata?.avatar_url ? (
-                          <AvatarImage
-                            src={user.user_metadata.avatar_url}
-                            alt={`${user.email}'s profile`}
-                          />
+                          <AvatarImage src={user.user_metadata.avatar_url} alt={`${user.email}'s profile`} />
                         ) : null}
                         <AvatarFallback className="bg-primary/10 text-primary">
                           {user.email?.charAt(0).toUpperCase() || 'U'}
@@ -101,9 +100,7 @@ export default function NavBar() {
               </div>
             </>
           ) : (
-            <Button onClick={() => setIsSignInDialogOpen(true)}>
-              Sign In
-            </Button>
+            <Button onClick={() => setIsSignInDialogOpen(true)}>Sign In</Button>
           )}
         </nav>
 
@@ -113,17 +110,10 @@ export default function NavBar() {
           {isEffectivelySignedIn ? (
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="rounded-full p-0"
-                >
+                <Button variant="ghost" size="sm" className="rounded-full p-0">
                   <Avatar className="h-8 w-8">
                     {user.user_metadata?.avatar_url ? (
-                      <AvatarImage
-                        src={user.user_metadata.avatar_url}
-                        alt={`${user.email}'s profile`}
-                      />
+                      <AvatarImage src={user.user_metadata.avatar_url} alt={`${user.email}'s profile`} />
                     ) : null}
                     <AvatarFallback className="bg-primary/10 text-primary text-xs">
                       {user.email?.charAt(0).toUpperCase() || 'U'}
@@ -184,10 +174,10 @@ export default function NavBar() {
         isOpen={isSignInDialogOpen}
         onClose={() => setIsSignInDialogOpen(false)}
         onSignInSuccess={() => {
-          setIsSignInDialogOpen(false);
+          setIsSignInDialogOpen(false)
         }}
         showAnonymousLinkingOption={isAnonymous}
       />
     </header>
-  );
+  )
 }

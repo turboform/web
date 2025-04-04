@@ -1,38 +1,38 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Check, Loader2, Star } from "lucide-react";
-import { SignInDialog } from "@/components/auth/sign-in-dialog";
-import { useAuth } from "@/components/auth/auth-provider";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { getStripe } from "@/lib/stripe/client";
-import { toast } from "sonner";
-import axios from "axios";
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Check, Loader2, Star } from 'lucide-react'
+import { SignInDialog } from '@/components/auth/sign-in-dialog'
+import { useAuth } from '@/components/auth/auth-provider'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import { getStripe } from '@/lib/stripe/client'
+import { toast } from 'sonner'
+import axios from 'axios'
 
 const pricingPlans = [
   {
-    name: "Tinker",
-    description: "Perfect for individuals getting started with forms and surveys.",
+    name: 'Tinker',
+    description: 'Perfect for individuals getting started with forms and surveys.',
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      "Create unlimited forms",
-      "Collect up to 100 responses per month",
-      "Basic analytics & reporting",
-      "AI-assisted form creation (limited)",
-      "Embed & share anywhere"
+      'Create unlimited forms',
+      'Collect up to 100 responses per month',
+      'Basic analytics & reporting',
+      'AI-assisted form creation (limited)',
+      'Embed & share anywhere',
     ],
-    buttonText: "Get Started Free",
+    buttonText: 'Get Started Free',
     isPopular: false,
-    color: "bg-muted/40 hover:bg-muted/60",
-    textColor: "text-foreground",
-    buttonVariant: "outline" as const
+    color: 'bg-muted/40 hover:bg-muted/60',
+    textColor: 'text-foreground',
+    buttonVariant: 'outline' as const,
   },
   {
-    name: "Flow",
-    description: "For growing teams and professionals who need more responses and AI insights.",
+    name: 'Flow',
+    description: 'For growing teams and professionals who need more responses and AI insights.',
     monthlyPrice: 29,
     yearlyPrice: 290,
     earlyBirdMonthlyPrice: 15,
@@ -41,21 +41,21 @@ const pricingPlans = [
     monthlyPriceId: process.env.NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID,
     yearlyPriceId: process.env.NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID,
     features: [
-      "Up to 5,000 responses per month",
-      "Advanced AI-driven data analysis",
-      "Custom branding & themes",
-      "Integrations with Slack, Zapier, and more",
-      "Export data to CSV & Google Sheets"
+      'Up to 5,000 responses per month',
+      'Advanced AI-driven data analysis',
+      'Custom branding & themes',
+      'Integrations with Slack, Zapier, and more',
+      'Export data to CSV & Google Sheets',
     ],
-    buttonText: "Upgrade to Flow",
+    buttonText: 'Upgrade to Flow',
     isPopular: true,
-    color: "bg-primary/10 hover:bg-primary/20",
-    textColor: "text-foreground",
-    buttonVariant: "default" as const
+    color: 'bg-primary/10 hover:bg-primary/20',
+    textColor: 'text-foreground',
+    buttonVariant: 'default' as const,
   },
   {
-    name: "Optimize",
-    description: "For power users and businesses that demand deep insights and automation.",
+    name: 'Optimize',
+    description: 'For power users and businesses that demand deep insights and automation.',
     monthlyPrice: 79,
     yearlyPrice: 790,
     earlyBirdMonthlyPrice: 39,
@@ -64,114 +64,114 @@ const pricingPlans = [
     monthlyPriceId: process.env.NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID,
     yearlyPriceId: process.env.NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID,
     features: [
-      "Unlimited responses",
-      "AI-powered response predictions & trends",
-      "Advanced workflow automation",
-      "White-labeling & custom domains",
-      "Priority support & team collaboration tools"
+      'Unlimited responses',
+      'AI-powered response predictions & trends',
+      'Advanced workflow automation',
+      'White-labeling & custom domains',
+      'Priority support & team collaboration tools',
     ],
-    buttonText: "Upgrade to Optimize",
+    buttonText: 'Upgrade to Optimize',
     isPopular: false,
-    color: "bg-muted/40 hover:bg-muted/60",
-    textColor: "text-foreground",
-    buttonVariant: "outline" as const
+    color: 'bg-muted/40 hover:bg-muted/60',
+    textColor: 'text-foreground',
+    buttonVariant: 'outline' as const,
   },
   {
-    name: "Enterprise",
-    description: "Custom solutions for large-scale data collection and enterprise needs.",
+    name: 'Enterprise',
+    description: 'Custom solutions for large-scale data collection and enterprise needs.',
     monthlyPrice: null,
     yearlyPrice: null,
     features: [
-      "Tailored response limits & dedicated infrastructure",
-      "Enterprise-grade security & compliance",
-      "Custom AI models for data analysis",
-      "Dedicated account manager",
-      "API access & premium integrations"
+      'Tailored response limits & dedicated infrastructure',
+      'Enterprise-grade security & compliance',
+      'Custom AI models for data analysis',
+      'Dedicated account manager',
+      'API access & premium integrations',
     ],
-    buttonText: "Contact Sales",
+    buttonText: 'Contact Sales',
     isPopular: false,
-    color: "bg-muted/40 hover:bg-muted/60",
-    textColor: "text-foreground",
-    buttonVariant: "outline" as const
-  }
-];
+    color: 'bg-muted/40 hover:bg-muted/60',
+    textColor: 'text-foreground',
+    buttonVariant: 'outline' as const,
+  },
+]
 
 export default function PricingPage() {
-  const { session, user, isAnonymous } = useAuth();
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
-  const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<typeof pricingPlans[number] | null>(null);
+  const { session, user, isAnonymous } = useAuth()
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
+  const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<(typeof pricingPlans)[number] | null>(null)
 
-  const handlePlanSelect = async (plan: typeof pricingPlans[number]) => {
+  const handlePlanSelect = async (plan: (typeof pricingPlans)[number]) => {
     // If user is not logged in or is anonymous, show sign in dialog
     if (!user || isAnonymous) {
-      setSelectedPlan(plan); // Store the selected plan for after sign-in
-      setIsSignInDialogOpen(true);
-      return;
+      setSelectedPlan(plan) // Store the selected plan for after sign-in
+      setIsSignInDialogOpen(true)
+      return
     }
 
     try {
-      setLoadingPlanId(plan.name);
-      setIsLoading(true);
+      setLoadingPlanId(plan.name)
+      setIsLoading(true)
 
       // Determine which price ID to use based on billing period
-      const priceId = billingPeriod === "monthly"
-        ? plan.monthlyPriceId
-        : plan.yearlyPriceId;
+      const priceId = billingPeriod === 'monthly' ? plan.monthlyPriceId : plan.yearlyPriceId
 
       if (!priceId) {
-        toast.error("This plan is not available for purchase yet");
-        return;
+        toast.error('This plan is not available for purchase yet')
+        return
       }
 
-      const stripe = await getStripe();
+      const stripe = await getStripe()
       if (!stripe) {
-        toast.error("Failed to load payment processor");
-        return;
+        toast.error('Failed to load payment processor')
+        return
       }
 
       // Call our API endpoint to create a checkout session
-      const result = await axios.post('/api/stripe/session', { priceId },
+      const result = await axios.post(
+        '/api/stripe/session',
+        { priceId },
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
+            Authorization: `Bearer ${session?.access_token}`,
           },
         }
-      );
+      )
 
       if (result.data.error) {
-        toast.error(result.data.error.message || "Failed to create checkout session");
-        return;
+        toast.error(result.data.error.message || 'Failed to create checkout session')
+        return
       }
 
       if (result.data?.sessionId) {
-        await stripe.redirectToCheckout({ sessionId: result.data.sessionId });
+        await stripe.redirectToCheckout({ sessionId: result.data.sessionId })
       } else {
-        toast.error("Invalid response from server");
+        toast.error('Invalid response from server')
       }
     } catch (error) {
-      console.error("Checkout error:", error);
-      toast.error("Failed to start checkout process");
+      console.error('Checkout error:', error)
+      toast.error('Failed to start checkout process')
     } finally {
-      setIsLoading(false);
-      setLoadingPlanId(null);
+      setIsLoading(false)
+      setLoadingPlanId(null)
     }
-  };
+  }
 
   // Handle successful sign-in, continue with payment if a plan was selected
   const handleSignInSuccess = () => {
-    setIsSignInDialogOpen(false);
+    setIsSignInDialogOpen(false)
     // If a plan was selected before signing in, continue with that plan
     if (selectedPlan) {
-      const plan = selectedPlan;
-      setSelectedPlan(null);
+      const plan = selectedPlan
+      setSelectedPlan(null)
       // Process the payment in the next tick to ensure the auth state is updated
-      setTimeout(() => handlePlanSelect(plan), 0);
+      setTimeout(() => handlePlanSelect(plan), 0)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto max-w-7xl py-16 px-4 sm:px-6 lg:px-8">
@@ -197,30 +197,37 @@ export default function PricingPage() {
         <div className="flex items-center justify-center space-x-4 mb-12">
           <button
             className={cn(
-              "text-sm font-medium px-3 py-2 rounded-md",
-              billingPeriod === "monthly" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+              'text-sm font-medium px-3 py-2 rounded-md',
+              billingPeriod === 'monthly' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
             )}
-            onClick={() => setBillingPeriod("monthly")}
+            onClick={() => setBillingPeriod('monthly')}
           >
             Monthly
           </button>
           <div className="relative flex items-center">
-            <div className="h-6 w-10 rounded-full bg-muted flex items-center p-1 cursor-pointer"
-              onClick={() => setBillingPeriod(billingPeriod === "monthly" ? "yearly" : "monthly")}>
-              <div className={cn(
-                "h-4 w-4 rounded-full bg-primary shadow-sm transition-transform",
-                billingPeriod === "yearly" ? "translate-x-4" : "translate-x-0"
-              )}></div>
+            <div
+              className="h-6 w-10 rounded-full bg-muted flex items-center p-1 cursor-pointer"
+              onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
+            >
+              <div
+                className={cn(
+                  'h-4 w-4 rounded-full bg-primary shadow-sm transition-transform',
+                  billingPeriod === 'yearly' ? 'translate-x-4' : 'translate-x-0'
+                )}
+              ></div>
             </div>
           </div>
           <button
             className={cn(
-              "text-sm font-medium px-3 py-2 rounded-md flex items-center gap-1.5",
-              billingPeriod === "yearly" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+              'text-sm font-medium px-3 py-2 rounded-md flex items-center gap-1.5',
+              billingPeriod === 'yearly' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
             )}
-            onClick={() => setBillingPeriod("yearly")}
+            onClick={() => setBillingPeriod('yearly')}
           >
-            Yearly <span className="bg-green-100 text-green-800 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">20% off</span>
+            Yearly{' '}
+            <span className="bg-green-100 text-green-800 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+              20% off
+            </span>
           </button>
         </div>
       </div>
@@ -231,8 +238,8 @@ export default function PricingPage() {
           <div
             key={plan.name}
             className={cn(
-              "rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg",
-              plan.isPopular ? "border-primary ring-1 ring-primary/20" : "border-border"
+              'rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg',
+              plan.isPopular ? 'border-primary ring-1 ring-primary/20' : 'border-border'
             )}
           >
             {plan.isPopular && (
@@ -245,29 +252,27 @@ export default function PricingPage() {
 
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-              <p className="text-sm text-muted-foreground mb-4 h-12">
-                {plan.description}
-              </p>
+              <p className="text-sm text-muted-foreground mb-4 h-12">{plan.description}</p>
 
               <div className="mb-4">
                 {plan.monthlyPrice !== null ? (
                   <>
                     {plan.hasDiscount ? (
                       <span className="text-3xl font-bold">
-                        ${billingPeriod === "monthly" ? plan.earlyBirdMonthlyPrice : plan.earlyBirdYearlyPrice}
+                        ${billingPeriod === 'monthly' ? plan.earlyBirdMonthlyPrice : plan.earlyBirdYearlyPrice}
                         <span className="text-muted-foreground text-sm ml-1 line-through">
-                          ${billingPeriod === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
+                          ${billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}
                         </span>
                       </span>
                     ) : (
                       <span className="text-3xl font-bold">
-                        ${billingPeriod === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
+                        ${billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}
                       </span>
                     )}
                     {plan.monthlyPrice > 0 && (
                       <>
                         <span className="text-muted-foreground text-sm ml-1">
-                          /{billingPeriod === "monthly" ? "month" : "year"}
+                          /{billingPeriod === 'monthly' ? 'month' : 'year'}
                         </span>
                         <div className="mt-1">
                           <span className="text-xs inline-block bg-green-100 text-green-800 rounded px-1.5 py-0.5">
@@ -295,9 +300,9 @@ export default function PricingPage() {
             <Button
               variant={plan.buttonVariant}
               className={cn(
-                "w-full",
-                plan.isPopular ? "bg-primary hover:bg-primary/90" : "",
-                isLoading && loadingPlanId === plan.name ? "bg-primary/50 text-primary-foreground" : ""
+                'w-full',
+                plan.isPopular ? 'bg-primary hover:bg-primary/90' : '',
+                isLoading && loadingPlanId === plan.name ? 'bg-primary/50 text-primary-foreground' : ''
               )}
               onClick={() => handlePlanSelect(plan)}
               disabled={isLoading && loadingPlanId === plan.name}
@@ -317,14 +322,10 @@ export default function PricingPage() {
 
       {/* Enterprise plan in full width */}
       <div className="mb-16">
-        <div
-          className="rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg max-w-4xl mx-auto grid md:grid-cols-[2fr_3fr] gap-6"
-        >
+        <div className="rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg max-w-4xl mx-auto grid md:grid-cols-[2fr_3fr] gap-6">
           <div>
             <h3 className="text-xl font-bold mb-2">{pricingPlans[3].name}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {pricingPlans[3].description}
-            </p>
+            <p className="text-sm text-muted-foreground mb-4">{pricingPlans[3].description}</p>
 
             <div className="mb-4">
               <span className="text-xl font-bold">Custom Pricing</span>
@@ -358,28 +359,37 @@ export default function PricingPage() {
           <div>
             <h3 className="text-lg font-medium mb-2">Can I switch plans later?</h3>
             <p className="text-muted-foreground">
-              Yes, you can upgrade, downgrade, or cancel your plan at any time. Changes to your subscription will be applied immediately.
+              Yes, you can upgrade, downgrade, or cancel your plan at any time. Changes to your subscription will be
+              applied immediately.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-medium mb-2">What happens if I exceed my monthly response limit?</h3>
             <p className="text-muted-foreground">
-              If you reach your monthly response limit, you&apos;ll be notified and have the option to upgrade to a higher plan. No data will be lost.
+              If you reach your monthly response limit, you&apos;ll be notified and have the option to upgrade to a
+              higher plan. No data will be lost.
             </p>
           </div>
 
           <div>
             <h3 className="text-lg font-medium mb-2">Is there a free trial?</h3>
             <p className="text-muted-foreground">
-              Yes! The Tinker plan is free forever with limited features. For paid plans, we offer a 14-day free trial so you can test all features before committing.
+              Yes! The Tinker plan is free forever with limited features. For paid plans, we offer a 14-day free trial
+              so you can test all features before committing.
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-2">Do you offer discounts for nonprofits or educational institutions?</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Do you offer discounts for nonprofits or educational institutions?
+            </h3>
             <p className="text-muted-foreground">
-              Yes, we offer special pricing for nonprofit organizations and educational institutions. Please <Link href="/contact" className="text-primary hover:underline">contact our sales team</Link> for more information.
+              Yes, we offer special pricing for nonprofit organizations and educational institutions. Please{' '}
+              <Link href="/contact" className="text-primary hover:underline">
+                contact our sales team
+              </Link>{' '}
+              for more information.
             </p>
           </div>
         </div>
@@ -403,5 +413,5 @@ export default function PricingPage() {
         onSignInSuccess={handleSignInSuccess}
       />
     </div>
-  );
+  )
 }

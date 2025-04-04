@@ -26,7 +26,7 @@ function ProtectedPage(WrappedComponent: React.FC) {
 
     if (isLoading) {
       return (
-        <div className='flex items-center justify-center px-4 py-8'>
+        <div className="flex items-center justify-center px-4 py-8">
           <Loader2 className="animate-spin h-8 w-8" />
         </div>
       )
