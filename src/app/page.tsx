@@ -31,7 +31,7 @@ export default function Home() {
               Forms in Seconds, Not Hours
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl">
-              Turboform.ai transforms your ideas into beautiful, functional forms using AI—no design skills required.
+              TurboForm transforms your ideas into beautiful, functional forms using AI—no design skills required.
             </p>
           </div>
 

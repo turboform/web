@@ -32,17 +32,17 @@ export function Footer() {
               <div className="relative h-8 w-8 overflow-hidden rounded">
                 <Image
                   src="/images/logo.png"
-                  alt="Turboform.ai Logo"
+                  alt="TurboForm Logo"
                   width={32}
                   height={32}
                   className="object-cover rounded-md"
                   priority
                 />
               </div>
-              <span className="font-semibold text-base">Turboform.ai</span>
+              <span className="font-semibold text-base">TurboForm</span>
             </Link>
             <p className="text-sm text-muted-foreground mt-1">
-              &copy; {currentYear} Turboform.ai
+              &copy; {currentYear} TurboForm
             </p>
           </div>
 

@@ -20,8 +20,8 @@ function FormSubmittedContent() {
         "flex items-center justify-center h-24 w-24 mb-6 transition-all duration-700",
         animateCheckmark ? "scale-100" : "scale-0"
       )}>
-        <CheckCircle2 
-          className="h-24 w-24 text-primary/90" 
+        <CheckCircle2
+          className="h-24 w-24 text-primary/90"
           strokeWidth={1.5}
           onAnimationEnd={() => setAnimateCheckmark(false)}
         />
@@ -30,7 +30,7 @@ function FormSubmittedContent() {
       <h1 className="text-3xl md:text-4xl font-bold mb-4">
         Thank You!
       </h1>
-      
+
       <p className="text-xl text-muted-foreground mb-10 max-w-xl">
         {formName} has been submitted successfully.
       </p>
@@ -41,17 +41,17 @@ function FormSubmittedContent() {
             <div className="relative w-20 h-20 md:w-28 md:h-28">
               <Image
                 src="/images/logo.png"
-                alt="Turboform.ai Logo"
+                alt="TurboForm Logo"
                 fill
                 className="object-cover rounded-md"
                 priority
               />
             </div>
           </div>
-          
+
           <div className="flex-1 text-left">
             <h2 className="text-xl md:text-2xl font-bold mb-2">
-              Create Your Own Forms with Turboform.ai
+              Create Your Own Forms with TurboForm
             </h2>
             <p className="text-muted-foreground mb-4">
               Build beautiful, intelligent forms like this one in seconds using AI—no design skills required.
@@ -73,13 +73,13 @@ function FormSubmittedContent() {
             Describe your form in plain language and AI does the rest
           </p>
         </div>
-        
+
         <div className="flex flex-col items-center p-4 rounded-lg border border-border">
-          <svg 
-            viewBox="0 0 24 24" 
+          <svg
+            viewBox="0 0 24 24"
             className="h-10 w-10 text-primary/70 mb-3"
-            fill="none" 
-            stroke="currentColor" 
+            fill="none"
+            stroke="currentColor"
             strokeWidth="1.5"
           >
             <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
@@ -90,13 +90,13 @@ function FormSubmittedContent() {
             Create and share forms in seconds, not hours
           </p>
         </div>
-        
+
         <div className="flex flex-col items-center p-4 rounded-lg border border-border">
-          <svg 
-            viewBox="0 0 24 24" 
+          <svg
+            viewBox="0 0 24 24"
             className="h-10 w-10 text-primary/70 mb-3"
-            fill="none" 
-            stroke="currentColor" 
+            fill="none"
+            stroke="currentColor"
             strokeWidth="1.5"
           >
             <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z" />

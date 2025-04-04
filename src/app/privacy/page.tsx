@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Turboform.ai",
-  description: "Privacy policy for Turboform.ai - how we handle your data and protect your privacy",
+  title: "Privacy Policy | TurboForm",
+  description: "Privacy policy for TurboForm - how we handle your data and protect your privacy",
 };
 
 export default function PrivacyPage() {
@@ -15,17 +15,17 @@ export default function PrivacyPage() {
         <section className="mb-10">
           <h2 className="text-2xl font-semibold mb-4">Introduction</h2>
           <p className="mb-4 leading-relaxed">
-            At Turboform.ai ("we", "our", or "us"), we respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
+            At TurboForm ("we", "our", or "us"), we respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
           </p>
           <p className="mb-4 leading-relaxed">
-            This privacy policy applies to all users of Turboform.ai. Please read it carefully to understand our practices regarding your personal data.
+            This privacy policy applies to all users of TurboForm. Please read it carefully to understand our practices regarding your personal data.
           </p>
         </section>
 
         <section className="mb-10">
           <h2 className="text-2xl font-semibold mb-4">Data We Collect</h2>
           <p className="mb-4 leading-relaxed">
-            We collect and process the following information when you use Turboform.ai:
+            We collect and process the following information when you use TurboForm:
           </p>
           <ul className="list-disc pl-8 mb-4 space-y-2 leading-relaxed">
             <li>Account information: email address and authentication information when you register</li>
