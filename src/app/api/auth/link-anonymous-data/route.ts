@@ -5,7 +5,6 @@ import { authenticateUser } from '@/lib/supabase/server'
 export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
-  // TODO: NB - add good check here, if abused users can use this endpoint to transfer data to other users.
   // Check that the user is authenticated and has the right permissions
   const token = req.headers.get('Authorization')?.replace('Bearer ', '')
   if (!token) {
@@ -24,6 +23,30 @@ export async function POST(req: NextRequest) {
 
     if (!anonymousUserId || !targetUserId) {
       return NextResponse.json({ error: 'Missing required user IDs' }, { status: 400 })
+    }
+
+    // SECURITY CHECK: Ensure targetUserId matches the authenticated user's ID
+    if (targetUserId !== user.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized - You can only transfer data to your own account' },
+        { status: 403 }
+      )
+    }
+
+    // SECURITY CHECK: Verify the anonymous user is actually anonymous
+    const { data: anonymousUserData, error: userCheckError } =
+      await supabaseAdminClient.auth.admin.getUserById(anonymousUserId)
+
+    if (userCheckError || !anonymousUserData) {
+      return NextResponse.json({ error: 'Invalid source user ID' }, { status: 400 })
+    }
+
+    // Verify the source user is actually anonymous
+    if (!anonymousUserData.user?.app_metadata?.is_anonymous) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Can only transfer data from anonymous accounts' },
+        { status: 403 }
+      )
     }
 
     // Transfer all forms from the anonymous user to the registered user

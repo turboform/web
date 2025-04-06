@@ -110,6 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: 'No anonymous account to link' }
       }
 
+      // Store the anonymous user ID before any auth changes
+      const anonymousUserId = user.id
+
       // First, try to sign in with the provided credentials to check if the account exists
       const { data: existingUserData, error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
         email,
@@ -118,13 +121,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // If sign-in was successful, we need to handle the case of linking the anonymous data
       if (!signInError && existingUserData?.user) {
-        // The following part needs to be handled via admin functions since we need to transfer
-        // ownership of any forms created while anonymous to the existing account
+        // Get the current session for the auth token
+        const { data: sessionData } = await supabaseBrowserClient.auth.getSession()
+        const authToken = sessionData.session?.access_token
 
-        // 1. Store the anonymous user ID to use for transferring data
-        const anonymousUserId = user.id
-
-        // 2. Use the admin client to transfer forms from anonymous user to the existing user
+        // Use the admin client to transfer forms from anonymous user to the existing user
         try {
           // Using fetch here since we need to call a server action to use the admin client
           // TODO: NB - add good check here, if abused users can use this endpoint to transfer data to other users.
@@ -132,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`, // Include authentication token
             },
             body: JSON.stringify({
               anonymousUserId,
@@ -140,8 +142,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           })
 
           if (!response.ok) {
-            // If the data migration failed, still let the user sign in
-            // but warn them some data might not be transferred
             console.error('Failed to transfer anonymous data')
           }
         } catch (error) {
