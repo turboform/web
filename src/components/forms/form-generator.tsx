@@ -31,11 +31,13 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
       setIsGenerating(true)
 
       // Sign in anonymously if needed (only when generating a form)
+      let authSession = session
       if (!user) {
-        const { success, error } = await signInAnonymously(captchaToken)
+        const { session: newSession, success, error } = await signInAnonymously(captchaToken)
         if (!success) {
           console.error('Error signing in anonymously:', error)
-          // Continue anyway, the API will handle the case where there's no user
+        } else {
+          authSession = newSession
         }
       }
 
@@ -47,7 +49,7 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.access_token}`,
+            Authorization: `Bearer ${authSession?.access_token}`,
           },
         }
       )

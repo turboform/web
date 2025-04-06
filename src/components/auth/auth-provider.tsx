@@ -11,7 +11,7 @@ type AuthContextType = {
   isLoading: boolean
   isAnonymous: boolean
   signOut: () => Promise<void>
-  signInAnonymously: (captchaToken: string) => Promise<{ success: boolean; error?: string }>
+  signInAnonymously: (captchaToken: string) => Promise<{ session: Session | null; success: boolean; error?: string }>
   linkAnonymousAccount: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
 }
 
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // If user is already signed in, don't create a new anonymous account
       if (user) {
-        return { success: true }
+        return { success: true, session }
       }
 
       // Create an anonymous user using Supabase's built-in method
@@ -87,18 +87,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error('Error signing in anonymously:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error.message, session: null }
       }
 
       if (data?.user) {
         setIsAnonymous(true)
-        return { success: true }
+        setSession(data.session)
+        return { success: true, session: data.session }
       }
 
-      return { success: false, error: 'Failed to create anonymous account' }
+      return { success: false, error: 'Failed to create anonymous account', session: null }
     } catch (error: any) {
       console.error('Error signing in anonymously:', error)
-      return { success: false, error: error.message }
+      return { success: false, error: error.message, session: null }
     }
   }
 
