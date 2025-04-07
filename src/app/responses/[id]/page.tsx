@@ -179,16 +179,27 @@ const ResponsesPage = () => {
     let result = [...responses]
 
     // Apply search filter
-    if (searchTerm) {
-      const lowerSearchTerm = searchTerm.toLowerCase()
+    if (searchTerm.trim()) {
+      const lowerSearchTerm = searchTerm.toLowerCase().trim()
       result = result.filter((response) => {
-        if (!response.answers) return false
-        return columns.some((column) => {
-          const value =
-            column === 'created_at' ? new Date(response.created_at).toLocaleString() : response.answers[column]
+        // Handle case where response has no answers
+        if (!response.answers) {
+          // Still check created_at even if no answers
+          return new Date(response.created_at).toLocaleString().toLowerCase().includes(lowerSearchTerm)
+        }
 
+        // Special case for created_at field
+        if (new Date(response.created_at).toLocaleString().toLowerCase().includes(lowerSearchTerm)) {
+          return true
+        }
+
+        // Check all answer fields for the search term
+        return Object.entries(response.answers).some(([key, value]) => {
           if (value === null || value === undefined) return false
-          return String(value).toLowerCase().includes(lowerSearchTerm)
+
+          // Convert to string for comparison
+          const stringValue = String(value).toLowerCase()
+          return stringValue.includes(lowerSearchTerm)
         })
       })
     }
@@ -210,6 +221,12 @@ const ResponsesPage = () => {
         if (aValue === undefined) aValue = ''
         if (bValue === undefined) bValue = ''
 
+        // For string comparison, use localeCompare
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return sortConfig.direction === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+        }
+
+        // For other types (numbers, dates, etc)
         if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1
         }
@@ -221,7 +238,7 @@ const ResponsesPage = () => {
     }
 
     return result
-  }, [responses, searchTerm, sortConfig, columns])
+  }, [responses, searchTerm, sortConfig])
 
   // Format cell value for display
   const formatCellValue = (column: string, value: any) => {
@@ -489,7 +506,7 @@ const ResponsesPage = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {responses.map((response) => (
+                    {filteredAndSortedResponses.map((response) => (
                       <TableRow key={response.id}>
                         {visibleColumns.map((column) => {
                           const value = column === 'created_at' ? response.created_at : response.answers?.[column]
