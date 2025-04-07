@@ -10,6 +10,7 @@ import { ArrowRight, Sparkles, Clock, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth/auth-provider'
 import { useRouter } from 'next/navigation'
+import { Badge } from '@/components/ui/badge'
 
 export default function Home() {
   const router = useRouter()
@@ -28,53 +29,79 @@ export default function Home() {
     <div className="container mx-auto py-12 px-4">
       {!generatedForm ? (
         <div className="max-w-3xl mx-auto">
-          <div className="flex flex-col items-center text-center mb-10">
-            <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-primary to-primary/70 text-transparent bg-clip-text">
+          {/* ATTENTION: Capture attention with a strong headline and compelling badge */}
+          <div className="flex flex-col items-center text-center mb-12">
+            <Badge className="mb-4 bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors">
+              AI Form Builder
+            </Badge>
+            <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-transparent bg-clip-text">
               Forms in Seconds, Not Hours
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl">
-              TurboForm transforms your ideas into beautiful, functional forms using AI—no design skills required.
+            <p className="text-xl text-muted-foreground max-w-2xl mb-6">
+              TurboForm transforms your ideas into beautiful forms with AI—no design skills needed.
             </p>
+            <div className="flex flex-wrap justify-center gap-3 mb-2">
+              <Badge variant="outline" className="border-primary/20 text-primary">
+                No credit card required
+              </Badge>
+              <Badge variant="outline" className="border-primary/20 text-primary">
+                Unlimited responses
+              </Badge>
+              <Badge variant="outline" className="border-primary/20 text-primary">
+                Simple sharing
+              </Badge>
+            </div>
           </div>
 
+          {/* INTEREST: Show features that solve real problems */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="flex flex-col items-center text-center p-4">
+            <div className="flex flex-col items-center text-center p-6 rounded-xl transition-colors border border-transparent">
               <div className="bg-primary/10 p-3 rounded-full mb-4">
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-medium mb-2">AI-Powered Design</h3>
+              <h3 className="font-medium text-lg mb-2">AI Form Creation</h3>
               <p className="text-sm text-muted-foreground">
-                Describe what you need and watch AI craft the perfect form
+                Describe your form in plain language and watch AI create it in seconds—10x faster than manual design.
               </p>
             </div>
-            <div className="flex flex-col items-center text-center p-4">
+            <div className="flex flex-col items-center text-center p-6 rounded-xl transition-colors border border-transparent">
               <div className="bg-primary/10 p-3 rounded-full mb-4">
                 <Clock className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-medium mb-2">Save Hours</h3>
+              <h3 className="font-medium text-lg mb-2">Save Hours of Work</h3>
               <p className="text-sm text-muted-foreground">
-                Create in seconds what would take hours with traditional tools
+                Create complex, professional forms in under a minute that would take hours with traditional builders.
               </p>
             </div>
-            <div className="flex flex-col items-center text-center p-4">
+            <div className="flex flex-col items-center text-center p-6 rounded-xl transition-colors border border-transparent">
               <div className="bg-primary/10 p-3 rounded-full mb-4">
                 <Share2 className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-medium mb-2">Instant Sharing</h3>
-              <p className="text-sm text-muted-foreground">Share your form with anyone instantly with a simple link</p>
+              <h3 className="font-medium text-lg mb-2">Simple Sharing</h3>
+              <p className="text-sm text-muted-foreground">
+                Share your form with anyone instantly using a simple, memorable link.
+              </p>
             </div>
           </div>
 
-          <div className="bg-muted/50 p-6 sm:p-8 rounded-xl shadow-sm">
+          {/* DESIRE: Show the product in action + create urgency */}
+          <div className="mb-12 p-8 rounded-xl bg-gradient-to-br from-muted to-card border border-border shadow-sm">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="h-2 w-2 rounded-full bg-destructive/70"></div>
+              <div className="h-2 w-2 rounded-full bg-secondary"></div>
+              <div className="h-2 w-2 rounded-full bg-primary/60"></div>
+              <div className="flex-1 h-8 bg-accent rounded-md mx-2"></div>
+            </div>
+
             <FormGenerator onFormGenerated={setGeneratedForm} />
 
-            <div className="mt-6">
-              <p className="text-sm text-muted-foreground mb-2 font-medium">Try describing something like:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="mt-8">
+              <p className="text-sm font-medium mb-3">Try describing something like:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {examplePrompts.map((prompt, index) => (
                   <div
                     key={index}
-                    className="text-sm p-2 bg-background rounded border border-border hover:border-primary/50 hover:bg-muted/80 cursor-pointer transition-colors"
+                    className="text-sm p-3 bg-card rounded-lg border border-border hover:border-primary/50 hover:bg-accent cursor-pointer transition-all shadow-sm hover:shadow"
                     onClick={() => {
                       const textareaElement = document.querySelector('textarea')
                       if (textareaElement) {
@@ -91,6 +118,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* TODO: Add social proof + clear call to action */}
         </div>
       ) : (
         <div className="max-w-3xl mx-auto">
