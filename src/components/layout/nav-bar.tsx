@@ -10,8 +10,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useAuth } from '@/components/auth/auth-provider'
 import { SignInDialog } from '@/components/auth/sign-in-dialog'
 import { Flame, LayoutDashboard, Menu, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function NavBar() {
+  const router = useRouter()
   const { user, signOut, isAnonymous } = useAuth()
   const pathname = usePathname()
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
@@ -179,6 +181,10 @@ export default function NavBar() {
         onClose={() => setIsSignInDialogOpen(false)}
         onSignInSuccess={() => {
           setIsSignInDialogOpen(false)
+        }}
+        onSignUpSuccess={() => {
+          setIsSignInDialogOpen(false)
+          router.push('/signup-success')
         }}
         showAnonymousLinkingOption={isAnonymous}
       />

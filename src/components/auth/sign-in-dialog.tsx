@@ -23,6 +23,7 @@ interface SignInDialogProps {
   isOpen: boolean
   onClose: () => void
   onSignInSuccess: () => void
+  onSignUpSuccess: () => void
   showAnonymousLinkingOption?: boolean
 }
 
@@ -32,6 +33,7 @@ export function SignInDialog({
   isOpen,
   onClose,
   onSignInSuccess,
+  onSignUpSuccess,
   showAnonymousLinkingOption = false,
 }: SignInDialogProps) {
   const { user, linkAnonymousAccount } = useAuth()
@@ -87,7 +89,6 @@ export function SignInDialog({
           throw new Error(linkError)
         }
 
-        toast.success('Your anonymous account has been converted to a registered account!')
         onSignInSuccess()
         return
       }
@@ -147,8 +148,7 @@ export function SignInDialog({
           throw new Error(linkError)
         }
 
-        toast.success('Your anonymous account has been converted to a registered account!')
-        onSignInSuccess()
+        onSignUpSuccess()
         return
       }
 
@@ -174,8 +174,8 @@ export function SignInDialog({
         }
       }
 
-      toast.success('Registration successful! Please check your email to confirm your account.')
       setShowRegisterForm(false)
+      onSignUpSuccess()
     } catch (error: any) {
       console.error('Error registering:', error)
       setError(error.message || 'Failed to register')
@@ -206,7 +206,6 @@ export function SignInDialog({
           throw new Error(error.message)
         }
 
-        toast.success('Your anonymous account has been converted to a registered account!')
         onSignInSuccess()
         return
       }

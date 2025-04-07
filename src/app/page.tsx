@@ -9,8 +9,10 @@ import { toast } from 'sonner'
 import { ArrowRight, Sparkles, Clock, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/components/auth/auth-provider'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router = useRouter()
   const { user } = useAuth()
   const [generatedForm, setGeneratedForm] = useState<any>(null)
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
@@ -130,6 +132,10 @@ export default function Home() {
         onSignInSuccess={() => {
           toast.success('Signed in successfully!')
           setIsSignInDialogOpen(false)
+        }}
+        onSignUpSuccess={() => {
+          setIsSignInDialogOpen(false)
+          router.push('/signup-success')
         }}
       />
     </div>

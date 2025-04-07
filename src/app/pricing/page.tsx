@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { getStripe } from '@/lib/stripe/client'
 import { toast } from 'sonner'
 import axios from 'axios'
+import { useRouter } from 'next/router'
 
 const pricingPlans = [
   {
@@ -97,6 +98,7 @@ const pricingPlans = [
 ]
 
 export default function PricingPage() {
+  const router = useRouter()
   const { session, user, isAnonymous } = useAuth()
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
@@ -411,6 +413,10 @@ export default function PricingPage() {
         isOpen={isSignInDialogOpen}
         onClose={() => setIsSignInDialogOpen(false)}
         onSignInSuccess={handleSignInSuccess}
+        onSignUpSuccess={() => {
+          setIsSignInDialogOpen(false)
+          router.push('/signup-success')
+        }}
       />
     </div>
   )

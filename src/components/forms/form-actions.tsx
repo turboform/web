@@ -152,6 +152,10 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
           setIsSignInDialogOpen(false)
           toast.success('Signed in successfully! You can now share your form.')
         }}
+        onSignUpSuccess={() => {
+          setIsSignInDialogOpen(false)
+          router.push('/signup-success')
+        }}
         showAnonymousLinkingOption={isAnonymous}
       />
     </>
