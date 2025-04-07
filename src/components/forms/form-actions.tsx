@@ -156,7 +156,6 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
           setIsSignInDialogOpen(false)
           router.push('/signup-success')
         }}
-        showAnonymousLinkingOption={isAnonymous}
       />
     </>
   )

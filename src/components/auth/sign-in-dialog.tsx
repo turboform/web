@@ -24,18 +24,11 @@ interface SignInDialogProps {
   onClose: () => void
   onSignInSuccess: () => void
   onSignUpSuccess: () => void
-  showAnonymousLinkingOption?: boolean
 }
 
 // TODO: Refine the copy on this page
 
-export function SignInDialog({
-  isOpen,
-  onClose,
-  onSignInSuccess,
-  onSignUpSuccess,
-  showAnonymousLinkingOption = false,
-}: SignInDialogProps) {
+export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess }: SignInDialogProps) {
   const { user, linkAnonymousAccount } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -247,17 +240,11 @@ export function SignInDialog({
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {showAnonymousLinkingOption
-              ? 'Convert to a Registered Account'
-              : showRegisterForm
-                ? 'Create an Account'
-                : 'Sign In'}
-          </DialogTitle>
+          <DialogTitle>{showRegisterForm ? 'Create an Account' : 'Sign In'}</DialogTitle>
           <DialogDescription>
-            {showAnonymousLinkingOption
-              ? 'Convert your anonymous account to a registered account to save your forms.'
-              : 'Sign in or create an account to save and share your forms.'}
+            {showRegisterForm
+              ? 'Create an account to save and share your forms.'
+              : 'Sign in to save and share your forms.'}
           </DialogDescription>
         </DialogHeader>
 

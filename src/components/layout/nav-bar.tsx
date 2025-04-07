@@ -186,7 +186,6 @@ export default function NavBar() {
           setIsSignInDialogOpen(false)
           router.push('/signup-success')
         }}
-        showAnonymousLinkingOption={isAnonymous}
       />
     </header>
   )

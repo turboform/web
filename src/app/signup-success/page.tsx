@@ -48,14 +48,17 @@ export default function SignupSuccessPage() {
           </div>
 
           <div className="text-center text-sm text-muted-foreground pt-2">
-            <p>Need help? Contact <a href="mailto:support@turboform.ai" className="text-primary hover:underline">support@turboform.ai</a></p>
+            <p>
+              Need help? Contact{' '}
+              <a href="mailto:support@turboform.ai" className="text-primary hover:underline">
+                support@turboform.ai
+              </a>
+            </p>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-3">
           <Button variant="outline" asChild className="w-full">
-            <Link href="/">
-              Return to Homepage
-            </Link>
+            <Link href="/">Return to home page</Link>
           </Button>
         </CardFooter>
       </Card>
