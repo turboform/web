@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { getStripe } from '@/lib/stripe/client'
 import { toast } from 'sonner'
 import axios from 'axios'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 const pricingPlans = [
   {
@@ -191,24 +191,21 @@ export default function PricingPage() {
             <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
           </div>
           <p className="text-amber-700 text-center">
-            Limited time offer! Get 48% off Flow plan and 50% off Optimize plan. Prices will increase soon.
+            Limited time offer! Get 50% off all plans. Prices will increase soon.
           </p>
         </div>
 
         {/* Billing Toggle */}
         <div className="flex items-center justify-center space-x-4 mb-12">
-          <button
-            className={cn(
-              'text-sm font-medium px-3 py-2 rounded-md',
-              billingPeriod === 'monthly' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
-            )}
+          <Button
+            variant={billingPeriod === 'monthly' ? 'default' : 'outline'}
             onClick={() => setBillingPeriod('monthly')}
           >
             Monthly
-          </button>
+          </Button>
           <div className="relative flex items-center">
             <div
-              className="h-6 w-10 rounded-full bg-muted flex items-center p-1 cursor-pointer"
+              className="h-6 w-10 rounded-full bg-muted flex items-center p-1 cursor-pointer border border-primary"
               onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
             >
               <div
@@ -219,18 +216,15 @@ export default function PricingPage() {
               ></div>
             </div>
           </div>
-          <button
-            className={cn(
-              'text-sm font-medium px-3 py-2 rounded-md flex items-center gap-1.5',
-              billingPeriod === 'yearly' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
-            )}
+          <Button
+            variant={billingPeriod === 'yearly' ? 'default' : 'outline'}
             onClick={() => setBillingPeriod('yearly')}
           >
             Yearly{' '}
             <span className="bg-green-100 text-green-800 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
               20% off
             </span>
-          </button>
+          </Button>
         </div>
       </div>
 

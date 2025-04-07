@@ -5,9 +5,38 @@ import { User, Session } from '@supabase/supabase-js'
 import { supabaseBrowserClient } from '@/lib/supabase/browser'
 import { useRouter } from 'next/navigation'
 import { LOCAL_STORAGE_KEYS } from '@/lib/types/constants'
+import useSWR from 'swr'
+import { fetcher } from '@/lib/utils'
+
+// Export the subscription type for reuse
+export interface SubscriptionWithDetails {
+  id: string
+  status: string
+  current_period_end: string
+  current_period_start: string
+  cancel_at_period_end?: boolean
+  created: string
+  plan: {
+    id: string
+    name: string
+    amount: number
+    interval: string
+  }
+  price?: {
+    product?: {
+      name?: string
+      description?: string
+    }
+    unit_amount?: number
+    currency?: string
+    interval?: string
+  }
+}
 
 type AuthContextType = {
   user: User | null
+  subscription: SubscriptionWithDetails | null
+  subscriptionLoading: boolean
   session: Session | null
   isLoading: boolean
   isAnonymous: boolean
@@ -198,6 +227,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const { data, isLoading: subscriptionLoading } = useSWR(
+    session?.access_token ? '/api/user' : null,
+    ([url, token]) => fetcher<{ subscription: SubscriptionWithDetails | null }>(url, token),
+    {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 60000, // 1 minute
+    }
+  )
+
   return (
     <AuthContext.Provider
       value={{
@@ -205,6 +244,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         isLoading,
         isAnonymous,
+        subscription: data?.subscription ?? null,
+        subscriptionLoading,
         signOut,
         signInAnonymously,
         linkAnonymousAccount,
@@ -221,4 +262,12 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
+}
+
+export function useSubscription() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useSubscription must be used within an AuthProvider')
+  }
+  return { subscription: context.subscription, subscriptionLoading: context.subscriptionLoading }
 }

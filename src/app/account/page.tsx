@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAuth } from '@/components/auth/auth-provider'
+import { useAuth, useSubscription } from '@/components/auth/auth-provider'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -45,40 +45,8 @@ const AccountPageWrapper = ({ children }: { children: React.ReactNode }) => (
 )
 
 function AccountPage() {
-  const { user, session, isLoading: authLoading } = useAuth()
-  const [subscription, setSubscription] = useState<SubscriptionWithDetails | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchSubscriptionDetails = async () => {
-      if (!user || !session?.access_token) return
-
-      try {
-        setIsLoading(true)
-        // We'll implement this API endpoint later
-        const response = await axios.get('/api/user', {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        })
-
-        if (response.data?.subscription) {
-          setSubscription(response.data.subscription)
-        }
-      } catch (error) {
-        console.error('Error fetching subscription:', error)
-        toast.error('Failed to load subscription details')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (user && session?.access_token) {
-      fetchSubscriptionDetails()
-    } else if (!authLoading) {
-      setIsLoading(false)
-    }
-  }, [user, session, authLoading])
+  const { user } = useAuth()
+  const { subscription, subscriptionLoading } = useSubscription()
 
   const getStatusBadge = (status: string | null) => {
     if (!status) return <Badge variant="outline">Unknown</Badge>
@@ -131,7 +99,7 @@ function AccountPage() {
     toast.info('Subscription cancellation will be implemented soon')
   }
 
-  if (isLoading) {
+  if (subscriptionLoading) {
     return (
       <AccountPageWrapper>
         {/* Use absolutely minimal skeletons with fixed heights to match actual content */}
