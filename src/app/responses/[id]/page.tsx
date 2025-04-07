@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
@@ -432,15 +433,16 @@ const ResponsesPage = () => {
                 <PopoverContent align="start" className="w-64 p-2">
                   <div className="space-y-1 max-h-[300px] overflow-y-auto">
                     {columns.map((column) => (
-                      <div key={column} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
+                      <div key={column} className="flex items-center space-x-2 py-1">
+                        <Checkbox
                           id={`col-${column}`}
                           checked={visibleColumns.includes(column)}
-                          onChange={() => toggleColumnVisibility(column)}
-                          className="rounded border-gray-300"
+                          onCheckedChange={() => toggleColumnVisibility(column)}
                         />
-                        <label htmlFor={`col-${column}`} className="text-sm flex-1 cursor-pointer">
+                        <label
+                          htmlFor={`col-${column}`}
+                          className="text-sm flex-1 cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
                           {getFieldDisplayName(column)}
                         </label>
                       </div>

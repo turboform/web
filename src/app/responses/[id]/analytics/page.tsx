@@ -311,7 +311,7 @@ const AnalyticsPage = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium mb-2">Common Fields</h3>
+                <h3 className="text-lg font-medium mb-2">Fields</h3>
                 <div className="space-y-2">
                   {columns
                     .filter((col) => col !== 'created_at')
@@ -393,7 +393,7 @@ const AnalyticsPage = () => {
                         <div className="space-y-1">
                           {answers.map((answer, i) => (
                             <div key={i} className="flex items-center space-x-2">
-                              <div className="text-sm truncate max-w-[250px]">{answer.value || '(empty)'}</div>
+                              <div className="text-sm truncate w-[200px]">{answer.value || '(empty)'}</div>
                               <div className="flex-1 h-2 bg-muted rounded overflow-hidden">
                                 <div
                                   className="h-full bg-primary rounded"
