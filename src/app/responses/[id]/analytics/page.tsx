@@ -10,6 +10,7 @@ import { ProtectedPage } from '@/components/auth/protected-page'
 import { useAuth } from '@/components/auth/auth-provider'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface Response {
   id: string
@@ -332,22 +333,42 @@ const AnalyticsPage = () => {
                 <h3 className="text-lg font-medium mb-2">Submission Timeline</h3>
                 <div className="h-64 border rounded-lg p-4">
                   {Object.keys(responseSummary.timeline).length > 1 ? (
-                    <div className="h-full flex items-end space-x-1">
-                      {Object.entries(responseSummary.timeline)
-                        .slice(-14) // Show last 14 days
-                        .map(([date, count], i) => {
-                          const maxCount = Math.max(...Object.values(responseSummary.timeline))
-                          const height = (count / maxCount) * 100
-                          return (
-                            <div key={i} className="flex flex-col items-center flex-1 h-full justify-end">
-                              <div
-                                className="w-full bg-primary rounded-t"
-                                style={{ height: `${height}%`, minHeight: '4px' }}
-                              />
-                              <div className="text-sm truncate h-6 w-12">{date}</div>
-                            </div>
-                          )
-                        })}
+                    <div className="flex h-full">
+                      {/* Chart area */}
+                      <div className="flex-1 flex">
+                        {Object.entries(responseSummary.timeline)
+                          .slice(-14) // Show last 14 days
+                          .map(([date, count], i) => {
+                            const maxCount = Math.max(...Object.values(responseSummary.timeline))
+                            const height = (count / maxCount) * 100
+                            return (
+                              <div key={i} className="flex flex-col flex-1 h-full">
+                                {/* Bar container - takes all available height except for label height */}
+                                <div className="flex-1 flex items-end pb-2 cursor-pointer">
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div
+                                          className="w-full bg-primary rounded-t mx-0.5"
+                                          style={{ height: `${height}%`, minHeight: '4px' }}
+                                        />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="font-medium">
+                                          {count} {count === 1 ? 'response' : 'responses'}
+                                        </p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                                {/* Label container - fixed height */}
+                                <div className="h-6 flex items-center justify-center">
+                                  <span className="text-xs text-center whitespace-nowrap">{date}</span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                      </div>
                     </div>
                   ) : (
                     <div className="h-full flex items-center justify-center text-muted-foreground">
