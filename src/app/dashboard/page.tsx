@@ -42,6 +42,7 @@ function Dashboard() {
   const { session } = useAuth()
   const [formToDelete, setFormToDelete] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [formToUnpublish, setFormToUnpublish] = useState<{ id: string; title: string } | null>(null)
 
   const { data, error, isLoading, mutate } = useSWR(
     session?.access_token ? ['/api/forms', session?.access_token] : null,
@@ -70,6 +71,16 @@ function Dashboard() {
   }
 
   const handleTogglePublish = async (formId: string, currentStatus: boolean) => {
+    // If we're unpublishing (form is currently published/not draft), show confirmation dialog
+    if (currentStatus) {
+      const form = data?.forms.find((f) => f.id === formId)
+      if (form) {
+        setFormToUnpublish({ id: formId, title: form.title })
+        return
+      }
+    }
+
+    // Otherwise proceed with publishing directly
     try {
       const response = await axios.post(
         '/api/forms/publish',
@@ -93,6 +104,34 @@ function Dashboard() {
     } catch (error) {
       console.error('Error toggling form publish status:', error)
       toast.error('Failed to update form status')
+    }
+  }
+
+  const confirmUnpublish = async () => {
+    if (!formToUnpublish) return
+
+    try {
+      const response = await axios.post(
+        '/api/forms/publish',
+        // When unpublishing, we're setting isPublished to false
+        { formId: formToUnpublish.id, isPublished: false },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      )
+
+      if (response.data.success) {
+        await mutate()
+        toast.success('Form has been unpublished and is now in draft mode')
+      }
+    } catch (error) {
+      console.error('Error unpublishing form:', error)
+      toast.error('Failed to unpublish form')
+    } finally {
+      setFormToUnpublish(null)
     }
   }
 
@@ -278,6 +317,28 @@ function Dashboard() {
           ))}
         </div>
       )}
+      <Dialog open={!!formToUnpublish} onOpenChange={(open) => !open && setFormToUnpublish(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unpublish Form</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to unpublish "{formToUnpublish?.title}"?
+              <br />
+              <br />
+              <strong>Important:</strong> Once the form is moved to draft mode, the form will no longer be accessible to
+              users and they will not be able to submit responses.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFormToUnpublish(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmUnpublish}>
+              Unpublish Form
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

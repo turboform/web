@@ -24,6 +24,19 @@ export const metadata: Metadata = {
   icons: {
     icon: '/images/logo.png',
   },
+  openGraph: {
+    title: 'TurboForm - The AI-Powered Form Builder | Create Forms Instantly with natural language',
+    description:
+      'Create custom forms in seconds with our AI form builder. Turn simple descriptions into professional forms - no coding required. Try TurboForm today!',
+    images: ['/images/og.png'],
+  },
+  twitter: {
+    title: 'TurboForm - The AI-Powered Form Builder | Create Forms Instantly with natural language',
+    description:
+      'Create custom forms in seconds with our AI form builder. Turn simple descriptions into professional forms - no coding required. Try TurboForm today!',
+    card: 'summary_large_image',
+    images: ['/images/og.png'],
+  },
 }
 
 export default function RootLayout({
