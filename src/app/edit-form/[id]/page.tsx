@@ -78,49 +78,6 @@ export default function EditFormPage() {
     }
   }, [formId, router, user])
 
-  // TODO: check this logic
-  const handleDescriptionUpdate = async () => {
-    if (description.trim() === originalForm.description.trim()) {
-      setEditMode('preview')
-      return
-    }
-
-    try {
-      setGenerating(true)
-
-      const response = await fetch('/api/generate-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ description }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate form')
-      }
-
-      const data = await response.json()
-
-      // Keep the ID from the original form
-      const updatedForm = {
-        ...data,
-        id: originalForm.id,
-        user_id: originalForm.user_id,
-        created_at: originalForm.created_at,
-      }
-
-      setForm(updatedForm)
-      setEditMode('preview')
-      toast.success('Form updated successfully!')
-    } catch (error) {
-      console.error('Error updating form:', error)
-      toast.error('Failed to update form. Please try again.')
-    } finally {
-      setGenerating(false)
-    }
-  }
-
   const handleSaveForm = async () => {
     try {
       setSaving(true)

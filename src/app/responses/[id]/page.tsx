@@ -2,24 +2,24 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, Download, Filter, MoreHorizontal, Search, SortAsc, SortDesc, BarChart } from 'lucide-react'
+import { ArrowLeft, Download, Search, SortAsc, SortDesc, BarChart, Sliders, Eye } from 'lucide-react'
 import { toast } from 'sonner'
-import Link from 'next/link'
 import { ProtectedPage } from '@/components/auth/protected-page'
 import { useAuth } from '@/components/auth/auth-provider'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface Response {
   id: string
   created_at: string
-  data: { [key: string]: any }
+  answers: { [key: string]: any }
 }
 
 interface Form {
@@ -27,6 +27,16 @@ interface Form {
   title: string
   description?: string
   responseCount?: number
+  schema?: FormField[]
+}
+
+interface FormField {
+  id: string
+  type: string
+  label: string
+  placeholder?: string
+  required?: boolean
+  options?: string[]
 }
 
 export const runtime = 'edge'
@@ -38,6 +48,9 @@ const ResponsesPage = () => {
   const router = useRouter()
   const { session } = useAuth()
   const formId = params.id as string
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([])
+  const [selectedResponse, setSelectedResponse] = useState<Response | null>(null)
+  const [showResponseDetails, setShowResponseDetails] = useState(false)
 
   // Fetch form details using SWR
   const {
@@ -73,6 +86,23 @@ const ResponsesPage = () => {
   const form = formData?.form || null
   const responses = responsesData?.responses || []
 
+  // Create a map of field IDs to field labels
+  const fieldLabelMap = useMemo(() => {
+    const map: Record<string, string> = {
+      created_at: 'Submission Date',
+    }
+
+    if (form?.schema && Array.isArray(form.schema)) {
+      form.schema.forEach((field) => {
+        if (field.id && field.label) {
+          map[field.id] = field.label
+        }
+      })
+    }
+
+    return map
+  }, [form])
+
   // Get unique columns from all responses
   const columns = useMemo(() => {
     if (!responses.length) return []
@@ -80,8 +110,8 @@ const ResponsesPage = () => {
     // Extract all unique fields from responses
     const allFields = new Set<string>()
     responses.forEach((response) => {
-      if (response.data && typeof response.data === 'object') {
-        Object.keys(response.data).forEach((key) => allFields.add(key))
+      if (response.answers && typeof response.answers === 'object') {
+        Object.keys(response.answers).forEach((key) => allFields.add(key))
       }
     })
 
@@ -90,6 +120,47 @@ const ResponsesPage = () => {
 
     return Array.from(allFields)
   }, [responses])
+
+  // Get field display name
+  const getFieldDisplayName = (columnId: string) => {
+    return fieldLabelMap[columnId] || columnId
+  }
+
+  // Set initial visible columns when columns are first loaded
+  useMemo(() => {
+    if (columns.length > 0 && visibleColumns.length === 0) {
+      // Default to showing created_at and up to 4 other important columns
+      const initialColumns = ['created_at']
+
+      // Add additional columns, prioritizing shorter fields that might contain key data
+      columns
+        .filter((col) => col !== 'created_at')
+        .sort((a, b) => {
+          // Prioritize fields that have labels
+          const aHasLabel = !!fieldLabelMap[a]
+          const bHasLabel = !!fieldLabelMap[b]
+
+          if (aHasLabel && !bHasLabel) return -1
+          if (!aHasLabel && bHasLabel) return 1
+
+          // Then sort by field name length
+          return a.length - b.length
+        })
+        .slice(0, 4)
+        .forEach((col) => initialColumns.push(col))
+
+      setVisibleColumns(initialColumns)
+    }
+  }, [columns, visibleColumns, fieldLabelMap])
+
+  // Toggle column visibility
+  const toggleColumnVisibility = (column: string) => {
+    if (visibleColumns.includes(column)) {
+      setVisibleColumns(visibleColumns.filter((col) => col !== column))
+    } else {
+      setVisibleColumns([...visibleColumns, column])
+    }
+  }
 
   // Handle sorting
   const handleSort = (key: string) => {
@@ -110,9 +181,10 @@ const ResponsesPage = () => {
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase()
       result = result.filter((response) => {
-        if (!response.data) return false
+        if (!response.answers) return false
         return columns.some((column) => {
-          const value = column === 'created_at' ? new Date(response.created_at).toLocaleString() : response.data[column]
+          const value =
+            column === 'created_at' ? new Date(response.created_at).toLocaleString() : response.answers[column]
 
           if (value === null || value === undefined) return false
           return String(value).toLowerCase().includes(lowerSearchTerm)
@@ -129,8 +201,8 @@ const ResponsesPage = () => {
           aValue = new Date(a.created_at).getTime()
           bValue = new Date(b.created_at).getTime()
         } else {
-          aValue = a.data?.[sortConfig.key]
-          bValue = b.data?.[sortConfig.key]
+          aValue = a.answers?.[sortConfig.key]
+          bValue = b.answers?.[sortConfig.key]
         }
 
         // Handle undefined values in sorting
@@ -150,6 +222,42 @@ const ResponsesPage = () => {
     return result
   }, [responses, searchTerm, sortConfig, columns])
 
+  // Format cell value for display
+  const formatCellValue = (column: string, value: any) => {
+    if (value === undefined || value === null) return '—'
+
+    if (column === 'created_at') {
+      return new Date(value).toLocaleString()
+    }
+
+    if (typeof value === 'object') {
+      return JSON.stringify(value)
+    }
+
+    return String(value)
+  }
+
+  // Create a summary of responses for basic metrics (for header info only)
+  const responseStats = useMemo(() => {
+    if (!responses.length) return null
+
+    return {
+      total: responses.length,
+      recent: responses.filter((r) => {
+        const date = new Date(r.created_at)
+        const now = new Date()
+        const daysDiff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+        return daysDiff < 7
+      }).length,
+    }
+  }, [responses])
+
+  // View response details
+  const viewResponseDetails = (response: Response) => {
+    setSelectedResponse(response)
+    setShowResponseDetails(true)
+  }
+
   // Export to CSV
   const exportToCSV = () => {
     try {
@@ -159,15 +267,15 @@ const ResponsesPage = () => {
         return
       }
 
-      // Create CSV header row
-      const csvHeader = columns.join(',')
+      // Create CSV header row with proper display names
+      const csvHeader = columns.map((column) => getFieldDisplayName(column)).join(',')
 
       // Create CSV rows from responses
       const csvRows = filteredAndSortedResponses
         .map((response) => {
           return columns
             .map((column) => {
-              const value = column === 'created_at' ? response.created_at : response.data?.[column]
+              const value = column === 'created_at' ? response.created_at : response.answers?.[column]
 
               // Handle CSV formatting for different data types
               if (value === undefined || value === null) {
@@ -208,21 +316,6 @@ const ResponsesPage = () => {
       console.error('Export error:', error)
       toast.error('Failed to export data')
     }
-  }
-
-  // Format cell value for display
-  const formatCellValue = (column: string, value: any) => {
-    if (value === undefined || value === null) return '—'
-
-    if (column === 'created_at') {
-      return new Date(value).toLocaleString()
-    }
-
-    if (typeof value === 'object') {
-      return JSON.stringify(value)
-    }
-
-    return String(value)
   }
 
   // Loading state
@@ -283,73 +376,87 @@ const ResponsesPage = () => {
   }
 
   return (
-    <div className="container py-12 mx-auto max-w-7xl px-4 sm:px-6">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center">
-          <Button variant="ghost" asChild className="mr-4" size="sm">
-            <Link href="/dashboard">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Dashboard
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1">{form.title}</h1>
-            <p className="text-muted-foreground">Form Responses ({filteredAndSortedResponses.length})</p>
-          </div>
-        </div>
+    <div className="container mx-auto py-6 px-4 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <Button variant="outline" size="sm" onClick={() => router.push('/dashboard')} className="self-start">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Dashboard
+        </Button>
+        <h1 className="text-2xl font-bold">{form?.title || 'Form Responses'}</h1>
       </div>
 
-      <Card className="shadow-sm">
+      <Card>
         <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
-              <CardTitle>Response Data</CardTitle>
-              <CardDescription>View and analyze submissions from your form</CardDescription>
+              <CardTitle>Responses</CardTitle>
+              <CardDescription>
+                {responseStats ? (
+                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                    <span>{responseStats.total} total submissions</span>
+                  </div>
+                ) : null}
+              </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={exportToCSV} disabled={!responses.length}>
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
-              </Button>
-              {/* Future AI analysis button - placeholder for now */}
-              <Button variant="outline" size="sm" disabled title="Coming soon: AI powered analysis">
-                <BarChart className="w-4 h-4 mr-2" />
-                Analyze
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search responses..."
+                  className="pl-8 w-full sm:w-[200px] md:w-[260px]"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-4 gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search responses..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+
+        <CardContent className="p-0">
+          <div className="flex justify-between items-center p-4 border-t border-b">
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => exportToCSV()}>
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
+
+              {/* Column visibility selector */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Sliders className="w-4 h-4 mr-2" />
+                    Columns
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-64 p-2">
+                  <div className="space-y-1 max-h-[300px] overflow-y-auto">
+                    {columns.map((column) => (
+                      <div key={column} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`col-${column}`}
+                          checked={visibleColumns.includes(column)}
+                          onChange={() => toggleColumnVisibility(column)}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor={`col-${column}`} className="text-sm flex-1 cursor-pointer">
+                          {getFieldDisplayName(column)}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Button variant="outline" size="sm" onClick={() => router.push(`/responses/${formId}/analytics`)}>
+                <BarChart className="w-4 h-4 mr-2" />
+                View Analytics
+              </Button>
             </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end">
-                <button
-                  className="w-full text-left px-2 py-1.5 text-sm hover:bg-muted rounded-sm"
-                  onClick={() => setSearchTerm('')}
-                >
-                  Clear filters
-                </button>
-                {/* Add more advanced filters here in the future */}
-              </PopoverContent>
-            </Popover>
           </div>
 
-          <div className="border rounded-md">
+          <div className="border-b">
             {responses.length === 0 ? (
               <div className="py-16 text-center">
                 <h3 className="font-medium text-xl mb-2">No responses yet</h3>
@@ -360,13 +467,13 @@ const ResponsesPage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      {columns.map((column) => (
+                      {visibleColumns.map((column) => (
                         <TableHead key={column} className="whitespace-nowrap">
                           <button
                             className="flex items-center gap-1 hover:text-primary"
                             onClick={() => handleSort(column)}
                           >
-                            {column === 'created_at' ? 'Submission Date' : column}
+                            {getFieldDisplayName(column)}
                             {sortConfig?.key === column &&
                               (sortConfig.direction === 'asc' ? (
                                 <SortAsc className="w-3 h-3" />
@@ -380,10 +487,10 @@ const ResponsesPage = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredAndSortedResponses.map((response) => (
+                    {responses.map((response) => (
                       <TableRow key={response.id}>
-                        {columns.map((column) => {
-                          const value = column === 'created_at' ? response.created_at : response.data?.[column]
+                        {visibleColumns.map((column) => {
+                          const value = column === 'created_at' ? response.created_at : response.answers?.[column]
 
                           return (
                             <TableCell key={`${response.id}-${column}`} className="whitespace-nowrap">
@@ -392,31 +499,15 @@ const ResponsesPage = () => {
                           )
                         })}
                         <TableCell>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent align="end" className="w-56">
-                              <button
-                                className="w-full text-left px-2 py-1.5 text-sm hover:bg-muted rounded-sm"
-                                onClick={() => {
-                                  /* View details */
-                                }}
-                              >
-                                View details
-                              </button>
-                              <button
-                                className="w-full text-left px-2 py-1.5 text-sm hover:bg-muted rounded-sm text-destructive"
-                                onClick={() => {
-                                  /* Delete response */
-                                }}
-                              >
-                                Delete response
-                              </button>
-                            </PopoverContent>
-                          </Popover>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 p-0"
+                            onClick={() => viewResponseDetails(response)}
+                            title="View response details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -425,14 +516,52 @@ const ResponsesPage = () => {
               </div>
             )}
           </div>
+
+          {/* Pagination controls */}
+          {responses.length > 0 && (
+            <div className="p-4 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {responses.length} of {filteredAndSortedResponses.length} responses
+              </div>
+              {/* TODO: add proper pagination with API filtering */}
+            </div>
+          )}
         </CardContent>
-        <CardFooter className="py-4 border-t flex justify-between text-sm text-muted-foreground">
-          <div>
-            Showing {filteredAndSortedResponses.length} of {responses.length} responses
-          </div>
-          <div>Last updated: {new Date().toLocaleString()}</div>
-        </CardFooter>
       </Card>
+
+      {/* Response details dialog - moved outside of table cell */}
+      <Dialog open={showResponseDetails} onOpenChange={setShowResponseDetails}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Response Details</DialogTitle>
+            {selectedResponse && (
+              <DialogDescription>
+                Submitted on {new Date(selectedResponse.created_at).toLocaleString()}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            {selectedResponse && (
+              <Table>
+                <TableBody>
+                  {columns.map((column) => {
+                    const value =
+                      column === 'created_at' ? selectedResponse.created_at : selectedResponse.answers?.[column]
+                    return (
+                      <TableRow key={column}>
+                        <TableCell className="font-medium">{getFieldDisplayName(column)}</TableCell>
+                        <TableCell className="break-words">
+                          {formatCellValue(column, value)}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

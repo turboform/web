@@ -41,14 +41,20 @@ export async function GET(req: NextRequest) {
       .from('form_responses')
       .select('*')
       .eq('form_id', formId)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: true })
 
     if (responsesError) {
       console.error('Error fetching responses:', responsesError)
       return NextResponse.json({ error: 'Failed to load form responses' }, { status: 500 })
     }
 
-    return NextResponse.json({ responses })
+    return NextResponse.json({
+      responses: responses.map((response) => ({
+        id: response.id,
+        created_at: response.created_at,
+        answers: response.responses,
+      })),
+    })
   } catch (error) {
     console.error('Error in responses API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
