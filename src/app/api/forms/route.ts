@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser } from '@/lib/supabase/server'
+import { generateShortId } from '@/lib/utils'
 
 export const runtime = 'edge'
-
-// Helper function to generate a random short ID using Web Crypto API
-function generateShortId(length = 8): string {
-  const bytes = new Uint8Array(Math.ceil(length / 2))
-  crypto.getRandomValues(bytes)
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-    .slice(0, length)
-}
 
 export async function POST(req: NextRequest) {
   try {

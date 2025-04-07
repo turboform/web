@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser } from '@/lib/supabase/server'
 import OpenAI from 'openai'
 import { FormField } from '@/lib/types/form'
+import { generateShortId } from '@/lib/utils'
 
 export const runtime = 'edge'
 
@@ -35,6 +36,8 @@ export async function POST(req: NextRequest) {
       // Generate form fields using OpenAI
       const { title, formFields, enhancedDescription } = await generateFormWithOpenAI(description)
 
+      const short_id = generateShortId()
+
       // Save the form as a draft
       const { data: form, error: saveError } = await supabase
         .from('forms')
@@ -46,6 +49,7 @@ export async function POST(req: NextRequest) {
           is_draft: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          short_id,
         })
         .select()
         .single()
@@ -61,6 +65,7 @@ export async function POST(req: NextRequest) {
         description: enhancedDescription, // Return the enhanced description
         schema: formFields,
         is_draft: true,
+        short_id,
       })
     } catch (error: any) {
       console.error('Error generating form with OpenAI:', error)
