@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabaseBrowserClient } from '@/lib/supabase/browser'
 import { useRouter } from 'next/navigation'
+import { LOCAL_STORAGE_KEYS } from '@/lib/types/constants'
 
 type AuthContextType = {
   user: User | null
@@ -23,6 +24,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAnonymous, setIsAnonymous] = useState(false)
   const router = useRouter()
+
+  const markUserAsPreviouslySignedIn = (userId: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.PREVIOUSLY_SIGNED_IN, userId)
+    }
+  }
 
   useEffect(() => {
     // First, try to get the current session
@@ -60,6 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Update anonymous status
       if (newSession?.user) {
         setIsAnonymous(!!newSession.user.is_anonymous)
+
+        if (!newSession.user.is_anonymous) {
+          markUserAsPreviouslySignedIn(newSession.user.id)
+        }
       }
 
       setIsLoading(false)
@@ -113,7 +124,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Store the anonymous user ID before any auth changes
       const anonymousUserId = user.id
 
-      // First, try to sign in with the provided credentials to check if the account exists
       const { data: existingUserData, error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
         email,
         password,

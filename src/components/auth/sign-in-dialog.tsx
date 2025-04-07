@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import { supabaseBrowserClient } from '@/lib/supabase/browser'
 import { useAuth } from '../auth/auth-provider'
 import { Turnstile } from '@marsidev/react-turnstile'
+import { LOCAL_STORAGE_KEYS } from '@/lib/types/constants'
 
 interface SignInDialogProps {
   isOpen: boolean
@@ -43,6 +44,11 @@ export function SignInDialog({
   const [error, setError] = useState('')
   const [captchaToken, setCaptchaToken] = useState('')
   const turnstileRef = useRef<any>(null)
+
+  const hasUserPreviouslySignedIn = () => {
+    if (typeof window === 'undefined') return false
+    return !!localStorage.getItem(LOCAL_STORAGE_KEYS.PREVIOUSLY_SIGNED_IN)
+  }
 
   // Force refresh the CAPTCHA token when switching between forms
   const refreshCaptcha = () => {
@@ -133,7 +139,7 @@ export function SignInDialog({
       const isAnonymousUser = !!user?.is_anonymous
 
       // If the current user is anonymous, link the account
-      if (isAnonymousUser) {
+      if (isAnonymousUser && !hasUserPreviouslySignedIn()) {
         setIsLinking(true)
         const { success, error: linkError } = await linkAnonymousAccount(email, password)
 
@@ -147,7 +153,7 @@ export function SignInDialog({
       }
 
       // Otherwise, perform regular registration
-      const { error } = await supabaseBrowserClient.auth.signUp({
+      const { data, error } = await supabaseBrowserClient.auth.signUp({
         email,
         password,
         options: {
@@ -158,6 +164,14 @@ export function SignInDialog({
 
       if (error) {
         throw error
+      }
+
+      // Mark the user as previously signed in in localStorage
+      if (data?.user) {
+        // Use the same localStorage key defined in auth-provider.tsx
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('_tf_usr_auth_state', data.user.id)
+        }
       }
 
       toast.success('Registration successful! Please check your email to confirm your account.')
@@ -179,8 +193,7 @@ export function SignInDialog({
 
       const isAnonymousUser = !!user?.is_anonymous
 
-      // If the current user is anonymous, link the account
-      if (isAnonymousUser) {
+      if (isAnonymousUser && !hasUserPreviouslySignedIn()) {
         setIsLinking(true)
         const { data, error } = await supabaseBrowserClient.auth.linkIdentity({
           provider: 'google',

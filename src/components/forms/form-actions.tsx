@@ -112,10 +112,8 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
                 <Alert>
                   <AlertDescription>
                     Your form has been saved! Share this link with others to collect responses:
-                    <div className="mt-2 p-2 bg-muted rounded-md break-all">{formLink}</div>
                     {shortLink && (
                       <div className="mt-2">
-                        <div className="text-sm font-medium">Short link:</div>
                         <div className="p-2 bg-muted rounded-md break-all">{shortLink}</div>
                       </div>
                     )}
