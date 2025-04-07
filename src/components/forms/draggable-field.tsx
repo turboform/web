@@ -24,7 +24,7 @@ export function DraggableField({ field, children }: DraggableFieldProps) {
     // Use Translate3d for hardware acceleration and keep width at 100%
     transform: CSS.Translate.toString(transform),
     transition: transition || undefined,
-    zIndex: isDragging ? 999 : 1,
+    zIndex: isDragging ? 999 : field.type === 'multi_select' || field.type === 'select' ? 2 : 1,
     // Prevent width distortion during dragging
     width: '100%',
     // Add will-change for better performance

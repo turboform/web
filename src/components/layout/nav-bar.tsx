@@ -40,7 +40,7 @@ export default function NavBar() {
   return (
     <header className="w-full border-b border-border">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={isEffectivelySignedIn ? '/dashboard' : '/'} className="flex items-center gap-2">
           <div className="relative h-10 w-10 overflow-hidden rounded">
             <Image
               src="/images/logo.png"
@@ -90,7 +90,9 @@ export default function NavBar() {
                   </PopoverTrigger>
                   <PopoverContent className="w-48 p-2">
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href="/account">Account</Link>
+                      </Button>
                       <Button variant="outline" size="sm" onClick={signOut} className="w-full">
                         Sign Out
                       </Button>
@@ -123,7 +125,9 @@ export default function NavBar() {
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2">
                 <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link href="/account">Account</Link>
+                  </Button>
                   <Button variant="outline" size="sm" onClick={signOut} className="w-full">
                     Sign Out
                   </Button>

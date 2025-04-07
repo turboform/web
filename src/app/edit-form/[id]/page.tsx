@@ -199,60 +199,6 @@ export default function EditFormPage() {
       <div className="max-w-2xl mx-auto w-full">
         {form && (
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{form.title}</CardTitle>
-                <div className="flex justify-between items-center mt-2">
-                  <CardDescription className="flex-grow">
-                    {editMode === 'preview' ? form.description : 'Edit your form description below'}
-                  </CardDescription>
-                  {editMode === 'preview' ? (
-                    <Button variant="outline" size="sm" onClick={() => setEditMode('description')}>
-                      Edit Description
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setDescription(originalForm.description)
-                        setEditMode('preview')
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-
-              {editMode === 'description' && (
-                <CardContent>
-                  <div className="space-y-4">
-                    <Textarea
-                      placeholder="Describe your form here..."
-                      className="min-h-[150px]"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                    />
-                    <Button
-                      onClick={handleDescriptionUpdate}
-                      disabled={generating || !description.trim()}
-                      className="w-full"
-                    >
-                      {generating ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Updating...
-                        </>
-                      ) : (
-                        'Update Form'
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-
             {editMode === 'preview' && (
               <>
                 <Card>

@@ -211,8 +211,8 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
               className="text-2xl font-semibold"
               placeholder="Form Title"
             />
-            <div className="flex space-x-2">
-              <Button size="sm" variant="ghost" onClick={() => setEditingTitle(false)}>
+            <div className="flex space-x-2 justify-end">
+              <Button size="sm" variant="outline" onClick={() => setEditingTitle(false)}>
                 <Check className="w-4 h-4 mr-1" />
                 Done
               </Button>
@@ -238,8 +238,8 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
               placeholder="Form Description"
               rows={3}
             />
-            <div className="flex space-x-2">
-              <Button size="sm" variant="ghost" onClick={() => setEditingDescription(false)}>
+            <div className="flex space-x-2 justify-end">
+              <Button size="sm" variant="outline" onClick={() => setEditingDescription(false)}>
                 <Check className="w-4 h-4 mr-1" />
                 Done
               </Button>

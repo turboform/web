@@ -28,6 +28,9 @@ export function MultiSelect({
   className,
   disabled = false,
 }: MultiSelectProps) {
+  const [isOpen, setIsOpen] = React.useState(false)
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
+
   // Toggle selection when an option is clicked
   const handleSelect = (value: string) => {
     if (selected.includes(value)) {
@@ -51,12 +54,31 @@ export function MultiSelect({
     onChange(selected.filter((item) => item !== value))
   }
 
+  // Add click outside listener
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    // Add event listener when dropdown is open
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
   return (
     <SelectPrimitive.Root
       open={false} // We're manually controlling this
       onOpenChange={() => {}} // No-op to prevent warnings
     >
-      <div className="relative w-full">
+      <div className="relative w-full" ref={dropdownRef}>
         <SelectPrimitive.Trigger
           className={cn(
             'flex w-full min-h-10 rounded-md border border-input px-3 py-2 text-sm ring-offset-background',
@@ -65,17 +87,7 @@ export function MultiSelect({
             'flex-wrap',
             className
           )}
-          onClick={(e) => {
-            // Find the select element and toggle it
-            const selectElement = document.getElementById('multi-select-content')
-            if (selectElement) {
-              if (selectElement.style.display === 'none') {
-                selectElement.style.display = 'block'
-              } else {
-                selectElement.style.display = 'none'
-              }
-            }
-          }}
+          onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex flex-wrap gap-1 items-center max-w-full overflow-hidden">
             {selected.length === 0 ? (
@@ -103,7 +115,7 @@ export function MultiSelect({
         <div
           id="multi-select-content"
           className="absolute z-50 min-w-[8rem] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80"
-          style={{ display: 'none' }}
+          style={{ display: isOpen ? 'block' : 'none' }}
         >
           <div className="w-full max-h-[200px] overflow-auto p-1">
             {options.map((option) => (
