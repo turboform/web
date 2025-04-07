@@ -48,7 +48,13 @@ export function Footer() {
 
           {/* Right column: Links */}
           <div className="flex flex-col items-center md:items-end gap-2">
-            <nav className="flex gap-6">
+            <nav className="flex flex-col md:flex-row gap-6">
+              <Link
+                href="/contact"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Contact
+              </Link>
               <Link
                 href="/privacy"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"

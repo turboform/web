@@ -318,11 +318,11 @@ export default function PricingPage() {
               </Button>
 
               <div className="mt-4 text-right">
-                {plan.hasDiscount ?
-                  <Badge className='text-xs bg-yellow-100 text-yellow-800'>* Available soon</Badge>
-                  :
-                  <Badge className='bg-white'></Badge>
-                }
+                {plan.hasDiscount ? (
+                  <Badge className="text-xs bg-yellow-100 text-yellow-800">* Available soon</Badge>
+                ) : (
+                  <Badge className="bg-white"></Badge>
+                )}
               </div>
             </div>
           </div>
@@ -340,12 +340,8 @@ export default function PricingPage() {
               <span className="text-xl font-bold">Custom Pricing</span>
             </div>
 
-            <Button
-              variant={pricingPlans[3].buttonVariant}
-              className="w-full"
-              onClick={() => handlePlanSelect(pricingPlans[3])}
-            >
-              {pricingPlans[3].buttonText}
+            <Button asChild variant={pricingPlans[3].buttonVariant} className="w-full">
+              <Link href="/contact">{pricingPlans[3].buttonText}</Link>
             </Button>
           </div>
 
