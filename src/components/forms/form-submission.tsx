@@ -9,6 +9,8 @@ import { Loader2, CalendarX2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { submitFormResponse } from '@/lib/supabase/actions'
 import type { FormData } from '@/lib/supabase/actions'
@@ -116,7 +118,7 @@ export function FormSubmission({ form }: { form: FormData }) {
             </Label>
 
             {field.type === 'text' && (
-              <input
+              <Input
                 type="text"
                 id={field.id}
                 placeholder={field.placeholder || ''}
@@ -146,23 +148,20 @@ export function FormSubmission({ form }: { form: FormData }) {
             )}
 
             {field.type === 'radio' && field.options && (
-              <div className="space-y-2">
+              <RadioGroup
+                onValueChange={(value) => handleInputChange(field.id, value)}
+                className="space-y-2"
+                required={field.required}
+              >
                 {field.options.map((option: string, index: number) => (
                   <div key={index} className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      id={`${field.id}-${index}`}
-                      name={field.id}
-                      value={option}
-                      onChange={() => handleInputChange(field.id, option)}
-                      required={field.required}
-                    />
+                    <RadioGroupItem value={option} id={`${field.id}-${index}`} />
                     <Label htmlFor={`${field.id}-${index}`} className="text-sm text-gray-600">
                       {option}
                     </Label>
                   </div>
                 ))}
-              </div>
+              </RadioGroup>
             )}
 
             {field.type === 'select' && field.options && (

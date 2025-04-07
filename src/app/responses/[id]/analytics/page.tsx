@@ -344,9 +344,7 @@ const AnalyticsPage = () => {
                                 className="w-full bg-primary rounded-t"
                                 style={{ height: `${height}%`, minHeight: '4px' }}
                               />
-                              <div className="text-sm truncate h-6 w-12">
-                                {date}
-                              </div>
+                              <div className="text-sm truncate h-6 w-12">{date}</div>
                             </div>
                           )
                         })}

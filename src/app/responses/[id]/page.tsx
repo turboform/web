@@ -550,9 +550,7 @@ const ResponsesPage = () => {
                     return (
                       <TableRow key={column}>
                         <TableCell className="font-medium">{getFieldDisplayName(column)}</TableCell>
-                        <TableCell className="break-words">
-                          {formatCellValue(column, value)}
-                        </TableCell>
+                        <TableCell className="break-words">{formatCellValue(column, value)}</TableCell>
                       </TableRow>
                     )
                   })}
