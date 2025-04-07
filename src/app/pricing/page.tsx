@@ -11,6 +11,7 @@ import { getStripe } from '@/lib/stripe/client'
 import { toast } from 'sonner'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import { Badge } from '@/components/ui/badge'
 
 const pricingPlans = [
   {
@@ -20,9 +21,10 @@ const pricingPlans = [
     yearlyPrice: 0,
     features: [
       'Create unlimited forms',
-      'Collect up to 100 responses per month',
+      'Collect unlimited responses',
       'Basic analytics & reporting',
-      'AI-assisted form creation (limited)',
+      'AI-assisted form creation',
+      'Export data to CSV',
       'Embed & share anywhere',
     ],
     buttonText: 'Get Started Free',
@@ -42,11 +44,10 @@ const pricingPlans = [
     monthlyPriceId: process.env.NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID,
     yearlyPriceId: process.env.NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID,
     features: [
-      'Up to 5,000 responses per month',
-      'Advanced AI-driven data analysis',
-      'Custom branding & themes',
-      'Integrations with Slack, Zapier, and more',
-      'Export data to CSV & Google Sheets',
+      'Everything in Tinker',
+      'Custom branding & themes *',
+      'Advanced AI-driven data analysis *',
+      'Integrations with Slack, Zapier, and more *',
     ],
     buttonText: 'Upgrade to Flow',
     isPopular: true,
@@ -65,11 +66,12 @@ const pricingPlans = [
     monthlyPriceId: process.env.NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID,
     yearlyPriceId: process.env.NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID,
     features: [
-      'Unlimited responses',
-      'AI-powered response predictions & trends',
-      'Advanced workflow automation',
-      'White-labeling & custom domains',
-      'Priority support & team collaboration tools',
+      'Everything in Flow',
+      'Custom domain *',
+      'Advanced workflow automation *',
+      'AI-powered response predictions & trends *',
+      'Team support for up to 20 team members *',
+      'Priority support *',
     ],
     buttonText: 'Upgrade to Optimize',
     isPopular: false,
@@ -83,6 +85,7 @@ const pricingPlans = [
     monthlyPrice: null,
     yearlyPrice: null,
     features: [
+      'Everything in Optimize',
       'Tailored response limits & dedicated infrastructure',
       'Enterprise-grade security & compliance',
       'Custom AI models for data analysis',
@@ -234,7 +237,7 @@ export default function PricingPage() {
           <div
             key={plan.name}
             className={cn(
-              'rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg',
+              'flex flex-col rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg',
               plan.isPopular ? 'border-primary ring-1 ring-primary/20' : 'border-border'
             )}
           >
@@ -293,25 +296,35 @@ export default function PricingPage() {
               ))}
             </div>
 
-            <Button
-              variant={plan.buttonVariant}
-              className={cn(
-                'w-full',
-                plan.isPopular ? 'bg-primary hover:bg-primary/90' : '',
-                isLoading && loadingPlanId === plan.name ? 'bg-primary/50 text-primary-foreground' : ''
-              )}
-              onClick={() => handlePlanSelect(plan)}
-              disabled={isLoading && loadingPlanId === plan.name}
-            >
-              {isLoading && loadingPlanId === plan.name ? (
-                <div className="flex items-center justify-center">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="ml-2">Processing...</span>
-                </div>
-              ) : (
-                plan.buttonText
-              )}
-            </Button>
+            <div className="mt-auto">
+              <Button
+                variant={plan.buttonVariant}
+                className={cn(
+                  'w-full',
+                  plan.isPopular ? 'bg-primary hover:bg-primary/90' : '',
+                  isLoading && loadingPlanId === plan.name ? 'bg-primary/50 text-primary-foreground' : ''
+                )}
+                onClick={() => handlePlanSelect(plan)}
+                disabled={isLoading && loadingPlanId === plan.name}
+              >
+                {isLoading && loadingPlanId === plan.name ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="ml-2">Processing...</span>
+                  </div>
+                ) : (
+                  plan.buttonText
+                )}
+              </Button>
+
+              <div className="mt-4 text-right">
+                {plan.hasDiscount ?
+                  <Badge className='text-xs bg-yellow-100 text-yellow-800'>* Available soon</Badge>
+                  :
+                  <Badge className='bg-white'></Badge>
+                }
+              </div>
+            </div>
           </div>
         ))}
       </div>
