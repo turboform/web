@@ -91,7 +91,7 @@ async function generateFormWithOpenAI(
     .replace(/system prompt/gi, '[filtered content]')
 
   const prompt = `
-You are a form generation assistant. Create a detailed form based on the following description:
+You are a form generation assistant. Create a detailed form with a minimum of four fields based on the following description:
 
 "${sanitizedDescription}"
 

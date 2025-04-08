@@ -18,13 +18,6 @@ export default function Home() {
   const [generatedForm, setGeneratedForm] = useState<any>(null)
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
 
-  const examplePrompts = [
-    'Customer satisfaction survey with ratings and open feedback questions',
-    'Job application form with experience, education, and skills sections',
-    'Event registration form with attendee details and meal preferences',
-    'Product feedback form with ratings and improvement suggestions',
-  ]
-
   return (
     <div className="container mx-auto py-12 px-4">
       {!generatedForm ? (
@@ -94,29 +87,6 @@ export default function Home() {
             </div>
 
             <FormGenerator onFormGenerated={setGeneratedForm} />
-
-            <div className="mt-8">
-              <p className="text-sm font-medium mb-3">Try describing something like:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {examplePrompts.map((prompt, index) => (
-                  <div
-                    key={index}
-                    className="text-sm p-3 bg-card rounded-lg border border-border hover:border-primary/50 hover:bg-accent cursor-pointer transition-all shadow-sm hover:shadow"
-                    onClick={() => {
-                      const textareaElement = document.querySelector('textarea')
-                      if (textareaElement) {
-                        textareaElement.value = prompt
-                        // Trigger the onChange event
-                        const event = new Event('input', { bubbles: true })
-                        textareaElement.dispatchEvent(event)
-                      }
-                    }}
-                  >
-                    "{prompt}"
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
           {/* TODO: Add social proof + clear call to action */}
         </div>
