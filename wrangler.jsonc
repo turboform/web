@@ -14,5 +14,6 @@
     "NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID": "price_1R8pc0GSS5XC9zncDhljuzTa",
     "NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID": "price_1R8pcnGSS5XC9zncfrC8Cn9r",
     "API_BASE_URL": "https://internal-workers-prd.turboform.ai",
+    "NEXT_PUBLIC_SENTRY_DSN": "https://286733ab85392f5096e64ad5c5518c9c@o1232311.ingest.us.sentry.io/4509116743090176",
   },
 }

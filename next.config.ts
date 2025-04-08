@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next'
 import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -27,4 +28,12 @@ if (process.env.NODE_ENV === 'development') {
   setupDevPlatform()
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  org: 'ship-saas',
+  project: 'turboform',
+  silent: true,
+  disableLogger: true,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: true,
+  tunnelRoute: '/monitoring',
+})
