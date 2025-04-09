@@ -10,10 +10,13 @@ import { useAuth } from '@/components/auth/auth-provider'
 import { SignInDialog } from '@/components/auth/sign-in-dialog'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import axios from 'axios'
+import { Loader2 } from 'lucide-react'
+import { Form } from '@/lib/types/form'
 
 interface FormActionsProps {
-  form: any
+  form: Form
   onHomeAction?: () => void
   homePath?: string
   homeLabel?: string
@@ -27,6 +30,7 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
   const [shortLink, setShortLink] = useState('')
   const [isSignInDialogOpen, setIsSignInDialogOpen] = useState(false)
   const [expirationDate, setExpirationDate] = useState<Date | undefined>(undefined)
+  const [isPublishing, setIsPublishing] = useState(false)
 
   const saveForm = async () => {
     try {
@@ -95,16 +99,11 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
             </Button>
           </>
         ) : (
-          <div className="w-full space-y-3">
+          <div className="w-full space-y-3 mx-auto">
             {isAnonymous ? (
               <>
-                <Alert>
-                  <AlertDescription>
-                    Your form has been saved! Sign in to get a shareable link and access your forms from any device.
-                  </AlertDescription>
-                </Alert>
-                <Button className="w-full" onClick={() => setIsSignInDialogOpen(true)}>
-                  Sign In to Share
+                <Button size="lg" className="w-full" onClick={() => setIsSignInDialogOpen(true)}>
+                  Sign in to get a shareable link
                 </Button>
               </>
             ) : (
@@ -114,7 +113,14 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
                     Your form has been saved! Share this link with others to collect responses:
                     {shortLink && (
                       <div className="mt-2">
-                        <div className="p-2 bg-muted rounded-md break-all">{shortLink}</div>
+                        <div className="p-2 bg-muted rounded-md break-all">
+                          {shortLink}
+                          {!!form.is_draft && (
+                            <Badge variant="secondary" className="ml-2">
+                              Draft
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     )}
                     {form.expires_at && (
@@ -128,12 +134,41 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      navigator.clipboard.writeText(shortLink || formLink)
-                      toast.success('Link copied to clipboard!')
+                    disabled={isPublishing}
+                    onClick={async () => {
+                      try {
+                        setIsPublishing(true)
+                        const response = await axios.post(
+                          '/api/forms/publish',
+                          { formId: form.id, isPublished: true },
+                          {
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${session?.access_token}`,
+                            },
+                          }
+                        )
+                        if (response.data.success) {
+                          navigator.clipboard.writeText(shortLink || formLink)
+                          toast.success('Link copied to clipboard!')
+                          router.push('/dashboard')
+                        }
+                      } catch (error) {
+                        console.error('Error publishing form:', error)
+                        toast.error('Failed to publish form. Please try again.')
+                      } finally {
+                        setIsPublishing(false)
+                      }
                     }}
                   >
-                    Copy Link
+                    {isPublishing ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Publishing...</span>
+                      </div>
+                    ) : (
+                      'Publish form and copy link'
+                    )}
                   </Button>
                   <Button variant="outline" onClick={handleHomeAction}>
                     {homeLabel}
