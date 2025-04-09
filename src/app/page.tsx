@@ -104,17 +104,6 @@ export default function Home() {
               <FormPreview form={generatedForm} editable={true} onFormChange={setGeneratedForm} />
             </div>
 
-            {!user || !!user?.is_anonymous ? (
-              <div className="flex flex-col items-center gap-4 p-6 border border-primary/20 rounded-lg bg-primary/5">
-                <p className="text-center font-medium">
-                  Ready to use this form? Sign in to access your dashboard and get a shareable link!
-                </p>
-                <Button onClick={() => setIsSignInDialogOpen(true)} className="gap-1">
-                  Sign In <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : null}
-
             <FormActions
               form={generatedForm}
               onHomeAction={() => setGeneratedForm(null)}

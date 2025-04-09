@@ -221,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAnonymous(false)
 
       // Force a router refresh after signout
-      router.push('/')
+      router.replace('/')
     } catch (error) {
       console.error('Error signing out:', error)
     }
