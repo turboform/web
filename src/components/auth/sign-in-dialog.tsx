@@ -74,7 +74,7 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
       const isAnonymousUser = !!user?.is_anonymous
 
       // If the current user is anonymous, link the account
-      if (isAnonymousUser) {
+      if (isAnonymousUser && !hasUserPreviouslySignedIn()) {
         setIsLinking(true)
         const { success, error: linkError } = await linkAnonymousAccount(email, password)
 
@@ -280,13 +280,13 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
               />
             </div>
 
-            <div className="mt-4">
+            <div className="mt-4 py-4">
               <Turnstile
                 ref={turnstileRef}
                 className="w-full flex items-center justify-center"
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                 onSuccess={(token) => setCaptchaToken(token)}
-                options={{ size: 'invisible' }}
+                options={{ size: 'normal', theme: 'light' }}
                 onError={() => {
                   setCaptchaToken('')
                   setError('Security check failed. Please try again.')
@@ -344,13 +344,13 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
                 />
               </div>
 
-              <div className="mt-4">
+              <div className="mt-4 py-4">
                 <Turnstile
                   ref={turnstileRef}
                   className="w-full flex items-center justify-center"
                   siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                   onSuccess={(token) => setCaptchaToken(token)}
-                  options={{ size: 'invisible' }}
+                  options={{ size: 'normal', theme: 'light' }}
                   onError={() => {
                     setCaptchaToken('')
                     setError('Security check failed. Please try again.')
