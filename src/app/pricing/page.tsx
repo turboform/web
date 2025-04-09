@@ -15,19 +15,36 @@ import { Badge } from '@/components/ui/badge'
 
 const pricingPlans = [
   {
-    name: 'Tinker',
-    description: 'Perfect for individuals getting started with forms and surveys.',
+    name: 'Free',
+    description: 'Try out TurboForm with basic features.',
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      'Create unlimited forms',
-      'Collect unlimited responses',
+      'Create up to 5 forms',
+      'Collect up to 100 responses',
       'Basic analytics & reporting',
       'AI-assisted form creation',
       'Export data to CSV',
       'Embed & share anywhere',
     ],
     buttonText: 'Get Started Free',
+    isPopular: false,
+    color: 'bg-muted/40 hover:bg-muted/60',
+    textColor: 'text-foreground',
+    buttonVariant: 'outline' as const,
+  },
+  {
+    name: 'Tinker',
+    description: 'Perfect for individuals getting started with forms and surveys.',
+    monthlyPrice: 9,
+    yearlyPrice: 90,
+    earlyBirdMonthlyPrice: 5,
+    earlyBirdYearlyPrice: 50,
+    hasDiscount: true,
+    monthlyPriceId: process.env.NEXT_PUBLIC_TINKER_MONTHLY_PRICE_ID,
+    yearlyPriceId: process.env.NEXT_PUBLIC_TINKER_YEARLY_PRICE_ID,
+    features: ['Everything in Free', 'Create unlimited forms', 'Collect unlimited responses', 'Priority email support'],
+    buttonText: 'Start Free Trial',
     isPopular: false,
     color: 'bg-muted/40 hover:bg-muted/60',
     textColor: 'text-foreground',
@@ -231,14 +248,15 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* First 3 plans in a row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-        {pricingPlans.slice(0, 3).map((plan, index) => (
+      {/* Pricing grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        {pricingPlans.slice(0, 4).map((plan, idx) => (
           <div
-            key={plan.name}
+            key={idx}
             className={cn(
               'flex flex-col rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg',
-              plan.isPopular ? 'border-primary ring-1 ring-primary/20' : 'border-border'
+              plan.isPopular ? 'border-primary ring-1 ring-primary/20' : 'border-border',
+              plan.color
             )}
           >
             {plan.isPopular && (
@@ -333,20 +351,20 @@ export default function PricingPage() {
       <div className="mb-16">
         <div className="rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg max-w-4xl mx-auto grid md:grid-cols-[2fr_3fr] gap-6">
           <div>
-            <h3 className="text-xl font-bold mb-2">{pricingPlans[3].name}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{pricingPlans[3].description}</p>
+            <h3 className="text-xl font-bold mb-2">{pricingPlans[4].name}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{pricingPlans[4].description}</p>
 
             <div className="mb-4">
               <span className="text-xl font-bold">Custom Pricing</span>
             </div>
 
-            <Button asChild variant={pricingPlans[3].buttonVariant} className="w-full">
-              <Link href="/contact">{pricingPlans[3].buttonText}</Link>
+            <Button asChild variant={pricingPlans[4].buttonVariant} className="w-full">
+              <Link href="/contact">{pricingPlans[4].buttonText}</Link>
             </Button>
           </div>
 
           <div className="space-y-3">
-            {pricingPlans[3].features.map((feature, idx) => (
+            {pricingPlans[4].features.map((feature, idx) => (
               <div key={idx} className="flex items-start">
                 <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
                 <span className="text-sm">{feature}</span>
