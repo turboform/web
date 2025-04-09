@@ -114,3 +114,66 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to get forms' }, { status: 500 })
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '')
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized - Invalid token format' }, { status: 401 })
+    }
+
+    const { id, title, description, schema, expires_at } = await req.json()
+
+    if (!id) {
+      return NextResponse.json({ error: 'Form ID is required' }, { status: 400 })
+    }
+
+    // Authenticate the user
+    const { user, supabase, error } = await authenticateUser(token)
+
+    // If authentication failed, return the error response
+    if (error) {
+      return error
+    }
+
+    // Verify the form belongs to the user
+    const { data: existingForm, error: fetchError } = await supabase
+      .from('forms')
+      .select('user_id')
+      .eq('id', id)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching form:', fetchError)
+      return NextResponse.json({ error: 'Failed to find form' }, { status: 404 })
+    }
+
+    if (existingForm.user_id !== user!.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    // Update the form
+    const { data, error: dbError } = await supabase
+      .from('forms')
+      .update({
+        title,
+        description,
+        schema,
+        expires_at: expires_at || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (dbError) {
+      console.error('Error updating form:', dbError)
+      return NextResponse.json({ error: 'Failed to update form' }, { status: 500 })
+    }
+
+    return NextResponse.json({ form: data })
+  } catch (error) {
+    console.error('Error updating form:', error)
+    return NextResponse.json({ error: 'Failed to update form' }, { status: 500 })
+  }
+}

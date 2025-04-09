@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
           user_id: user?.id,
           title,
           description: enhancedDescription, // Use the enhanced description
-          schema: JSON.stringify(formFields), // Cast to JSON type
+          schema: formFields as any,
           is_draft: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),

@@ -149,7 +149,7 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
             )}
           </CardContent>
           <CardFooter className="flex-col gap-4">
-            <Button type="submit" className="w-full" size="lg" disabled={isGenerating || (!user && !captchaToken)}>
+            <Button type="submit" className="w-full" size="lg" disabled={isGenerating}>
               {isGenerating ? 'Generating...' : 'Generate Form (Cmd+Enter)'}
             </Button>
           </CardFooter>

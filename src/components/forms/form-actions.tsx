@@ -40,7 +40,13 @@ export function FormActions({ form, onHomeAction, homePath, homeLabel = 'Create 
         expires_at: expirationDate ? expirationDate.toISOString() : null,
       }
 
-      const response = await axios.post('/api/forms', formWithExpiration, {
+      const endpoint = '/api/forms'
+      const method = !!form.id ? 'put' : 'post'
+
+      const response = await axios({
+        method,
+        url: endpoint,
+        data: formWithExpiration,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.access_token}`,
