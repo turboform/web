@@ -44,7 +44,7 @@ const pricingPlans = [
     monthlyPriceId: process.env.NEXT_PUBLIC_TINKER_MONTHLY_PRICE_ID,
     yearlyPriceId: process.env.NEXT_PUBLIC_TINKER_YEARLY_PRICE_ID,
     features: ['Everything in Free', 'Create unlimited forms', 'Collect unlimited responses', 'Priority email support'],
-    buttonText: 'Start Free Trial',
+    buttonText: 'Upgrade to Tinker',
     isPopular: false,
     color: 'bg-muted/40 hover:bg-muted/60',
     textColor: 'text-foreground',
@@ -337,9 +337,11 @@ export default function PricingPage() {
 
               <div className="mt-4 text-right">
                 {plan.hasDiscount ? (
-                  <Badge className="text-xs bg-yellow-100 text-yellow-800">* Available soon</Badge>
+                  <Badge className="text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100 hover:text-yellow-800">
+                    * Available soon
+                  </Badge>
                 ) : (
-                  <Badge className="bg-white"></Badge>
+                  <Badge className={plan.color}></Badge>
                 )}
               </div>
             </div>

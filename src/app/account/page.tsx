@@ -312,7 +312,7 @@ function AccountPage() {
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
                   <div>
-                    <p className="font-medium">Create unlimited forms</p>
+                    <p className="font-medium">Create up to 5 forms</p>
                     <p className="text-sm text-muted-foreground">Design as many forms as you need</p>
                   </div>
                 </div>
