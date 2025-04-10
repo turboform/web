@@ -22,8 +22,8 @@ export interface SubscriptionWithDetails {
     amount: number
     interval: string
   }
-  price?: {
-    product?: {
+  prices?: {
+    products?: {
       name?: string
       description?: string
     }
@@ -228,12 +228,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const { data, isLoading: subscriptionLoading } = useSWR(
-    session?.access_token ? '/api/user' : null,
+    session?.access_token ? [`/api/user`, session.access_token] : null,
     ([url, token]) => fetcher<{ subscription: SubscriptionWithDetails | null }>(url, token),
     {
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
-      dedupingInterval: 60000, // 1 minute
     }
   )
 

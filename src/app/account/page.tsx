@@ -122,18 +122,18 @@ function AccountPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <CardTitle>{subscription.price?.product?.name || 'Subscription'}</CardTitle>
+                  <CardTitle>{subscription.prices?.products?.name || 'Subscription'}</CardTitle>
                   {getStatusBadge(subscription.status)}
                 </div>
                 <CardDescription>Manage your subscription and billing details</CardDescription>
               </div>
               <div className="flex items-center justify-end">
-                {subscription.price && (
+                {subscription.prices && (
                   <div className="text-right">
                     <p className="text-2xl font-bold">
-                      {formatCurrency(subscription.price.unit_amount || 0, subscription.price.currency || 'USD')}
+                      {formatCurrency(subscription.prices.unit_amount || 0, subscription.prices.currency || 'USD')}
                     </p>
-                    <p className="text-sm text-muted-foreground">per {subscription.price.interval || 'month'}</p>
+                    <p className="text-sm text-muted-foreground">per {subscription.prices.interval || 'month'}</p>
                   </div>
                 )}
               </div>
@@ -192,11 +192,7 @@ function AccountPage() {
                   <div className="space-y-1">
                     <p className="text-sm">
                       <span className="text-muted-foreground">Plan: </span>
-                      <span className="font-medium">{subscription.price?.product?.name || 'Unknown Plan'}</span>
-                    </p>
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">Description: </span>
-                      <span>{subscription.price?.product?.description || 'No description available'}</span>
+                      <span className="font-medium">{subscription.prices?.products?.name || 'Unknown Plan'}</span>
                     </p>
                     <p className="text-sm">
                       <span className="text-muted-foreground">Started on: </span>
@@ -221,8 +217,8 @@ function AccountPage() {
                     <p className="text-sm">
                       <span className="text-muted-foreground">Price: </span>
                       <span className="font-medium">
-                        {subscription.price
-                          ? `${formatCurrency(subscription.price.unit_amount || 0, subscription.price.currency || 'USD')} / ${subscription.price.interval || 'month'}`
+                        {subscription.prices
+                          ? `${formatCurrency(subscription.prices.unit_amount || 0, subscription.prices.currency || 'USD')} / ${subscription.prices.interval || 'month'}`
                           : 'N/A'}
                       </span>
                     </p>
