@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response.data)
   } catch (error) {
-    console.error('Error creating checkout session:', error)
+    console.error('Error creating portal link:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

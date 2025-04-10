@@ -30,12 +30,6 @@ type Subscription = Database['public']['Tables']['subscriptions']['Row']
 type Price = Database['public']['Tables']['prices']['Row']
 type Product = Database['public']['Tables']['products']['Row']
 
-type SubscriptionWithDetails = Subscription & {
-  price?: Price & {
-    product?: Product
-  }
-}
-
 const AccountPageWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="container max-w-5xl py-10 px-4 md:px-6 mx-auto">
     <h1 className="text-3xl font-bold mb-2 text-center">Account</h1>
@@ -45,7 +39,7 @@ const AccountPageWrapper = ({ children }: { children: React.ReactNode }) => (
 )
 
 function AccountPage() {
-  const { user } = useAuth()
+  const { session, user } = useAuth()
   const { subscription, subscriptionLoading } = useSubscription()
 
   const getStatusBadge = (status: string | null) => {
@@ -95,8 +89,22 @@ function AccountPage() {
   }
 
   const handleCancelSubscription = async () => {
-    // This will be implemented later
-    toast.info('Subscription cancellation will be implemented soon')
+    const result = await axios.post(
+      '/api/stripe/portal-link',
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      }
+    )
+
+    if (result.data.error) {
+      toast.error(result.data.error.message || 'Failed to create portal link')
+      return
+    }
+
+    window.location.href = result.data.url
   }
 
   if (subscriptionLoading) {
@@ -358,10 +366,10 @@ function AccountPage() {
                 <p>
                   {user?.created_at
                     ? new Date(user.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })
                     : 'N/A'}
                 </p>
               </div>
