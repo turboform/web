@@ -50,24 +50,3 @@ export const getFormByShortId = cache(async (shortId: string): Promise<FormData 
     return null
   }
 })
-
-export async function submitFormResponse(formId: string, responses: Record<string, any>) {
-  try {
-    const { error } = await supabaseAdminClient.from('form_responses').insert({
-      form_id: formId,
-      responses,
-    })
-
-    if (error) {
-      throw error
-    }
-
-    // Invalidate the cache for this form page
-    revalidatePath(`/form/${formId}`)
-
-    return { success: true }
-  } catch (error) {
-    console.error('Error submitting form response:', error)
-    return { success: false, error }
-  }
-}

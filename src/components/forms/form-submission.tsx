@@ -12,9 +12,9 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { submitFormResponse } from '@/lib/supabase/actions'
 import type { FormData } from '@/lib/supabase/actions'
-import { MultiSelect, Option } from '@/components/ui/multi-select'
+import { MultiSelect } from '@/components/ui/multi-select'
+import axios from 'axios'
 
 const isFormExpired = (form: FormData): boolean => {
   if (!form.expires_at) return false
@@ -74,9 +74,8 @@ export function FormSubmission({ form }: { form: FormData }) {
     try {
       setSubmitting(true)
 
-      const result = await submitFormResponse(form.id, formResponses)
-
-      if (!result.success) {
+      const result = await axios.post('/api/v1/forms/submit', formResponses)
+      if (!result.data.success) {
         throw new Error('Failed to submit form')
       }
 
