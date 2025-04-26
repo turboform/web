@@ -197,7 +197,14 @@ function Dashboard() {
                   </div>
                 </div>
                 <CardDescription className="text-sm text-gray-500 mt-1 line-clamp-1">
-                  Created {new Date(form.created_at || '').toLocaleDateString()}
+                  Created{' '}
+                  {new Date(form.created_at || '').toLocaleString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-2 flex-grow">
