@@ -366,10 +366,10 @@ function AccountPage() {
                 <p>
                   {user?.created_at
                     ? new Date(user.created_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
                     : 'N/A'}
                 </p>
               </div>

@@ -50,12 +50,21 @@ export function FormSubmission({ form }: { form: FormData }) {
     }
 
     const requiredFields = form.schema.filter((field: any) => field.required)
-    const missingFields = requiredFields.filter(
-      (field: any) =>
-        !formResponses[field.id] ||
+    const missingFields = requiredFields.filter((field: any) => {
+      // Skip validation for checkboxes - they're always considered filled
+      // because both true and false are valid values
+      if (field.type === 'checkbox') {
+        return formResponses[field.id] === undefined
+      }
+
+      // For other field types, check if empty
+      return (
+        formResponses[field.id] === undefined ||
+        formResponses[field.id] === null ||
         (typeof formResponses[field.id] === 'string' && !formResponses[field.id].trim()) ||
         (Array.isArray(formResponses[field.id]) && formResponses[field.id].length === 0)
-    )
+      )
+    })
 
     if (missingFields.length > 0) {
       toast.error(`Please fill in all required fields (${missingFields.length} missing)`)

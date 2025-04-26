@@ -9,7 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Plus, Minus, PencilLine, Check, X } from 'lucide-react'
+import {
+  Plus,
+  Minus,
+  PencilLine,
+  Check,
+  TextIcon,
+  RadioIcon,
+  ChevronDownIcon,
+  CopyCheckIcon,
+  WrapTextIcon,
+  ToggleRightIcon,
+} from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -25,6 +36,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { DraggableField } from './draggable-field'
 import type { Form, FormField } from '@/lib/types/form'
+import { FIELD_TYPES } from '@/lib/types/constants'
 
 interface FormPreviewProps {
   form: Form
@@ -39,6 +51,22 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
   const [editingDescription, setEditingDescription] = useState(false)
   const [newOption, setNewOption] = useState('')
   const [activeId, setActiveId] = useState<string | null>(null)
+
+  const addField = (type: FormField['type']) => {
+    const newField: FormField = {
+      id: crypto.randomUUID(),
+      type: type as FormField['type'],
+      label: 'New Question',
+      placeholder: '',
+      required: false,
+      options: type === 'radio' || type === 'select' || type === 'multi_select' ? ['Option 1', 'Option 2'] : [],
+    }
+    const updatedForm = {
+      ...editableForm,
+      schema: [...editableForm.schema, newField],
+    }
+    updateForm(updatedForm)
+  }
 
   // Set up DnD sensors with more permissive settings
   const sensors = useSensors(
@@ -222,9 +250,13 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
           <CardTitle className="flex justify-between items-center">
             <span>{editableForm.title}</span>
             {editable && (
-              <Button size="sm" variant="ghost" onClick={() => setEditingTitle(true)}>
-                <PencilLine className="w-4 h-4 mr-1" />
-                Edit
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-gray-700"
+                onClick={() => setEditingTitle(true)}
+              >
+                <PencilLine className="w-4 h-4" />
               </Button>
             )}
           </CardTitle>
@@ -249,9 +281,13 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
           <CardDescription className="flex justify-between items-center mt-2">
             <span>{editableForm.description}</span>
             {editable && (
-              <Button size="sm" variant="ghost" onClick={() => setEditingDescription(true)}>
-                <PencilLine className="w-4 h-4 mr-1" />
-                Edit
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-gray-700"
+                onClick={() => setEditingDescription(true)}
+              >
+                <PencilLine className="w-4 h-4" />
               </Button>
             )}
           </CardDescription>
@@ -312,7 +348,7 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="text">Text</SelectItem>
-                                <SelectItem value="textarea">Text Area</SelectItem>
+                                <SelectItem value="textarea">Long Text</SelectItem>
                                 <SelectItem value="checkbox">Yes/No</SelectItem>
                                 <SelectItem value="radio">Multiple Choice</SelectItem>
                                 <SelectItem value="select">Dropdown</SelectItem>
@@ -534,6 +570,30 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                 )}
               </div>
             ))}
+          </div>
+        )}
+        {editable && (
+          <div className="flex justify-end mt-4">
+            <Select onValueChange={(value) => addField(value as FormField['type'])}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Add Field" />
+              </SelectTrigger>
+              <SelectContent>
+                {FIELD_TYPES.map((fieldType) => (
+                  <SelectItem key={fieldType.type} value={fieldType.type}>
+                    <div className="flex items-center">
+                      {fieldType.type === 'text' && <TextIcon className="h-4 w-4 mr-2" />}
+                      {fieldType.type === 'textarea' && <WrapTextIcon className="h-4 w-4 mr-2" />}
+                      {fieldType.type === 'checkbox' && <ToggleRightIcon className="h-4 w-4 mr-2" />}
+                      {fieldType.type === 'radio' && <RadioIcon className="h-4 w-4 mr-2" />}
+                      {fieldType.type === 'select' && <ChevronDownIcon className="h-4 w-4 mr-2" />}
+                      {fieldType.type === 'multi_select' && <CopyCheckIcon className="h-4 w-4 mr-2" />}
+                      {fieldType.label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
       </CardContent>
