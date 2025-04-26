@@ -261,6 +261,7 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -273,6 +274,7 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
               <Input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
