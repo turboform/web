@@ -20,6 +20,7 @@ import {
   CopyCheckIcon,
   WrapTextIcon,
   ToggleRightIcon,
+  Trash2,
 } from 'lucide-react'
 import {
   DndContext,
@@ -66,6 +67,14 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
       schema: [...editableForm.schema, newField],
     }
     updateForm(updatedForm)
+  }
+
+  const removeField = (id: string) => {
+    const updatedSchema = editableForm.schema.filter((field) => field.id !== id)
+    updateForm({ ...editableForm, schema: updatedSchema })
+    if (editingField === id) {
+      setEditingField(null)
+    }
   }
 
   // Set up DnD sensors with more permissive settings
@@ -424,6 +433,17 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
 
                           <div className="flex-grow"></div>
 
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => removeField(field.id)}
+                            className="mr-2"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+
                           <Button type="button" size="sm" variant="outline" onClick={() => setEditingField(null)}>
                             <Check className="h-4 w-4 mr-1" />
                             Done
@@ -439,14 +459,24 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
                             {field.required && <span className="text-red-500 ml-1">*</span>}
                           </div>
                           {editable && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-gray-500 hover:text-gray-700"
-                              onClick={() => setEditingField(field.id)}
-                            >
-                              <PencilLine className="h-4 w-4" />
-                            </Button>
+                            <div className="flex space-x-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-500 hover:text-gray-700"
+                                onClick={() => setEditingField(field.id)}
+                              >
+                                <PencilLine className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-500 hover:text-red-500"
+                                onClick={() => removeField(field.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           )}
                         </div>
 

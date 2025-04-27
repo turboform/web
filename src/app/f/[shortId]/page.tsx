@@ -42,8 +42,8 @@ export default async function FormShortPage({ params }: { params: FormPageProps 
   }
 
   return (
-    <div className="container max-w-3xl py-16 px-4 sm:px-6 mx-auto">
-      <Card className="shadow-sm">
+    <div className="container max-w-3xl py-16 px-4 sm:px-6 mx-auto min-h-[calc(100vh-100px)] flex flex-col">
+      <Card className="shadow-sm flex-1 flex flex-col">
         <CardHeader className="pb-4">
           <CardTitle className="text-2xl font-semibold">{form.title}</CardTitle>
           <CardDescription className="text-base mt-2 whitespace-pre-line">{form.description}</CardDescription>
@@ -51,7 +51,7 @@ export default async function FormShortPage({ params }: { params: FormPageProps 
 
         <Suspense
           fallback={
-            <div className="flex justify-center items-center py-12">
+            <div className="flex justify-center items-center py-12 flex-1">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           }
@@ -59,7 +59,7 @@ export default async function FormShortPage({ params }: { params: FormPageProps 
           <FormSubmission form={form} />
         </Suspense>
 
-        <CardFooter className="flex justify-center pt-6 pb-4 text-xs text-muted-foreground">
+        <CardFooter className="flex justify-center pt-6 pb-4 text-xs text-muted-foreground mt-auto">
           <Link href="/" className="hover:text-primary transition-colors underline">
             Powered by TurboForm
           </Link>
