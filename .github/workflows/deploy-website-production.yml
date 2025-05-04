@@ -11,11 +11,12 @@ jobs:
     name: Build Pages Production
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
       - name: Build
         run: npm run pages:build
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: github.event_name == 'push'
         with:
           name: site
@@ -27,7 +28,7 @@ jobs:
     needs: build
     if: github.event_name == 'push'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: site
           path: ./site
