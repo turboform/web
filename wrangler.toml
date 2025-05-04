@@ -4,7 +4,21 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
 # Environment Variables
-[vars]
+[env.dev.vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://wmghucwmjnbqpsujncee.supabase.co"
+NEXT_PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAABDJBdKrAc35rNYp"
+NEXT_PUBLIC_POSTHOG_KEY = "phc_4ozFzjv9pS6t7nEKHvYzwTt7uLBNhRvx65jlkpoirtV"
+NEXT_PUBLIC_TINKER_MONTHLY_PRICE_ID = "price_1RBwaWGSS5XC9znc2b0id4Oa"
+NEXT_PUBLIC_TINKER_YEARLY_PRICE_ID = "price_1RBwauGSS5XC9zncnK8ztUHB"
+NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID = "price_1R8pY3GSS5XC9znca9MI7G8W"
+NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID = "price_1R8pZQGSS5XC9znctdxrxOxj"
+NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID = "price_1R8pc0GSS5XC9zncDhljuzTa"
+NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID = "price_1R8pcnGSS5XC9zncfrC8Cn9r"
+STRIPE_SESSION_REDIRECT_URL = "http://localhost:3000/account"
+CHECKOUT_SUCCESS_REDIRECT_URL = "http://localhost:3000/account"
+CHECKOUT_CANCEL_REDIRECT_URL = "http://localhost:3000/account"
+
+[env.prd.vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://krleqnhlvnyqtkqoyogw.supabase.co"
 NEXT_PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAABDJBdKrAc35rNYp"
 NEXT_PUBLIC_POSTHOG_KEY = "phc_4ozFzjv9pS6t7nEKHvYzwTt7uLBNhRvx65jlkpoirtV"
@@ -14,23 +28,6 @@ NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID = "price_1R8pY3GSS5XC9znca9MI7G8W"
 NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID = "price_1R8pZQGSS5XC9znctdxrxOxj"
 NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID = "price_1R8pc0GSS5XC9zncDhljuzTa"
 NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID = "price_1R8pcnGSS5XC9zncfrC8Cn9r"
-
-# Dev Environment
-[env.dev]
-workers_dev = true
-
-[env.dev.vars]
-SUPABASE_URL = "https://wmghucwmjnbqpsujncee.supabase.co"
-STRIPE_SESSION_REDIRECT_URL = "http://localhost:3000/account"
-CHECKOUT_SUCCESS_REDIRECT_URL = "http://localhost:3000/account"
-CHECKOUT_CANCEL_REDIRECT_URL = "http://localhost:3000/account"
-
-# Production Environment
-[env.prd]
-route = "https://turboform.ai"
-
-[env.prd.vars]
-SUPABASE_URL = "https://krleqnhlvnyqtkqoyogw.supabase.co"
 STRIPE_SESSION_REDIRECT_URL = "https://turboform.ai/account"
 CHECKOUT_SUCCESS_REDIRECT_URL = "https://turboform.ai/account"
 CHECKOUT_CANCEL_REDIRECT_URL = "https://turboform.ai/account"
