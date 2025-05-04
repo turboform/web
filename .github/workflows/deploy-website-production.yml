@@ -15,6 +15,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: npm install --legacy-peer-deps && npm run pages:build && wrangler pages deploy
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           environment: 'prd'
