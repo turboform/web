@@ -6,15 +6,35 @@ on:
       - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build Pages Production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+      - name: Build
+        run: npm run pages:build
+      - uses: actions/upload-artifact@v3
+        if: github.event_name == 'push'
+        with:
+          name: site
+          path: ./site/out
+          retention-days: 2
   deploy:
     runs-on: ubuntu-latest
     name: Deploy Pages Production
+    needs: build
+    if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy
+      - uses: actions/download-artifact@v3
+        with:
+          name: site
+          path: ./site
+      - name: Publish
         uses: cloudflare/wrangler-action@v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: npm install --legacy-peer-deps && npm run pages:build && wrangler pages deploy
+          command: pages deploy --project-name=web ./site
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           environment: 'production'
