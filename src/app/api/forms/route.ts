@@ -72,6 +72,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// TODO: deprecate this endpoint in favor of /api/forms/[id]
 export async function PUT(req: NextRequest) {
   try {
     const token = req.headers.get('Authorization')?.replace('Bearer ', '')
