@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 interface Response {
   id: string
   created_at: string
-  answers: { [key: string]: any }
+  responses: { [key: string]: any }
 }
 
 interface Form {
@@ -68,7 +68,7 @@ const ResponsesPage = () => {
     error: responsesError,
     isLoading: responsesLoading,
   } = useSWR(session?.access_token ? [`/api/responses/${formId}`, session?.access_token] : null, ([url, token]) =>
-    fetcher<{ responses: Response[] }>(url, token)
+    fetcher<Response[]>(url, token)
   )
 
   // Handle any errors
@@ -85,7 +85,7 @@ const ResponsesPage = () => {
 
   // Get data from SWR responses
   const form = formData?.form || null
-  const responses = responsesData?.responses || []
+  const responses = responsesData || []
 
   // Create a map of field IDs to field labels
   const fieldLabelMap = useMemo(() => {
@@ -106,13 +106,13 @@ const ResponsesPage = () => {
 
   // Get unique columns from all responses
   const columns = useMemo(() => {
-    if (!responses.length) return []
+    if (!responses?.length) return []
 
     // Extract all unique fields from responses
     const allFields = new Set<string>()
     responses.forEach((response) => {
-      if (response.answers && typeof response.answers === 'object') {
-        Object.keys(response.answers).forEach((key) => allFields.add(key))
+      if (response.responses && typeof response.responses === 'object') {
+        Object.keys(response.responses).forEach((key) => allFields.add(key))
       }
     })
 
@@ -183,7 +183,7 @@ const ResponsesPage = () => {
       const lowerSearchTerm = searchTerm.toLowerCase().trim()
       result = result.filter((response) => {
         // Handle case where response has no answers
-        if (!response.answers) {
+        if (!response.responses) {
           // Still check created_at even if no answers
           return new Date(response.created_at).toLocaleString().toLowerCase().includes(lowerSearchTerm)
         }
@@ -194,7 +194,7 @@ const ResponsesPage = () => {
         }
 
         // Check all answer fields for the search term
-        return Object.entries(response.answers).some(([key, value]) => {
+        return Object.entries(response.responses).some(([key, value]) => {
           if (value === null || value === undefined) return false
 
           // Convert to string for comparison
@@ -213,8 +213,8 @@ const ResponsesPage = () => {
           aValue = new Date(a.created_at).getTime()
           bValue = new Date(b.created_at).getTime()
         } else {
-          aValue = a.answers?.[sortConfig.key]
-          bValue = b.answers?.[sortConfig.key]
+          aValue = a.responses?.[sortConfig.key]
+          bValue = b.responses?.[sortConfig.key]
         }
 
         // Handle undefined values in sorting
@@ -293,7 +293,7 @@ const ResponsesPage = () => {
         .map((response) => {
           return columns
             .map((column) => {
-              const value = column === 'created_at' ? response.created_at : response.answers?.[column]
+              const value = column === 'created_at' ? response.created_at : response.responses?.[column]
 
               // Handle CSV formatting for different data types
               if (value === undefined || value === null) {
@@ -509,7 +509,7 @@ const ResponsesPage = () => {
                     {filteredAndSortedResponses.map((response) => (
                       <TableRow key={response.id}>
                         {visibleColumns.map((column) => {
-                          const value = column === 'created_at' ? response.created_at : response.answers?.[column]
+                          const value = column === 'created_at' ? response.created_at : response.responses?.[column]
 
                           return (
                             <TableCell key={`${response.id}-${column}`} className="whitespace-nowrap">
@@ -565,7 +565,7 @@ const ResponsesPage = () => {
                 <TableBody>
                   {columns.map((column) => {
                     const value =
-                      column === 'created_at' ? selectedResponse.created_at : selectedResponse.answers?.[column]
+                      column === 'created_at' ? selectedResponse.created_at : selectedResponse.responses?.[column]
                     return (
                       <TableRow key={column}>
                         <TableCell className="font-medium">{getFieldDisplayName(column)}</TableCell>
