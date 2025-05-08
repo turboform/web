@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     // Make request to internal API
     const response = await axios.post(
-      `${process.env.API_BASE_URL}/v1/stripe/portal-link`,
+      `${process.env.API_BASE_URL}/api/v1/stripe/portal-link`,
       {},
       {
         headers: {
