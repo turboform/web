@@ -28,13 +28,3 @@ export function formatCurrency(amount: number | null, currency: string = 'USD'):
 
 export const fetcher = <T>(url: string, token: string) =>
   axios.get(url, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.data as T)
-
-// Helper function to generate a random short ID using Web Crypto API
-export function generateShortId(length = 8): string {
-  const bytes = new Uint8Array(Math.ceil(length / 2))
-  crypto.getRandomValues(bytes)
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-    .slice(0, length)
-}

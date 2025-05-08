@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { LOCAL_STORAGE_KEYS } from '@/lib/types/constants'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
+import axios from 'axios'
 
 // Export the subscription type for reuse
 export interface SubscriptionWithDetails {
@@ -164,23 +165,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: sessionData } = await supabaseBrowserClient.auth.getSession()
         const authToken = sessionData.session?.access_token
 
-        // Use the admin client to transfer forms from anonymous user to the existing user
         try {
-          // Using fetch here since we need to call a server action to use the admin client
-          // TODO: NB - add good check here, if abused users can use this endpoint to transfer data to other users.
-          const response = await fetch('/api/auth/link-anonymous-data', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${authToken}`, // Include authentication token
-            },
-            body: JSON.stringify({
+          const response = await axios.post(
+            '/api/auth/link-anonymous-data',
+            {
               anonymousUserId,
               targetUserId: existingUserData.user.id,
-            }),
-          })
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          )
 
-          if (!response.ok) {
+          if (!response.data.success) {
             console.error('Failed to transfer anonymous data')
           }
         } catch (error) {
