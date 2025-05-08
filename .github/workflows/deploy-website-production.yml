@@ -38,6 +38,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: pages deploy --project-name=web ./site
+          command: pages deploy --project-name=web --branch=main ./site
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          environment: 'production'
