@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response.data)
   } catch (error) {
-    console.error('Error creating checkout session:', (error as any).data)
+    console.error('Error creating checkout session:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

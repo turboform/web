@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json(response.data, { status: response.status })
   } catch (error) {
-    console.error('Error proxying request to get form responses:', (error as any).data)
+    console.error('Error proxying request to get form responses:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

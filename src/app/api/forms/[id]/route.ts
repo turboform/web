@@ -55,7 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json(response.data, { status: response.status })
   } catch (error) {
-    console.error('Error proxying request to get form:', (error as any).data)
+    console.error('Error proxying request to get form:', error)
     return NextResponse.json({ error: 'Failed to get form' }, { status: 500 })
   }
 }
