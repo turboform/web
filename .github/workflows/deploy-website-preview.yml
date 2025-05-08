@@ -19,7 +19,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_DEV }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
       - uses: actions/upload-artifact@v4
-        if: github.event_name == 'push'
         with:
           name: site
           path: ./site/out
@@ -28,7 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Pages Preview
     needs: build
-    if: github.event_name == 'push'
     steps:
       - uses: actions/download-artifact@v4
         with:
