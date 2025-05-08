@@ -228,7 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const { data, isLoading: subscriptionLoading } = useSWR(
-    session?.access_token ? [`/api/user`, session.access_token] : null,
+    session?.access_token && !session.user.is_anonymous ? [`/api/user`, session.access_token] : null,
     ([url, token]) => fetcher<{ subscription: SubscriptionWithDetails | null }>(url, token),
     {
       revalidateOnFocus: true,

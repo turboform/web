@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Make request to internal API
-    const response = await axios.get(`${process.env.API_BASE_URL}/v1/user`, {
+    const response = await axios.get(`${process.env.API_BASE_URL}/api/v1/user`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,

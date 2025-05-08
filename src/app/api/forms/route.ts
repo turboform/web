@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser } from '@/lib/supabase/server'
 import { generateShortId } from '@/lib/utils'
+import axios from 'axios'
 
 export const runtime = 'edge'
 
@@ -52,69 +53,26 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    // Authenticate the user
-    const token = req.headers.get('Authorization')?.replace('Bearer ', '')
-    if (!token) {
+    const authorization = req.headers.get('Authorization')
+    if (!authorization) {
       return NextResponse.json({ error: 'Unauthorized - Invalid token format' }, { status: 401 })
     }
 
-    const { user, supabase, error } = await authenticateUser(token)
+    // Forward the request to the worker endpoint
+    const response = await axios.get(`${process.env.API_BASE_URL}/api/v1/forms`, {
+      headers: {
+        Authorization: authorization,
+      },
+    })
 
-    // If authentication failed, return the error response
-    if (error) {
-      return error
-    }
-
-    // Get forms for the user
-    const { data: allForms, error: dbError } = await supabase
-      .from('forms')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (dbError) {
-      console.error('Error getting forms:', dbError)
-      return NextResponse.json({ error: 'Failed to get forms' }, { status: 500 })
-    }
-
-    // Filter forms to show only the current user's forms
-    const userForms = allForms?.filter((form) => form.user_id === user!.id) || []
-
-    // Get response counts for each form
-    const formIds = userForms.map((form) => form.id)
-
-    if (formIds.length > 0) {
-      const { data: responseData, error: responseError } = await supabase
-        .from('form_responses')
-        .select('form_id, count')
-        .in('form_id', formIds)
-        .select('form_id')
-        .then(({ data, error }) => {
-          if (error) return { data: null, error }
-
-          // Count responses for each form
-          const counts: Record<string, number> = {}
-          data?.forEach((row: any) => {
-            counts[row.form_id] = (counts[row.form_id] || 0) + 1
-          })
-
-          return { data: counts, error: null }
-        })
-
-      if (!responseError && responseData) {
-        // Add response counts to forms
-        userForms.forEach((form) => {
-          ;(form as any).responseCount = responseData[form.id] || 0 // TODO: fix this hack
-        })
-      }
-    }
-
-    return NextResponse.json({ forms: userForms })
+    return NextResponse.json(response.data, { status: response.status })
   } catch (error) {
-    console.error('Error getting forms:', error)
+    console.error('Error proxying request to get forms:', error)
     return NextResponse.json({ error: 'Failed to get forms' }, { status: 500 })
   }
 }
 
+// TODO: deprecate this endpoint in favor of /api/forms/[id]
 export async function PUT(req: NextRequest) {
   try {
     const token = req.headers.get('Authorization')?.replace('Bearer ', '')

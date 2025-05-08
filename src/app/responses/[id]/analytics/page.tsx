@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface Response {
   id: string
   created_at: string
-  answers: { [key: string]: any }
+  responses: { [key: string]: any }
 }
 
 interface Form {
@@ -61,7 +61,7 @@ const AnalyticsPage = () => {
     error: responsesError,
     isLoading: responsesLoading,
   } = useSWR(session?.access_token ? [`/api/responses/${formId}`, session?.access_token] : null, ([url, token]) =>
-    fetcher<{ responses: Response[] }>(url, token)
+    fetcher<Response[]>(url, token)
   )
 
   // Handle any errors
@@ -78,7 +78,7 @@ const AnalyticsPage = () => {
 
   // Get data from SWR responses
   const form = formData?.form || null
-  const responses = responsesData?.responses || []
+  const responses = responsesData || []
 
   // Create a map of field IDs to field labels
   const fieldLabelMap = useMemo(() => {
@@ -104,8 +104,8 @@ const AnalyticsPage = () => {
     // Extract all unique fields from responses
     const allFields = new Set<string>()
     responses.forEach((response) => {
-      if (response.answers && typeof response.answers === 'object') {
-        Object.keys(response.answers).forEach((key) => allFields.add(key))
+      if (response.responses && typeof response.responses === 'object') {
+        Object.keys(response.responses).forEach((key) => allFields.add(key))
       }
     })
 
@@ -139,9 +139,9 @@ const AnalyticsPage = () => {
       .forEach((column) => {
         const valueCounts: Record<string, number> = {}
         responses.forEach((response) => {
-          if (!response.answers || response.answers[column] === undefined) return
+          if (!response.responses || response.responses[column] === undefined) return
 
-          const value = String(response.answers[column])
+          const value = String(response.responses[column])
           valueCounts[value] = (valueCounts[value] || 0) + 1
         })
 
