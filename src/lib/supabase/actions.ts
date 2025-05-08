@@ -1,8 +1,7 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
-import { supabaseAdminClient } from './admin'
+import axios from 'axios'
 
 export type FormData = {
   id: string
@@ -20,14 +19,14 @@ export type FormData = {
 // Use cache to prevent redundant fetches during server rendering cycle
 export const getFormById = cache(async (formId: string): Promise<FormData | null> => {
   try {
-    const { data, error } = await supabaseAdminClient.from('forms').select('*').eq('id', formId).single()
+    const response = await axios.get(`${process.env.API_BASE_URL}/api/v1/form/by-id/${formId}`)
 
-    if (error) {
-      console.error('Error fetching form:', error)
+    if (!response.data || !response.data.form) {
+      console.error('Error fetching form: No data returned')
       return null
     }
 
-    return data as FormData
+    return response.data.form as FormData
   } catch (error) {
     console.error('Error in getFormById:', error)
     return null
@@ -37,14 +36,14 @@ export const getFormById = cache(async (formId: string): Promise<FormData | null
 // Get form by short ID
 export const getFormByShortId = cache(async (shortId: string): Promise<FormData | null> => {
   try {
-    const { data, error } = await supabaseAdminClient.from('forms').select('*').eq('short_id', shortId).single()
+    const response = await axios.get(`${process.env.API_BASE_URL}/api/v1/form/by-short-id/${shortId}`)
 
-    if (error) {
-      console.error('Error fetching form by short ID:', error)
+    if (!response.data || !response.data.form) {
+      console.error('Error fetching form by short ID: No data returned')
       return null
     }
 
-    return data as FormData
+    return response.data.form as FormData
   } catch (error) {
     console.error('Error in getFormByShortId:', error)
     return null
