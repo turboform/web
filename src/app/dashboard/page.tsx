@@ -28,7 +28,6 @@ import {
   Link,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { supabaseBrowserClient } from '@/lib/supabase/browser'
 import { ProtectedPage } from '@/components/auth/protected-page'
 import { useAuth } from '@/components/auth/auth-provider'
 import useSWR from 'swr'
@@ -52,7 +51,7 @@ function Dashboard() {
 
   const handleDeleteForm = async (formId: string) => {
     try {
-      const response = await axios.delete(`/api/forms/${formId}`, {
+      await axios.delete(`/api/forms/${formId}`, {
         headers: {
           Authorization: `Bearer ${session?.access_token}`,
         },
