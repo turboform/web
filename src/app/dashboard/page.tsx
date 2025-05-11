@@ -52,13 +52,11 @@ function Dashboard() {
 
   const handleDeleteForm = async (formId: string) => {
     try {
-      // Using the supabase browser client directly since it's already initialized
-      // TODO: move this to API
-      const { error } = await supabaseBrowserClient.from('forms').delete().eq('id', formId)
-
-      if (error) {
-        throw error
-      }
+      const response = await axios.delete(`/api/forms/${formId}`, {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      })
 
       // Update the forms list
       await mutate()
