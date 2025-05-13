@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build Pages Production
+    environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -17,9 +18,20 @@ jobs:
       - name: Build
         run: npm run pages:build
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL_PRODUCTION }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_PRODUCTION }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_PRODUCTION }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID }}
+          NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID }}
+          NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID }}
+          NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID }}
+          NEXT_PUBLIC_TINKER_MONTHLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_TINKER_MONTHLY_PRICE_ID }}
+          NEXT_PUBLIC_TINKER_YEARLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_TINKER_YEARLY_PRICE_ID }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
       - uses: actions/upload-artifact@v4
         with:
           name: site
@@ -28,6 +40,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy Pages Production
+    environment: production
     needs: build
     steps:
       - uses: actions/download-artifact@v4
