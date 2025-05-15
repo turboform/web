@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
 
-    const response = await axios.post(`${process.env.API_URL}/api/v1/integrations`, body, {
+    const response = await axios.post(`${process.env.API_BASE_URL}/api/v1/integrations`, body, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,

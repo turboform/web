@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params
 
-    const response = await axios.get(`${process.env.API_URL}/api/v1/form/${id}/integrations`, {
+    const response = await axios.get(`${process.env.API_BASE_URL}/api/v1/form/${id}/integrations`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

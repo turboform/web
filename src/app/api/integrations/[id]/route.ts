@@ -14,7 +14,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const body = await req.json()
     const { id } = await params
 
-    const response = await axios.put(`${process.env.API_URL}/api/v1/integrations/${id}`, body, {
+    const response = await axios.put(`${process.env.API_BASE_URL}/api/v1/integrations/${id}`, body, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params
 
-    const response = await axios.delete(`${process.env.API_URL}/api/v1/integrations/${id}`, {
+    const response = await axios.delete(`${process.env.API_BASE_URL}/api/v1/integrations/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
