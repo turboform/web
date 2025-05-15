@@ -4,9 +4,9 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabaseBrowserClient } from '@/lib/supabase/browser'
 import { useRouter } from 'next/navigation'
-import { LOCAL_STORAGE_KEYS } from '@/lib/types/constants'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
+import { linkAnonymousAccountToUser } from '@/lib/utils/auth'
 
 // Export the subscription type for reuse
 export interface SubscriptionWithDetails {
@@ -42,7 +42,11 @@ type AuthContextType = {
   isAnonymous: boolean
   signOut: () => Promise<void>
   signInAnonymously: (captchaToken: string) => Promise<{ session: Session | null; success: boolean; error?: string }>
-  linkAnonymousAccount: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  linkAnonymousAccount: (
+    email: string,
+    password: string,
+    captchaToken: string
+  ) => Promise<{ success: boolean; error?: string }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -53,12 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [isAnonymous, setIsAnonymous] = useState(false)
   const router = useRouter()
-
-  const markUserAsPreviouslySignedIn = (userId: string) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(LOCAL_STORAGE_KEYS.PREVIOUSLY_SIGNED_IN, userId)
-    }
-  }
 
   useEffect(() => {
     // First, try to get the current session
@@ -96,10 +94,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Update anonymous status
       if (newSession?.user) {
         setIsAnonymous(!!newSession.user.is_anonymous)
-
-        if (!newSession.user.is_anonymous) {
-          markUserAsPreviouslySignedIn(newSession.user.id)
-        }
       }
 
       setIsLoading(false)
@@ -144,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Function to link anonymous account to a real email/password
-  const linkAnonymousAccount = async (email: string, password: string) => {
+  const linkAnonymousAccount = async (email: string, password: string, captchaToken: string) => {
     try {
       if (!isAnonymous || !user) {
         return { success: false, error: 'No anonymous account to link' }
@@ -156,6 +150,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: existingUserData, error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
         email,
         password,
+        options: {
+          captchaToken,
+        },
       })
 
       // If sign-in was successful, we need to handle the case of linking the anonymous data
@@ -164,28 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: sessionData } = await supabaseBrowserClient.auth.getSession()
         const authToken = sessionData.session?.access_token
 
-        // Use the admin client to transfer forms from anonymous user to the existing user
-        try {
-          // Using fetch here since we need to call a server action to use the admin client
-          // TODO: NB - add good check here, if abused users can use this endpoint to transfer data to other users.
-          const response = await fetch('/api/auth/link-anonymous-data', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${authToken}`, // Include authentication token
-            },
-            body: JSON.stringify({
-              anonymousUserId,
-              targetUserId: existingUserData.user.id,
-            }),
-          })
-
-          if (!response.ok) {
-            console.error('Failed to transfer anonymous data')
-          }
-        } catch (error) {
-          console.error('Error transferring anonymous data:', error)
-        }
+        await linkAnonymousAccountToUser(anonymousUserId, existingUserData.user.id, authToken)
 
         // User is already signed in to their existing account at this point
         setIsAnonymous(false)

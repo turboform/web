@@ -2,19 +2,52 @@ name: Deploy Pages Preview
 
 on:
   pull_request:
-    paths:
-      - './*'
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build Pages Preview
+    environment: preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+      - name: Build
+        run: npm run pages:build
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_FLOW_MONTHLY_PRICE_ID }}
+          NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID }}
+          NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_OPTIMIZE_MONTHLY_PRICE_ID }}
+          NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID }}
+          NEXT_PUBLIC_TINKER_MONTHLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_TINKER_MONTHLY_PRICE_ID }}
+          NEXT_PUBLIC_TINKER_YEARLY_PRICE_ID: ${{ vars.NEXT_PUBLIC_TINKER_YEARLY_PRICE_ID }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: ./.vercel/output/static
+          retention-days: 2
   deploy:
     runs-on: ubuntu-latest
     name: Deploy Pages Preview
+    environment: preview
+    needs: build
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: ./site
+      - name: Publish
         uses: cloudflare/wrangler-action@v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: npm install --legacy-peer-deps && npm run pages:build && wrangler pages deploy
+          command: pages deploy --project-name=web --branch=${{ github.head_ref }} ./site
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          environment: 'preview'
