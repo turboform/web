@@ -105,7 +105,7 @@ export function IntegrationsList({ formId }: IntegrationsListProps) {
 
   const handleToggleStatus = async (integration: FormIntegration) => {
     try {
-      setUpdatingStatus(integration.id)
+      setUpdatingStatus(integration.id || null)
       await axios.put(
         `/api/integrations/${integration.id}`,
         {
@@ -118,13 +118,11 @@ export function IntegrationsList({ formId }: IntegrationsListProps) {
           },
         }
       )
-      
+
       setIntegrations(
-        integrations.map((i) =>
-          i.id === integration.id ? { ...i, is_enabled: !integration.is_enabled } : i
-        )
+        integrations.map((i) => (i.id === integration.id ? { ...i, is_enabled: !integration.is_enabled } : i))
       )
-      
+
       toast.success(`Integration ${!integration.is_enabled ? 'enabled' : 'disabled'}`)
     } catch (error) {
       console.error('Error toggling integration status:', error)
@@ -136,14 +134,14 @@ export function IntegrationsList({ formId }: IntegrationsListProps) {
 
   const handleDeleteIntegration = async () => {
     if (!deletingIntegration) return
-    
+
     try {
       await axios.delete(`/api/integrations/${deletingIntegration.id}`, {
         headers: {
           Authorization: `Bearer ${session?.access_token}`,
         },
       })
-      
+
       setIntegrations(integrations.filter((i) => i.id !== deletingIntegration.id))
       toast.success('Integration deleted')
     } catch (error) {
@@ -229,17 +227,12 @@ export function IntegrationsList({ formId }: IntegrationsListProps) {
           ) : integrations.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>No integrations configured yet.</p>
-              <p className="text-sm mt-2">
-                Add an integration to get notified when someone submits this form.
-              </p>
+              <p className="text-sm mt-2">Add an integration to get notified when someone submits this form.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {integrations.map((integration) => (
-                <div
-                  key={integration.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
+                <div key={integration.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center">
                     <div className="bg-primary/10 p-2 rounded-full mr-4">
                       {getIntegrationIcon(integration.integration_type)}
@@ -257,18 +250,10 @@ export function IntegrationsList({ formId }: IntegrationsListProps) {
                       onCheckedChange={() => handleToggleStatus(integration)}
                       disabled={updatingStatus === integration.id}
                     />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditingIntegration(integration)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => setEditingIntegration(integration)}>
                       <Settings className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeletingIntegration(integration)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => setDeletingIntegration(integration)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>

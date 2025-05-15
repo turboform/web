@@ -19,82 +19,56 @@ interface IntegrationFormProps {
 }
 
 export function IntegrationForm({ formId, integration, onSave, onCancel }: IntegrationFormProps) {
-  const [integrationType, setIntegrationType] = useState<IntegrationType>(
-    integration?.integration_type || 'email'
-  )
+  const [integrationType, setIntegrationType] = useState<IntegrationType>(integration?.integration_type || 'email')
   const [name, setName] = useState(integration?.config.name || '')
   const [isEnabled, setIsEnabled] = useState(integration?.is_enabled !== false)
   const [saving, setSaving] = useState(false)
-  
+
   const [emailTo, setEmailTo] = useState<string>(
-    integration?.integration_type === 'email' 
-      ? (integration.config as any).to?.join(', ') || ''
-      : ''
+    integration?.integration_type === 'email' ? (integration.config as any).to?.join(', ') || '' : ''
   )
   const [emailCc, setEmailCc] = useState<string>(
-    integration?.integration_type === 'email' 
-      ? (integration.config as any).cc?.join(', ') || ''
-      : ''
+    integration?.integration_type === 'email' ? (integration.config as any).cc?.join(', ') || '' : ''
   )
   const [emailSubject, setEmailSubject] = useState<string>(
-    integration?.integration_type === 'email' 
-      ? (integration.config as any).subject_template || ''
-      : ''
+    integration?.integration_type === 'email' ? (integration.config as any).subject_template || '' : ''
   )
-  
+
   const [slackWebhookUrl, setSlackWebhookUrl] = useState<string>(
-    integration?.integration_type === 'slack' 
-      ? (integration.config as any).webhook_url || ''
-      : ''
+    integration?.integration_type === 'slack' ? (integration.config as any).webhook_url || '' : ''
   )
   const [slackChannel, setSlackChannel] = useState<string>(
-    integration?.integration_type === 'slack' 
-      ? (integration.config as any).channel || ''
-      : ''
+    integration?.integration_type === 'slack' ? (integration.config as any).channel || '' : ''
   )
-  
+
   const [telegramBotToken, setTelegramBotToken] = useState<string>(
-    integration?.integration_type === 'telegram' 
-      ? (integration.config as any).bot_token || ''
-      : ''
+    integration?.integration_type === 'telegram' ? (integration.config as any).bot_token || '' : ''
   )
   const [telegramChatId, setTelegramChatId] = useState<string>(
-    integration?.integration_type === 'telegram' 
-      ? (integration.config as any).chat_id || ''
-      : ''
+    integration?.integration_type === 'telegram' ? (integration.config as any).chat_id || '' : ''
   )
-  
+
   const [zapierWebhookUrl, setZapierWebhookUrl] = useState<string>(
-    integration?.integration_type === 'zapier' 
-      ? (integration.config as any).webhook_url || ''
-      : ''
+    integration?.integration_type === 'zapier' ? (integration.config as any).webhook_url || '' : ''
   )
-  
+
   const [makeWebhookUrl, setMakeWebhookUrl] = useState<string>(
-    integration?.integration_type === 'make' 
-      ? (integration.config as any).webhook_url || ''
-      : ''
+    integration?.integration_type === 'make' ? (integration.config as any).webhook_url || '' : ''
   )
-  
+
   const [webhookUrl, setWebhookUrl] = useState<string>(
-    integration?.integration_type === 'webhook' 
-      ? (integration.config as any).url || ''
-      : ''
+    integration?.integration_type === 'webhook' ? (integration.config as any).url || '' : ''
   )
   const [webhookMethod, setWebhookMethod] = useState<string>(
-    integration?.integration_type === 'webhook' 
-      ? (integration.config as any).method || 'POST'
-      : 'POST'
+    integration?.integration_type === 'webhook' ? (integration.config as any).method || 'POST' : 'POST'
   )
   const [webhookHeaders, setWebhookHeaders] = useState<string>(
-    integration?.integration_type === 'webhook' 
+    integration?.integration_type === 'webhook'
       ? JSON.stringify((integration.config as any).headers || {}, null, 2)
       : '{}'
   )
   const [includeFormData, setIncludeFormData] = useState<boolean>(
-    integration?.integration_type === 'webhook' 
-      ? (integration.config as any).include_form_data !== false
-      : true
+    integration?.integration_type === 'webhook' ? (integration.config as any).include_form_data !== false : true
   )
 
   const handleSave = async () => {
@@ -117,12 +91,20 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
           }
           config = {
             ...config,
-            to: emailTo.split(',').map(email => email.trim()).filter(Boolean),
-            cc: emailCc ? emailCc.split(',').map(email => email.trim()).filter(Boolean) : [],
+            to: emailTo
+              .split(',')
+              .map((email) => email.trim())
+              .filter(Boolean),
+            cc: emailCc
+              ? emailCc
+                  .split(',')
+                  .map((email) => email.trim())
+                  .filter(Boolean)
+              : [],
             subject_template: emailSubject || undefined,
           }
           break
-          
+
         case 'slack':
           if (!slackWebhookUrl) {
             alert('Please provide a Slack webhook URL')
@@ -135,7 +117,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
             channel: slackChannel || undefined,
           }
           break
-          
+
         case 'telegram':
           if (!telegramBotToken || !telegramChatId) {
             alert('Please provide both a Telegram bot token and chat ID')
@@ -148,7 +130,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
             chat_id: telegramChatId,
           }
           break
-          
+
         case 'zapier':
           if (!zapierWebhookUrl) {
             alert('Please provide a Zapier webhook URL')
@@ -160,7 +142,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
             webhook_url: zapierWebhookUrl,
           }
           break
-          
+
         case 'make':
           if (!makeWebhookUrl) {
             alert('Please provide a Make.com webhook URL')
@@ -172,14 +154,14 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
             webhook_url: makeWebhookUrl,
           }
           break
-          
+
         case 'webhook':
           if (!webhookUrl) {
             alert('Please provide a webhook URL')
             setSaving(false)
             return
           }
-          
+
           let headers = {}
           try {
             headers = JSON.parse(webhookHeaders)
@@ -188,7 +170,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
             setSaving(false)
             return
           }
-          
+
           config = {
             ...config,
             url: webhookUrl,
@@ -256,11 +238,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
         </div>
 
         <div className="flex items-center space-x-2">
-          <Switch
-            id="integration-enabled"
-            checked={isEnabled}
-            onCheckedChange={setIsEnabled}
-          />
+          <Switch id="integration-enabled" checked={isEnabled} onCheckedChange={setIsEnabled} />
           <Label htmlFor="integration-enabled">Enabled</Label>
         </div>
 
@@ -391,10 +369,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
             </div>
             <div className="space-y-2">
               <Label htmlFor="webhook-method">Method</Label>
-              <Select
-                value={webhookMethod}
-                onValueChange={setWebhookMethod}
-              >
+              <Select value={webhookMethod} onValueChange={setWebhookMethod}>
                 <SelectTrigger id="webhook-method">
                   <SelectValue placeholder="Select method" />
                 </SelectTrigger>
@@ -417,11 +392,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Switch
-                id="include-form-data"
-                checked={includeFormData}
-                onCheckedChange={setIncludeFormData}
-              />
+              <Switch id="include-form-data" checked={includeFormData} onCheckedChange={setIncludeFormData} />
               <Label htmlFor="include-form-data">Include form metadata</Label>
             </div>
           </div>

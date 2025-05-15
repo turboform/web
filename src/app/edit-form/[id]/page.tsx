@@ -128,7 +128,7 @@ export default function EditFormPage() {
                   Integrations
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="form" className="space-y-6 mt-6">
                 <Card>
                   <CardHeader>
@@ -152,7 +152,12 @@ export default function EditFormPage() {
                           : 'After this date, the form will no longer accept new responses.'}
                       </p>
                       {expirationDate && (
-                        <Button variant="outline" size="sm" className="mt-2" onClick={() => setExpirationDate(undefined)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => setExpirationDate(undefined)}
+                        >
                           Remove Expiration
                         </Button>
                       )}
@@ -167,12 +172,12 @@ export default function EditFormPage() {
                   onFormChange={(updatedForm) => setForm(updatedForm)}
                 />
               </TabsContent>
-              
+
               <TabsContent value="integrations" className="mt-6">
                 <IntegrationsList formId={formId} />
               </TabsContent>
             </Tabs>
-            
+
             <div className="flex justify-end space-x-4 mt-6">
               <Button variant="outline" onClick={() => router.push('/dashboard')}>
                 Cancel
