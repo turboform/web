@@ -1,53 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authenticateUser } from '@/lib/supabase/server'
-import { generateShortId } from '@/lib/utils'
 import axios from 'axios'
 
 export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   try {
-    const token = req.headers.get('Authorization')?.replace('Bearer ', '')
-    if (!token) {
+    const authorization = req.headers.get('Authorization')
+    if (!authorization) {
       return NextResponse.json({ error: 'Unauthorized - Invalid token format' }, { status: 401 })
     }
 
-    const { title, description, schema, expires_at } = await req.json()
+    // Get the request body
+    const body = await req.json()
 
-    // Authenticate the user (will now work with anonymous users too)
-    const { user, supabase, error } = await authenticateUser(token)
+    // Forward the request to the worker endpoint
+    const response = await axios.post(`${process.env.API_BASE_URL}/api/v1/form/create`, body, {
+      headers: {
+        Authorization: authorization,
+      },
+    })
 
-    // If authentication failed, return the error response
-    if (error) {
-      return error
-    }
-
-    // Generate a unique short ID
-    const short_id = generateShortId()
-
-    // Insert form into database
-    const { data, error: dbError } = await supabase
-      .from('forms')
-      .insert({
-        user_id: user!.id,
-        title,
-        description,
-        schema,
-        short_id,
-        expires_at: expires_at || null,
-      })
-      .select()
-      .single()
-
-    if (dbError) {
-      console.error('Error saving form:', dbError)
-      return NextResponse.json({ error: 'Failed to save form' }, { status: 500 })
-    }
-
-    return NextResponse.json({ form: data })
+    return NextResponse.json(response.data, { status: response.status })
   } catch (error) {
-    console.error('Error saving form:', error)
-    return NextResponse.json({ error: 'Failed to save form' }, { status: 500 })
+    console.error('Error proxying request to create form:', error)
+    return NextResponse.json({ error: 'Failed to create form' }, { status: 500 })
   }
 }
 
@@ -72,66 +48,31 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// TODO: deprecate this endpoint in favor of /api/forms/[id]
 export async function PUT(req: NextRequest) {
   try {
-    const token = req.headers.get('Authorization')?.replace('Bearer ', '')
-    if (!token) {
+    const authorization = req.headers.get('Authorization')
+    if (!authorization) {
       return NextResponse.json({ error: 'Unauthorized - Invalid token format' }, { status: 401 })
     }
 
-    const { id, title, description, schema, expires_at } = await req.json()
+    // Get the request body
+    const body = await req.json()
+    const { id } = body
 
     if (!id) {
       return NextResponse.json({ error: 'Form ID is required' }, { status: 400 })
     }
 
-    // Authenticate the user
-    const { user, supabase, error } = await authenticateUser(token)
+    // Forward the request to the worker endpoint
+    const response = await axios.put(`${process.env.API_BASE_URL}/api/v1/form/${id}`, body, {
+      headers: {
+        Authorization: authorization,
+      },
+    })
 
-    // If authentication failed, return the error response
-    if (error) {
-      return error
-    }
-
-    // Verify the form belongs to the user
-    const { data: existingForm, error: fetchError } = await supabase
-      .from('forms')
-      .select('user_id')
-      .eq('id', id)
-      .single()
-
-    if (fetchError) {
-      console.error('Error fetching form:', fetchError)
-      return NextResponse.json({ error: 'Failed to find form' }, { status: 404 })
-    }
-
-    if (existingForm.user_id !== user!.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-    }
-
-    // Update the form
-    const { data, error: dbError } = await supabase
-      .from('forms')
-      .update({
-        title,
-        description,
-        schema,
-        expires_at: expires_at || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (dbError) {
-      console.error('Error updating form:', dbError)
-      return NextResponse.json({ error: 'Failed to update form' }, { status: 500 })
-    }
-
-    return NextResponse.json({ form: data })
+    return NextResponse.json(response.data, { status: response.status })
   } catch (error) {
-    console.error('Error updating form:', error)
+    console.error('Error proxying request to update form:', error)
     return NextResponse.json({ error: 'Failed to update form' }, { status: 500 })
   }
 }
