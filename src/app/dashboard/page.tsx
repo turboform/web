@@ -132,6 +132,7 @@ function Dashboard() {
     if (!!anonymousId && session?.user?.id && session?.access_token) {
       linkAnonymousAccountToUser(anonymousId, session?.user?.id, session?.access_token)
       router.replace('/dashboard')
+      mutate()
     }
   }, [searchParams])
 
