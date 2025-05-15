@@ -186,6 +186,7 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
           provider: 'google',
           options: {
             redirectTo: `${window.location.origin}/auth/callback?provider=google&anon=${user?.id}`,
+            skipBrowserRedirect: false,
           },
         })
 
