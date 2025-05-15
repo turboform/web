@@ -1,12 +1,23 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabaseBrowserClient } from '@/lib/supabase/browser'
 import { Loader2 } from 'lucide-react'
 import { Provider } from '@supabase/supabase-js'
 
 export default function AuthCallback() {
+  // Simple centered spinner with no text
+  return (
+    <div className="flex min-h-screen justify-center pt-24">
+      <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin text-primary" />}>
+        <AuthCallbackClient />
+      </Suspense>
+    </div>
+  )
+}
+
+function AuthCallbackClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -51,10 +62,5 @@ export default function AuthCallback() {
     handleAuth()
   }, [router, searchParams])
 
-  // Simple centered spinner with no text
-  return (
-    <div className="flex min-h-screen justify-center pt-24">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  )
+  return <Loader2 className="h-8 w-8 animate-spin text-primary" />
 }
