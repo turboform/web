@@ -17,7 +17,6 @@ import { toast } from 'sonner'
 import { supabaseBrowserClient } from '@/lib/supabase/browser'
 import { useAuth } from '../auth/auth-provider'
 import { Turnstile } from '@marsidev/react-turnstile'
-import { LOCAL_STORAGE_KEYS } from '@/lib/types/constants'
 
 interface SignInDialogProps {
   isOpen: boolean
@@ -39,11 +38,6 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
   const [error, setError] = useState('')
   const [captchaToken, setCaptchaToken] = useState('')
   const turnstileRef = useRef<any>(null)
-
-  const hasUserPreviouslySignedIn = () => {
-    if (typeof window === 'undefined') return false
-    return !!localStorage.getItem(LOCAL_STORAGE_KEYS.PREVIOUSLY_SIGNED_IN)
-  }
 
   // Force refresh the CAPTCHA token when switching between forms
   const refreshCaptcha = () => {
@@ -74,9 +68,9 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
       const isAnonymousUser = !!user?.is_anonymous
 
       // If the current user is anonymous, link the account
-      if (isAnonymousUser && !hasUserPreviouslySignedIn()) {
+      if (isAnonymousUser) {
         setIsLinking(true)
-        const { success, error: linkError } = await linkAnonymousAccount(email, password)
+        const { success, error: linkError } = await linkAnonymousAccount(email, password, captchaToken)
 
         if (!success) {
           throw new Error(linkError)
@@ -133,9 +127,9 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
       const isAnonymousUser = !!user?.is_anonymous
 
       // If the current user is anonymous, link the account
-      if (isAnonymousUser && !hasUserPreviouslySignedIn()) {
+      if (isAnonymousUser) {
         setIsLinking(true)
-        const { success, error: linkError } = await linkAnonymousAccount(email, password)
+        const { success, error: linkError } = await linkAnonymousAccount(email, password, captchaToken)
 
         if (!success) {
           throw new Error(linkError)
@@ -186,12 +180,12 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
 
       const isAnonymousUser = !!user?.is_anonymous
 
-      if (isAnonymousUser && !hasUserPreviouslySignedIn()) {
+      if (isAnonymousUser) {
         setIsLinking(true)
         const { data, error } = await supabaseBrowserClient.auth.linkIdentity({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/dashboard`,
+            redirectTo: `${window.location.origin}/auth/callback?provider=google&anon=${user?.id}`,
           },
         })
 

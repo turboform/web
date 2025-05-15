@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -11,22 +11,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import {
-  PlusCircle,
-  Eye,
-  Edit,
-  Trash2,
-  AlertTriangle,
-  BarChart,
-  Globe,
-  Lock,
-  MoreVertical,
-  Copy,
-  Link,
-} from 'lucide-react'
+import { PlusCircle, Eye, Edit, Trash2, AlertTriangle, BarChart, Globe, Lock, MoreVertical, Link } from 'lucide-react'
 import { toast } from 'sonner'
 import { ProtectedPage } from '@/components/auth/protected-page'
 import { useAuth } from '@/components/auth/auth-provider'
@@ -34,10 +21,12 @@ import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Form } from '@/lib/types/form'
 import axios from 'axios'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { linkAnonymousAccountToUser } from '@/lib/utils/auth'
 
 function Dashboard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { session } = useAuth()
   const [formToDelete, setFormToDelete] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -137,6 +126,14 @@ function Dashboard() {
     navigator.clipboard.writeText(shortLink)
     toast.success('Link copied to clipboard!')
   }
+
+  useEffect(() => {
+    const anonymousId = searchParams.get('anon')
+    if (!!anonymousId && session?.user?.id && session?.access_token) {
+      linkAnonymousAccountToUser(anonymousId, session?.user?.id, session?.access_token)
+      router.replace('/dashboard')
+    }
+  }, [searchParams])
 
   return (
     <div className="container py-12 mx-auto max-w-7xl px-4 sm:px-6">
