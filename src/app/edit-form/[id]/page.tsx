@@ -6,13 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Loader2, Calendar, Settings, ListChecks } from 'lucide-react'
 import { FormPreview } from '@/components/forms/form-preview'
-import { toast } from 'sonner'
 import { useAuth } from '@/components/auth/auth-provider'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { IntegrationsList } from '@/components/integrations/integrations-list'
-import axios from 'axios'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 
@@ -25,7 +23,6 @@ export default function EditFormPage() {
   const router = useRouter()
 
   const [form, setForm] = useState<any>(null)
-  const [saving, setSaving] = useState(false)
   const [expirationDate, setExpirationDate] = useState<Date | undefined>(undefined)
 
   // Fetch the form data using SWR
@@ -43,39 +40,6 @@ export default function EditFormPage() {
       }
     }
   }, [formData])
-
-  const handleSaveForm = async () => {
-    try {
-      setSaving(true)
-
-      const response = await axios.put<{ form: any }>(
-        `/api/forms/${formId}`,
-        {
-          title: form.title,
-          description: form.description,
-          schema: form.schema,
-          expires_at: expirationDate ? expirationDate.toISOString() : null,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.access_token}`,
-          },
-        }
-      )
-
-      if (!response.data) {
-        throw new Error('Failed to save form')
-      }
-
-      toast.success('Form saved successfully!')
-    } catch (error) {
-      console.error('Error saving form:', error)
-      toast.error('Failed to save form. Please try again.')
-    } finally {
-      setSaving(false)
-    }
-  }
 
   if (isLoading) {
     return (
@@ -177,22 +141,6 @@ export default function EditFormPage() {
                 <IntegrationsList formId={formId} />
               </TabsContent>
             </Tabs>
-
-            <div className="flex justify-end space-x-4 mt-6">
-              <Button variant="outline" onClick={() => router.push('/dashboard')}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveForm} disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
-              </Button>
-            </div>
           </div>
         )}
       </div>

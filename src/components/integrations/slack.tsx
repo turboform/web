@@ -6,41 +6,56 @@ import { SlackIntegrationConfig } from '@/lib/types/integration'
 export interface SlackIntegrationFormProps {
   initialConfig?: Partial<SlackIntegrationConfig>
   onConfigChange: (config: Omit<SlackIntegrationConfig, 'name'>, isValid: boolean) => void
+  showValidationErrors?: boolean
 }
 
-export function SlackIntegrationForm({ initialConfig, onConfigChange }: SlackIntegrationFormProps) {
+export function SlackIntegrationForm({
+  initialConfig,
+  onConfigChange,
+  showValidationErrors = false,
+}: SlackIntegrationFormProps) {
   const [slackWebhookUrl, setSlackWebhookUrl] = useState<string>(initialConfig?.webhook_url || '')
   const [slackWebhookUrlError, setSlackWebhookUrlError] = useState<string>('')
   const [slackChannel, setSlackChannel] = useState<string>(initialConfig?.channel || '')
 
-  // Validate the form and update parent component
-  const validateAndUpdateConfig = () => {
-    let isValid = true
+  // Validate the form without showing errors
+  const validateForm = (): boolean => {
+    return slackWebhookUrl.trim().length > 0
+  }
 
+  // Validate the form and show errors if needed
+  const validateAndShowErrors = (): boolean => {
     // Clear previous errors
     setSlackWebhookUrlError('')
 
     // Validate required fields
     if (!slackWebhookUrl.trim()) {
       setSlackWebhookUrlError('Please provide a Slack webhook URL')
-      isValid = false
+      return false
     }
 
-    // Create config object
+    return true
+  }
+
+  // Run validation if showValidationErrors changes to true
+  useEffect(() => {
+    if (showValidationErrors) {
+      validateAndShowErrors()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showValidationErrors])
+
+  // Update parent with current config whenever values change
+  useEffect(() => {
     const config: Omit<SlackIntegrationConfig, 'name'> = {
       webhook_url: slackWebhookUrl,
       channel: slackChannel || undefined,
     }
 
-    // Notify parent of config change and validity
+    // Determine validity without showing errors
+    const isValid = validateForm()
+
     onConfigChange(config, isValid)
-
-    return isValid
-  }
-
-  // Validate and update config when form values change
-  useEffect(() => {
-    validateAndUpdateConfig()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slackWebhookUrl, slackChannel])
 
@@ -58,7 +73,9 @@ export function SlackIntegrationForm({ initialConfig, onConfigChange }: SlackInt
           }}
           className={slackWebhookUrlError ? 'border-destructive' : ''}
         />
-        {slackWebhookUrlError && <p className="text-sm text-destructive mt-1">{slackWebhookUrlError}</p>}
+        {showValidationErrors && slackWebhookUrlError && (
+          <p className="text-sm text-destructive mt-1">{slackWebhookUrlError}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="slack-channel">Channel (optional)</Label>

@@ -6,28 +6,48 @@ import { EmailIntegrationConfig } from '@/lib/types/integration'
 export interface EmailIntegrationFormProps {
   initialConfig?: Partial<EmailIntegrationConfig>
   onConfigChange: (config: Omit<EmailIntegrationConfig, 'name'>, isValid: boolean) => void
+  showValidationErrors?: boolean
 }
 
-export function EmailIntegrationForm({ initialConfig, onConfigChange }: EmailIntegrationFormProps) {
+export function EmailIntegrationForm({
+  initialConfig,
+  onConfigChange,
+  showValidationErrors = false,
+}: EmailIntegrationFormProps) {
   const [emailTo, setEmailTo] = useState<string>(initialConfig?.to?.join(', ') || '')
   const [emailToError, setEmailToError] = useState<string>('')
   const [emailCc, setEmailCc] = useState<string>(initialConfig?.cc?.join(', ') || '')
   const [emailSubject, setEmailSubject] = useState<string>(initialConfig?.subject_template || '')
 
-  // Validate the form and update parent component
-  const validateAndUpdateConfig = () => {
-    let isValid = true
+  // Validate the form without showing errors
+  const validateForm = (): boolean => {
+    return emailTo.trim().length > 0
+  }
 
+  // Validate the form and show errors if needed
+  const validateAndShowErrors = (): boolean => {
     // Clear previous errors
     setEmailToError('')
 
     // Validate required fields
     if (!emailTo.trim()) {
       setEmailToError('Please provide at least one recipient email address')
-      isValid = false
+      return false
     }
 
-    // Create config object
+    return true
+  }
+
+  // Run validation if showValidationErrors changes to true
+  useEffect(() => {
+    if (showValidationErrors) {
+      validateAndShowErrors()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showValidationErrors])
+
+  // Update parent with current config whenever values change
+  useEffect(() => {
     const config: Omit<EmailIntegrationConfig, 'name'> = {
       to: emailTo
         .split(',')
@@ -42,15 +62,10 @@ export function EmailIntegrationForm({ initialConfig, onConfigChange }: EmailInt
       subject_template: emailSubject || undefined,
     }
 
-    // Notify parent of config change and validity
+    // Determine validity without showing errors
+    const isValid = validateForm()
+
     onConfigChange(config, isValid)
-
-    return isValid
-  }
-
-  // Validate and update config when form values change
-  useEffect(() => {
-    validateAndUpdateConfig()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailTo, emailCc, emailSubject])
 
@@ -68,7 +83,7 @@ export function EmailIntegrationForm({ initialConfig, onConfigChange }: EmailInt
           }}
           className={emailToError ? 'border-destructive' : ''}
         />
-        {emailToError && <p className="text-sm text-destructive mt-1">{emailToError}</p>}
+        {showValidationErrors && emailToError && <p className="text-sm text-destructive mt-1">{emailToError}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="email-cc">CC (comma separated, optional)</Label>

@@ -6,39 +6,54 @@ import { ZapierIntegrationConfig } from '@/lib/types/integration'
 export interface ZapierIntegrationFormProps {
   initialConfig?: Partial<ZapierIntegrationConfig>
   onConfigChange: (config: Omit<ZapierIntegrationConfig, 'name'>, isValid: boolean) => void
+  showValidationErrors?: boolean
 }
 
-export function ZapierIntegrationForm({ initialConfig, onConfigChange }: ZapierIntegrationFormProps) {
+export function ZapierIntegrationForm({
+  initialConfig,
+  onConfigChange,
+  showValidationErrors = false,
+}: ZapierIntegrationFormProps) {
   const [zapierWebhookUrl, setZapierWebhookUrl] = useState<string>(initialConfig?.webhook_url || '')
   const [zapierWebhookUrlError, setZapierWebhookUrlError] = useState<string>('')
 
-  // Validate the form and update parent component
-  const validateAndUpdateConfig = () => {
-    let isValid = true
+  // Validate the form without showing errors
+  const validateForm = (): boolean => {
+    return zapierWebhookUrl.trim().length > 0
+  }
 
+  // Validate the form and show errors if needed
+  const validateAndShowErrors = (): boolean => {
     // Clear previous errors
     setZapierWebhookUrlError('')
 
     // Validate required fields
     if (!zapierWebhookUrl.trim()) {
       setZapierWebhookUrlError('Please provide a Zapier webhook URL')
-      isValid = false
+      return false
     }
 
-    // Create config object
+    return true
+  }
+
+  // Run validation if showValidationErrors changes to true
+  useEffect(() => {
+    if (showValidationErrors) {
+      validateAndShowErrors()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showValidationErrors])
+
+  // Update parent with current config whenever values change
+  useEffect(() => {
     const config: Omit<ZapierIntegrationConfig, 'name'> = {
       webhook_url: zapierWebhookUrl,
     }
 
-    // Notify parent of config change and validity
+    // Determine validity without showing errors
+    const isValid = validateForm()
+
     onConfigChange(config, isValid)
-
-    return isValid
-  }
-
-  // Validate and update config when form values change
-  useEffect(() => {
-    validateAndUpdateConfig()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zapierWebhookUrl])
 
@@ -55,7 +70,9 @@ export function ZapierIntegrationForm({ initialConfig, onConfigChange }: ZapierI
         }}
         className={zapierWebhookUrlError ? 'border-destructive' : ''}
       />
-      {zapierWebhookUrlError && <p className="text-sm text-destructive mt-1">{zapierWebhookUrlError}</p>}
+      {showValidationErrors && zapierWebhookUrlError && (
+        <p className="text-sm text-destructive mt-1">{zapierWebhookUrlError}</p>
+      )}
     </div>
   )
 }

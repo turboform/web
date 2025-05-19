@@ -6,21 +6,31 @@ import { TelegramIntegrationConfig } from '@/lib/types/integration'
 export interface TelegramIntegrationFormProps {
   initialConfig?: Partial<TelegramIntegrationConfig>
   onConfigChange: (config: Omit<TelegramIntegrationConfig, 'name'>, isValid: boolean) => void
+  showValidationErrors?: boolean
 }
 
-export function TelegramIntegrationForm({ initialConfig, onConfigChange }: TelegramIntegrationFormProps) {
+export function TelegramIntegrationForm({
+  initialConfig,
+  onConfigChange,
+  showValidationErrors = false,
+}: TelegramIntegrationFormProps) {
   const [telegramBotToken, setTelegramBotToken] = useState<string>(initialConfig?.bot_token || '')
   const [telegramBotTokenError, setTelegramBotTokenError] = useState<string>('')
   const [telegramChatId, setTelegramChatId] = useState<string>(initialConfig?.chat_id || '')
   const [telegramChatIdError, setTelegramChatIdError] = useState<string>('')
 
-  // Validate the form and update parent component
-  const validateAndUpdateConfig = () => {
-    let isValid = true
+  // Validate the form without showing errors
+  const validateForm = (): boolean => {
+    return telegramBotToken.trim().length > 0 && telegramChatId.trim().length > 0
+  }
 
+  // Validate the form and show errors if needed
+  const validateAndShowErrors = (): boolean => {
     // Clear previous errors
     setTelegramBotTokenError('')
     setTelegramChatIdError('')
+
+    let isValid = true
 
     // Validate required fields
     if (!telegramBotToken.trim()) {
@@ -33,21 +43,28 @@ export function TelegramIntegrationForm({ initialConfig, onConfigChange }: Teleg
       isValid = false
     }
 
-    // Create config object
+    return isValid
+  }
+
+  // Run validation if showValidationErrors changes to true
+  useEffect(() => {
+    if (showValidationErrors) {
+      validateAndShowErrors()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showValidationErrors])
+
+  // Update parent with current config whenever values change
+  useEffect(() => {
     const config: Omit<TelegramIntegrationConfig, 'name'> = {
       bot_token: telegramBotToken,
       chat_id: telegramChatId,
     }
 
-    // Notify parent of config change and validity
+    // Determine validity without showing errors
+    const isValid = validateForm()
+
     onConfigChange(config, isValid)
-
-    return isValid
-  }
-
-  // Validate and update config when form values change
-  useEffect(() => {
-    validateAndUpdateConfig()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [telegramBotToken, telegramChatId])
 
@@ -65,7 +82,9 @@ export function TelegramIntegrationForm({ initialConfig, onConfigChange }: Teleg
           }}
           className={telegramBotTokenError ? 'border-destructive' : ''}
         />
-        {telegramBotTokenError && <p className="text-sm text-destructive mt-1">{telegramBotTokenError}</p>}
+        {showValidationErrors && telegramBotTokenError && (
+          <p className="text-sm text-destructive mt-1">{telegramBotTokenError}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="telegram-chat">Chat ID</Label>
@@ -79,7 +98,9 @@ export function TelegramIntegrationForm({ initialConfig, onConfigChange }: Teleg
           }}
           className={telegramChatIdError ? 'border-destructive' : ''}
         />
-        {telegramChatIdError && <p className="text-sm text-destructive mt-1">{telegramChatIdError}</p>}
+        {showValidationErrors && telegramChatIdError && (
+          <p className="text-sm text-destructive mt-1">{telegramChatIdError}</p>
+        )}
       </div>
     </div>
   )

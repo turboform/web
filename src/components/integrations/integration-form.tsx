@@ -44,6 +44,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
   // State for type-specific configuration
   const [currentConfig, setCurrentConfig] = useState<Record<string, any>>({})
   const [isConfigValid, setIsConfigValid] = useState(true)
+  const [showValidationErrors, setShowValidationErrors] = useState(false)
 
   // Handle updates from integration type components
   const handleConfigChange = <T extends Record<string, any>>(config: T, isValid: boolean) => {
@@ -52,15 +53,17 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
   }
 
   // Handle form submission
-  const handleSave = async () => {
-    // Validate common fields
-    if (!name.trim()) {
-      setNameError('Please provide a name for this integration')
-      return
-    }
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-    // Ensure integration specific config is valid
-    if (!isConfigValid) {
+    // Show validation errors on submit
+    setShowValidationErrors(true)
+
+    if (!name.trim() || !isConfigValid) {
+      // Show form validation errors
+      if (!name.trim()) {
+        setNameError('Please provide a name for this integration')
+      }
       return
     }
 
@@ -151,6 +154,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
               integration?.integration_type === 'email' ? (integration.config as EmailIntegrationConfig) : undefined
             }
             onConfigChange={handleConfigChange}
+            showValidationErrors={showValidationErrors}
           />
         )}
 
@@ -161,6 +165,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
               integration?.integration_type === 'slack' ? (integration.config as SlackIntegrationConfig) : undefined
             }
             onConfigChange={handleConfigChange}
+            showValidationErrors={showValidationErrors}
           />
         )}
 
@@ -173,6 +178,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
                 : undefined
             }
             onConfigChange={handleConfigChange}
+            showValidationErrors={showValidationErrors}
           />
         )}
 
@@ -183,6 +189,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
               integration?.integration_type === 'zapier' ? (integration.config as ZapierIntegrationConfig) : undefined
             }
             onConfigChange={handleConfigChange}
+            showValidationErrors={showValidationErrors}
           />
         )}
 
@@ -193,6 +200,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
               integration?.integration_type === 'make' ? (integration.config as MakeIntegrationConfig) : undefined
             }
             onConfigChange={handleConfigChange}
+            showValidationErrors={showValidationErrors}
           />
         )}
 
@@ -203,6 +211,7 @@ export function IntegrationForm({ formId, integration, onSave, onCancel }: Integ
               integration?.integration_type === 'webhook' ? (integration.config as WebhookIntegrationConfig) : undefined
             }
             onConfigChange={handleConfigChange}
+            showValidationErrors={showValidationErrors}
           />
         )}
       </CardContent>

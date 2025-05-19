@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { WebhookIntegrationConfig } from '@/lib/types/integration'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 
 export interface WebhookIntegrationFormProps {
   initialConfig?: Partial<WebhookIntegrationConfig>
   onConfigChange: (config: Omit<WebhookIntegrationConfig, 'name'>, isValid: boolean) => void
+  showValidationErrors?: boolean
 }
 
-export function WebhookIntegrationForm({ initialConfig, onConfigChange }: WebhookIntegrationFormProps) {
+export function WebhookIntegrationForm({
+  initialConfig,
+  onConfigChange,
+  showValidationErrors = false,
+}: WebhookIntegrationFormProps) {
   const [webhookUrl, setWebhookUrl] = useState<string>(initialConfig?.url || '')
   const [webhookUrlError, setWebhookUrlError] = useState<string>('')
   const [webhookMethod, setWebhookMethod] = useState<string>(initialConfig?.method || 'POST')
@@ -21,8 +26,13 @@ export function WebhookIntegrationForm({ initialConfig, onConfigChange }: Webhoo
   const [webhookHeadersError, setWebhookHeadersError] = useState<string>('')
   const [includeFormData, setIncludeFormData] = useState<boolean>(initialConfig?.include_form_data !== false)
 
-  // Validate the form and update parent component
-  const validateAndUpdateConfig = () => {
+  // Validate the form without showing errors
+  const validateForm = (): boolean => {
+    return webhookUrl.trim().length > 0 && !!webhookMethod
+  }
+
+  // Validate the form and show errors if needed
+  const validateAndShowErrors = (): boolean => {
     let isValid = true
 
     // Clear previous errors
@@ -35,18 +45,39 @@ export function WebhookIntegrationForm({ initialConfig, onConfigChange }: Webhoo
       isValid = false
     }
 
-    // Validate JSON format of headers
-    let parsedHeaders: Record<string, string> = {}
-    try {
-      parsedHeaders = JSON.parse(webhookHeaders)
-    } catch (error) {
-      setWebhookHeadersError('Invalid JSON format for headers')
-      isValid = false
+    // Parse headers
+    if (webhookHeaders.trim()) {
+      try {
+        JSON.parse(webhookHeaders)
+      } catch (error) {
+        setWebhookHeadersError('Headers must be a valid JSON object')
+        isValid = false
+      }
     }
 
-    if (!isValid) return false
+    return isValid
+  }
 
-    // Create config object
+  // Run validation if showValidationErrors changes to true
+  useEffect(() => {
+    if (showValidationErrors) {
+      validateAndShowErrors()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showValidationErrors])
+
+  // Update parent with current config whenever values change
+  useEffect(() => {
+    // Parse headers
+    let parsedHeaders: Record<string, string> | undefined = undefined
+    if (webhookHeaders.trim()) {
+      try {
+        parsedHeaders = JSON.parse(webhookHeaders)
+      } catch (error) {
+        // We'll handle this in validateAndShowErrors, not here
+      }
+    }
+
     const config: Omit<WebhookIntegrationConfig, 'name'> = {
       url: webhookUrl,
       method: webhookMethod as 'GET' | 'POST' | 'PUT' | 'PATCH',
@@ -54,15 +85,10 @@ export function WebhookIntegrationForm({ initialConfig, onConfigChange }: Webhoo
       include_form_data: includeFormData,
     }
 
-    // Notify parent of config change and validity
+    // Determine validity without showing errors
+    const isValid = validateForm()
+
     onConfigChange(config, isValid)
-
-    return isValid
-  }
-
-  // Validate and update config when form values change
-  useEffect(() => {
-    validateAndUpdateConfig()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webhookUrl, webhookMethod, webhookHeaders, includeFormData])
 
@@ -80,7 +106,7 @@ export function WebhookIntegrationForm({ initialConfig, onConfigChange }: Webhoo
           }}
           className={webhookUrlError ? 'border-destructive' : ''}
         />
-        {webhookUrlError && <p className="text-sm text-destructive mt-1">{webhookUrlError}</p>}
+        {showValidationErrors && webhookUrlError && <p className="text-sm text-destructive mt-1">{webhookUrlError}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="webhook-method">Method</Label>
@@ -108,13 +134,15 @@ export function WebhookIntegrationForm({ initialConfig, onConfigChange }: Webhoo
               JSON.parse(e.target.value)
               setWebhookHeadersError('')
             } catch (error) {
-              // Don't show error immediately while typing
+              // We'll handle this in validateAndShowErrors, not here
             }
           }}
           rows={4}
           className={webhookHeadersError ? 'border-destructive' : ''}
         />
-        {webhookHeadersError && <p className="text-sm text-destructive mt-1">{webhookHeadersError}</p>}
+        {showValidationErrors && webhookHeadersError && (
+          <p className="text-sm text-destructive mt-1">{webhookHeadersError}</p>
+        )}
       </div>
       <div className="flex items-center space-x-2">
         <Switch id="include-form-data" checked={includeFormData} onCheckedChange={setIncludeFormData} />
