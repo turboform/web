@@ -13,10 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { IntegrationsList } from '@/components/integrations/integrations-list'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
+import { ProtectedPage } from '@/components/auth/protected-page'
 
 export const runtime = 'edge'
 
-export default function EditFormPage() {
+function EditFormPage() {
   const { user, session } = useAuth()
   const params = useParams()
   const formId = params.id as string
@@ -43,27 +44,8 @@ export default function EditFormPage() {
 
   if (isLoading) {
     return (
-      <div className="container flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="mt-4">Loading form...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="container flex flex-col items-center justify-center min-h-screen">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>You need to sign in to edit this form</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => router.push('/')}>Go to Homepage</Button>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center px-4 py-8">
+        <Loader2 className="animate-spin h-8 w-8" />
       </div>
     )
   }
@@ -147,3 +129,5 @@ export default function EditFormPage() {
     </div>
   )
 }
+
+export default ProtectedPage(EditFormPage)
