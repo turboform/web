@@ -345,6 +345,7 @@ export function SignInDialog({ isOpen, onClose, onSignInSuccess, onSignUpSuccess
                 <Turnstile
                   ref={turnstileRef}
                   className="w-full flex items-center justify-center"
+                  style={{ width: '100% !important' }}
                   siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                   onSuccess={(token) => setCaptchaToken(token)}
                   options={{ size: 'normal', theme: 'light' }}
