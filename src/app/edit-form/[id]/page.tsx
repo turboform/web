@@ -14,6 +14,8 @@ import { IntegrationsList } from '@/components/integrations/integrations-list'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { ProtectedPage } from '@/components/auth/protected-page'
+import axios from 'axios'
+import { toast } from 'sonner'
 
 export const runtime = 'edge'
 
@@ -24,6 +26,7 @@ function EditFormPage() {
   const router = useRouter()
 
   const [form, setForm] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
   const [expirationDate, setExpirationDate] = useState<Date | undefined>(undefined)
 
   // Fetch the form data using SWR
@@ -31,6 +34,38 @@ function EditFormPage() {
     user && session?.access_token ? [`/api/forms/${formId}`, session.access_token] : null,
     ([url, token]) => fetcher<{ form: any }>(url, token)
   )
+
+  const handleSaveForm = async () => {
+    try {
+      setSaving(true)
+      const response = await axios.put<{ form: any }>(
+        `/api/forms/${formId}`,
+        {
+          title: form.title,
+          description: form.description,
+          schema: form.schema,
+          expires_at: expirationDate ? expirationDate.toISOString() : null,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      )
+
+      if (!response.data) {
+        throw new Error('Failed to save form')
+      }
+
+      toast.success('Form saved successfully!')
+    } catch (error) {
+      console.error('Error saving form:', error)
+      toast.error('Failed to save form. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   // Set form data when it loads
   useEffect(() => {
@@ -117,6 +152,22 @@ function EditFormPage() {
                   editable={true}
                   onFormChange={(updatedForm) => setForm(updatedForm)}
                 />
+
+                <div className="flex justify-end space-x-4 mt-6">
+                  <Button variant="outline" onClick={() => router.push('/dashboard')}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveForm} disabled={saving}>
+                    {saving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </Button>
+                </div>
               </TabsContent>
 
               <TabsContent value="integrations" className="mt-6">
