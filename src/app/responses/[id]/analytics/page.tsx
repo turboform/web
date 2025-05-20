@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,28 +11,12 @@ import { useAuth } from '@/components/auth/auth-provider'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Form } from '@/lib/types/form'
 
 interface Response {
   id: string
   created_at: string
   responses: { [key: string]: any }
-}
-
-interface Form {
-  id: string
-  title: string
-  description?: string
-  responseCount?: number
-  schema?: FormField[]
-}
-
-interface FormField {
-  id: string
-  type: string
-  label: string
-  placeholder?: string
-  required?: boolean
-  options?: string[]
 }
 
 export const runtime = 'edge'

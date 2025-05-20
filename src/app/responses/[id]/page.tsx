@@ -16,28 +16,12 @@ import { useAuth } from '@/components/auth/auth-provider'
 import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Form } from '@/lib/types/form'
 
 interface Response {
   id: string
   created_at: string
   responses: { [key: string]: any }
-}
-
-interface Form {
-  id: string
-  title: string
-  description?: string
-  responseCount?: number
-  schema?: FormField[]
-}
-
-interface FormField {
-  id: string
-  type: string
-  label: string
-  placeholder?: string
-  required?: boolean
-  options?: string[]
 }
 
 export const runtime = 'edge'

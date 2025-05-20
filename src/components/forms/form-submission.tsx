@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MultiSelect } from '@/components/ui/multi-select'
 import type { FormData } from '@/lib/supabase/actions'
 import axios from 'axios'
+import { FormField } from '@/lib/types/form'
 
 const isFormExpired = (form: FormData): boolean => {
   if (!form.expires_at) return false
@@ -186,7 +187,7 @@ export function FormSubmission({ form }: { form: FormData }) {
     )
   }
 
-  const field = form.schema[currentStep]
+  const field = form.schema[currentStep] as FormField
   const progress = (currentStep / form.schema.length) * 100
 
   return (
@@ -253,14 +254,14 @@ export function FormSubmission({ form }: { form: FormData }) {
               onValueChange={(value) => handleInputChange(field.id, value)}
               className="space-y-3"
             >
-              {field.options.map((option: any) => (
+              {field.options.map((option: string) => (
                 <div
-                  key={option.value}
+                  key={option}
                   className="flex items-center space-x-3 p-3 border rounded-md hover:bg-gray-50 transition-colors"
                 >
-                  <RadioGroupItem value={option.value} id={`${field.id}-${option.value}`} />
-                  <Label htmlFor={`${field.id}-${option.value}`} className="text-lg cursor-pointer flex-1">
-                    {option.label}
+                  <RadioGroupItem value={option} id={`${field.id}-${option}`} />
+                  <Label htmlFor={`${field.id}-${option}`} className="text-lg cursor-pointer flex-1">
+                    {option}
                   </Label>
                 </div>
               ))}
@@ -273,20 +274,20 @@ export function FormSubmission({ form }: { form: FormData }) {
                 <SelectValue placeholder={field.placeholder || 'Select an option'} />
               </SelectTrigger>
               <SelectContent>
-                {field.options.map((option: any) => (
-                  <SelectItem key={option.value} value={option.value} className="text-lg">
-                    {option.label}
+                {field.options.map((option: string) => (
+                  <SelectItem key={option} value={option} className="text-lg">
+                    {option}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
 
-          {field.type === 'multi-select' && field.options && (
+          {field.type === 'multi_select' && field.options && (
             <MultiSelect
-              options={field.options.map((option: any) => ({
-                label: option.label,
-                value: option.value,
+              options={field.options.map((option: string) => ({
+                label: option,
+                value: option,
               }))}
               selected={formResponses[field.id] || []}
               onChange={(selected) => handleInputChange(field.id, selected)}
