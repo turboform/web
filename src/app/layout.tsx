@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: 'TurboForm - The AI-Powered Form Builder | Create Forms Instantly with natural language',
   description:
     'Create custom forms in seconds with our AI form builder. Turn simple descriptions into professional forms - no coding required. Try TurboForm today!',
