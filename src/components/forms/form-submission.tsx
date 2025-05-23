@@ -189,15 +189,33 @@ export function FormSubmission({ form }: { form: FormData }) {
 
   const field = form.schema[currentStep] as FormField
   const progress = (currentStep / form.schema.length) * 100
+  
+  const customColorStyle = {
+    '--form-primary-color': form.primaryColor || 'var(--primary)',
+    '--form-secondary-color': form.secondaryColor || 'var(--secondary)',
+  } as React.CSSProperties
 
   return (
-    <form onSubmit={handleNext} className="min-h-[400px] flex flex-col">
+    <form onSubmit={handleNext} className="min-h-[400px] flex flex-col" style={customColorStyle}>
       {/* Progress bar */}
       <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
         <div className="h-1 bg-primary transition-all duration-300 ease-in-out" style={{ width: `${progress}%` }} />
       </div>
 
       <CardContent className="py-8 flex-1 flex flex-col">
+        {/* Display logo if it exists */}
+        {form.logoUrl && (
+          <div className="w-full flex justify-center mb-6">
+            <div className="relative h-16 w-auto max-w-full">
+              <img 
+                src={form.logoUrl} 
+                alt="Company Logo" 
+                className="h-full w-auto object-contain"
+              />
+            </div>
+          </div>
+        )}
+        
         <div className="mb-8">
           <div className="text-sm text-gray-500 mb-2">
             Question {currentStep + 1} of {form.schema.length}

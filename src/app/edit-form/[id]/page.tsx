@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Loader2, Calendar, Settings, ListChecks } from 'lucide-react'
+import { ArrowLeft, Loader2, Calendar, Settings, ListChecks, Palette } from 'lucide-react'
 import { FormPreview } from '@/components/forms/form-preview'
+import { FormCustomization } from '@/components/forms/form-customization'
 import { useAuth } from '@/components/auth/auth-provider'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Label } from '@/components/ui/label'
@@ -45,6 +46,9 @@ function EditFormPage() {
           description: form.description,
           schema: form.schema,
           expires_at: expirationDate ? expirationDate.toISOString() : null,
+          primaryColor: form.primaryColor,
+          secondaryColor: form.secondaryColor,
+          logoUrl: form.logoUrl,
         },
         {
           headers: {
@@ -99,10 +103,14 @@ function EditFormPage() {
         {form && (
           <div className="space-y-6">
             <Tabs defaultValue="form">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="form" className="flex items-center">
                   <ListChecks className="h-4 w-4 mr-2" />
                   Form Builder
+                </TabsTrigger>
+                <TabsTrigger value="customization" className="flex items-center">
+                  <Palette className="h-4 w-4 mr-2" />
+                  Customization
                 </TabsTrigger>
                 <TabsTrigger value="integrations" className="flex items-center">
                   <Settings className="h-4 w-4 mr-2" />
@@ -168,6 +176,10 @@ function EditFormPage() {
                     )}
                   </Button>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="customization" className="mt-6">
+                <FormCustomization form={form} userId={user?.id || ''} onFormChange={(updatedForm) => setForm(updatedForm)} />
               </TabsContent>
 
               <TabsContent value="integrations" className="mt-6">

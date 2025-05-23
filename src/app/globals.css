@@ -157,4 +157,29 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Form custom styling */
+  .bg-primary {
+    background-color: var(--form-primary-color, var(--primary));
+  }
+  
+  .text-primary {
+    color: var(--form-primary-color, var(--primary));
+  }
+  
+  .border-primary {
+    border-color: var(--form-primary-color, var(--primary));
+  }
+  
+  .bg-secondary {
+    background-color: var(--form-secondary-color, var(--secondary));
+  }
+  
+  .text-secondary {
+    color: var(--form-secondary-color, var(--secondary));
+  }
+  
+  .border-secondary {
+    border-color: var(--form-secondary-color, var(--secondary));
+  }
 }
