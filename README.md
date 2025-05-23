@@ -48,8 +48,8 @@ TurboForm's web frontend is built with:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/turboform.git
-   cd turboform/web
+   git clone https://github.com/turboform/web.git
+   cd web
    ```
 
 2. Install dependencies:
