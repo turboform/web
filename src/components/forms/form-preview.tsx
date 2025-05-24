@@ -250,11 +250,7 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
         {form.logoUrl && (
           <div className="w-full flex justify-center mb-4">
             <div className="relative h-16 w-auto max-w-full">
-              <img 
-                src={form.logoUrl} 
-                alt="Company Logo" 
-                className="h-full w-auto object-contain"
-              />
+              <img src={form.logoUrl} alt="Company Logo" className="h-full w-auto object-contain" />
             </div>
           </div>
         )}
