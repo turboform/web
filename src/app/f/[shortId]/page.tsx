@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { Suspense } from 'react'
+import { Suspense, CSSProperties } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { FormSubmission } from '@/components/forms/form-submission'
@@ -41,10 +41,27 @@ export default async function FormShortPage({ params }: { params: FormPageProps 
     notFound()
   }
 
+  const customColorStyle = {
+    '--form-primary-color': form.primaryColor || 'var(--primary)',
+    '--form-secondary-color': form.secondaryColor || 'var(--secondary)',
+  } as React.CSSProperties
+
   return (
     <div className="container max-w-3xl py-16 px-4 sm:px-6 mx-auto min-h-[calc(100vh-100px)] flex flex-col">
-      <Card className="shadow-sm flex-1 flex flex-col">
+      <Card className="shadow-sm flex-1 flex flex-col" style={customColorStyle}>
         <CardHeader className="pb-4">
+          {/* Display logo if it exists */}
+          {form.logoUrl && (
+            <div className="w-full flex justify-center mb-4">
+              <div className="relative h-16 w-auto max-w-full">
+                <img 
+                  src={form.logoUrl} 
+                  alt="Company Logo" 
+                  className="h-full w-auto object-contain"
+                />
+              </div>
+            </div>
+          )}
           <CardTitle className="text-2xl font-semibold">{form.title}</CardTitle>
           <CardDescription className="text-base mt-2 whitespace-pre-line">{form.description}</CardDescription>
         </CardHeader>
