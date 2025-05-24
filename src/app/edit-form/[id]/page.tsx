@@ -46,9 +46,9 @@ function EditFormPage() {
           description: form.description,
           schema: form.schema,
           expires_at: expirationDate ? expirationDate.toISOString() : null,
-          primaryColor: form.primaryColor,
-          secondaryColor: form.secondaryColor,
-          logoUrl: form.logoUrl,
+          primary_color: form.primary_color,
+          secondary_color: form.secondary_color,
+          logo_url: form.logo_url,
         },
         {
           headers: {
