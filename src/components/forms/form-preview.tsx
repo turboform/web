@@ -239,18 +239,18 @@ export function FormPreview({ form, editable = false, onFormChange }: FormPrevie
 
   // Create CSS variables for custom colors
   const customColorStyle = {
-    '--form-primary-color': form.primaryColor || 'var(--primary)',
-    '--form-secondary-color': form.secondaryColor || 'var(--secondary)',
+    '--form-primary-color': form.primary_color || 'var(--primary)',
+    '--form-secondary-color': form.secondary_color || 'var(--secondary)',
   } as React.CSSProperties
 
   return (
     <Card className="shadow-sm" style={customColorStyle}>
       <CardHeader>
         {/* Display logo if it exists */}
-        {form.logoUrl && (
+        {form.logo_url && (
           <div className="w-full flex justify-center mb-4">
             <div className="relative h-16 w-auto max-w-full">
-              <img src={form.logoUrl} alt="Company Logo" className="h-full w-auto object-contain" />
+              <img src={form.logo_url} alt="Company Logo" className="h-full w-auto object-contain" />
             </div>
           </div>
         )}
