@@ -181,7 +181,6 @@ function EditFormPage() {
               <TabsContent value="customization" className="mt-6">
                 <FormCustomization
                   form={form}
-                  userId={user?.id || ''}
                   onFormChange={(updatedForm) => setForm(updatedForm)}
                 />
 
