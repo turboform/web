@@ -1,21 +1,21 @@
+import axios from 'axios'
 
 /**
  * Upload a logo for a form
  */
-export async function uploadFormLogo(file: File, formId: string): Promise<string> {
+export async function uploadFormLogo(file: File, formId: string, token: string): Promise<string> {
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await fetch(`/api/forms/${formId}/logo`, {
-    method: 'POST',
-    body: formData,
+  const response = await axios.post(`/api/forms/${formId}/logo`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   })
 
-  if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Failed to upload logo')
+  if (!response.data) {
+    throw new Error('Failed to upload logo')
   }
 
-  const data = await response.json()
-  return data.logoUrl
+  return response.data.logoUrl
 }

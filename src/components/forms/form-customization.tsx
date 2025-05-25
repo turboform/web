@@ -11,44 +11,45 @@ import { uploadFormLogo } from '@/lib/api/forms'
 import { Form } from '@/lib/types/form'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { useAuth } from '@/components/auth/auth-provider'
 
 interface FormCustomizationProps {
   form: Form
-  userId: string
   onFormChange: (updatedForm: Form) => void
 }
 
-export function FormCustomization({ form, userId, onFormChange }: FormCustomizationProps) {
+export function FormCustomization({ form, onFormChange }: FormCustomizationProps) {
+  const { session } = useAuth()
   const [uploading, setUploading] = useState(false)
-  
+
   const handlePrimaryColorChange = (color: string) => {
-    onFormChange({ ...form, primaryColor: color })
+    onFormChange({ ...form, primary_color: color })
   }
-  
+
   const handleSecondaryColorChange = (color: string) => {
-    onFormChange({ ...form, secondaryColor: color })
+    onFormChange({ ...form, secondary_color: color })
   }
-  
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    
+
     try {
       setUploading(true)
-      
+
       if (!file.type.startsWith('image/')) {
         toast.error('Please upload an image file')
         return
       }
-      
+
       if (file.size > 2 * 1024 * 1024) {
         toast.error('File size must be less than 2MB')
         return
       }
-      
-      const logoUrl = await uploadFormLogo(file, form.id)
-      
-      onFormChange({ ...form, logoUrl })
+
+      const logoUrl = await uploadFormLogo(file, form.id, session?.access_token || '')
+
+      onFormChange({ ...form, logo_url: logoUrl })
       toast.success('Logo uploaded successfully')
     } catch (error) {
       console.error('Error uploading logo:', error)
@@ -57,11 +58,11 @@ export function FormCustomization({ form, userId, onFormChange }: FormCustomizat
       setUploading(false)
     }
   }
-  
+
   const handleRemoveLogo = () => {
-    onFormChange({ ...form, logoUrl: undefined })
+    onFormChange({ ...form, logo_url: undefined })
   }
-  
+
   return (
     <Card>
       <CardHeader>
@@ -79,54 +80,44 @@ export function FormCustomization({ form, userId, onFormChange }: FormCustomizat
               <div className="flex gap-2">
                 <div
                   className="h-10 w-10 rounded-md border"
-                  style={{ backgroundColor: form.primaryColor || '#000000' }}
+                  style={{ backgroundColor: form.primary_color || '#000000' }}
                 />
                 <Input
                   id="primaryColor"
                   type="color"
-                  value={form.primaryColor || '#000000'}
+                  value={form.primary_color || '#000000'}
                   onChange={(e) => handlePrimaryColorChange(e.target.value)}
                   className="w-full"
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="secondaryColor">Secondary Color</Label>
               <div className="flex gap-2">
                 <div
                   className="h-10 w-10 rounded-md border"
-                  style={{ backgroundColor: form.secondaryColor || '#000000' }}
+                  style={{ backgroundColor: form.secondary_color || '#000000' }}
                 />
                 <Input
                   id="secondaryColor"
                   type="color"
-                  value={form.secondaryColor || '#000000'}
+                  value={form.secondary_color || '#000000'}
                   onChange={(e) => handleSecondaryColorChange(e.target.value)}
                   className="w-full"
                 />
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="logo">Company Logo</Label>
-            {form.logoUrl ? (
+            {form.logo_url ? (
               <div className="flex flex-col gap-4">
                 <div className="relative h-40 w-full border rounded-md overflow-hidden">
-                  <Image
-                    src={form.logoUrl}
-                    alt="Company Logo"
-                    fill
-                    style={{ objectFit: 'contain' }}
-                  />
+                  <Image src={form.logo_url} alt="Company Logo" fill style={{ objectFit: 'contain' }} />
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleRemoveLogo}
-                  className="w-fit"
-                >
+                <Button variant="destructive" size="sm" onClick={handleRemoveLogo} className="w-fit">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Remove Logo
                 </Button>
@@ -138,12 +129,8 @@ export function FormCustomization({ form, userId, onFormChange }: FormCustomizat
                   className="h-40 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer"
                 >
                   <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    {uploading ? 'Uploading...' : 'Click to upload a logo'}
-                  </span>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    PNG, JPG or GIF (max 2MB)
-                  </span>
+                  <span className="text-muted-foreground">{uploading ? 'Uploading...' : 'Click to upload a logo'}</span>
+                  <span className="text-xs text-muted-foreground mt-1">PNG, JPG or GIF (max 2MB)</span>
                 </Label>
                 <Input
                   id="logo-upload"
