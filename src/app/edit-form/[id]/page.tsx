@@ -179,10 +179,7 @@ function EditFormPage() {
               </TabsContent>
 
               <TabsContent value="customization" className="mt-6">
-                <FormCustomization
-                  form={form}
-                  onFormChange={(updatedForm) => setForm(updatedForm)}
-                />
+                <FormCustomization form={form} onFormChange={(updatedForm) => setForm(updatedForm)} />
 
                 <div className="flex justify-end space-x-4 mt-6">
                   <Button variant="outline" onClick={() => router.push('/dashboard')}>

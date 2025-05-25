@@ -62,9 +62,9 @@ const pricingPlans = [
     yearlyPriceId: process.env.NEXT_PUBLIC_FLOW_YEARLY_PRICE_ID,
     features: [
       'Everything in Tinker',
-      'Custom branding & themes *',
+      'Custom branding & themes',
+      'Integrations with Slack, Zapier, and more',
       'Advanced AI-driven data analysis *',
-      'Integrations with Slack, Zapier, and more *',
     ],
     buttonText: 'Upgrade to Flow',
     isPopular: true,
@@ -84,8 +84,8 @@ const pricingPlans = [
     yearlyPriceId: process.env.NEXT_PUBLIC_OPTIMIZE_YEARLY_PRICE_ID,
     features: [
       'Everything in Flow',
+      'Advanced workflow automation',
       'Custom domain *',
-      'Advanced workflow automation *',
       'AI-powered response predictions & trends *',
       'Team support for up to 20 team members *',
       'Priority support *',
@@ -196,15 +196,15 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-7xl py-16 px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto max-w-7xl py-16 px-4">
       <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">Pricing Plans</h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">Pricing Plans</h1>
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 font-medium">
           Choose the right plan for your form-building needs. All plans include our core features.
         </p>
 
         {/* Early Bird Banner */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 max-w-3xl mx-auto mb-10 flex flex-col items-center justify-center">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-3xl mx-auto mb-10 flex flex-col items-center justify-center shadow-sm">
           <div className="text-amber-800 font-medium flex items-center gap-2 mb-2">
             <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
             <span className="font-bold">EARLY BIRD PRICING</span>
@@ -225,12 +225,12 @@ export default function PricingPage() {
           </Button>
           <div className="relative flex items-center">
             <div
-              className="h-6 w-10 rounded-full bg-muted flex items-center p-1 cursor-pointer border border-primary"
+              className="h-6 w-10 rounded-full bg-muted flex items-center p-1 cursor-pointer border border-gray-400"
               onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
             >
               <div
                 className={cn(
-                  'h-4 w-4 rounded-full bg-primary shadow-sm transition-transform',
+                  'h-4 w-4 rounded-full bg-primary shadow-sm transition-transform border border-gray-400',
                   billingPeriod === 'yearly' ? 'translate-x-4' : 'translate-x-0'
                 )}
               ></div>
@@ -249,12 +249,12 @@ export default function PricingPage() {
       </div>
 
       {/* Pricing grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-16">
         {pricingPlans.slice(0, 4).map((plan, idx) => (
           <div
             key={idx}
             className={cn(
-              'flex flex-col rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg',
+              'flex flex-col rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg bg-card',
               plan.isPopular ? 'border-primary ring-1 ring-primary/20' : 'border-border',
               plan.color
             )}
@@ -268,8 +268,8 @@ export default function PricingPage() {
             )}
 
             <div className="mb-6">
-              <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-              <p className="text-sm text-muted-foreground mb-4 h-12">{plan.description}</p>
+              <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+              <p className="text-base text-muted-foreground mb-4 h-20">{plan.description}</p>
 
               <div className="mb-4">
                 {plan.monthlyPrice !== null ? (
@@ -292,7 +292,7 @@ export default function PricingPage() {
                           /{billingPeriod === 'monthly' ? 'month' : 'year'}
                         </span>
                         <div className="mt-1">
-                          <span className="text-xs inline-block bg-green-100 text-green-800 rounded px-1.5 py-0.5">
+                          <span className="text-xs inline-block font-semibold bg-green-100 text-green-800 rounded px-1.5 py-0.5">
                             Limited-time launch pricing!
                           </span>
                         </div>
@@ -308,8 +308,8 @@ export default function PricingPage() {
             <div className="space-y-3 mb-6">
               {plan.features.map((feature, idx) => (
                 <div key={idx} className="flex items-start">
-                  <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                  <span className="text-sm">{feature}</span>
+                  <Check className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mr-2" />
+                  <span className="text-sm text-muted-foreground leading-relaxed">{feature}</span>
                 </div>
               ))}
             </div>
@@ -336,7 +336,7 @@ export default function PricingPage() {
               </Button>
 
               <div className="mt-4 text-right">
-                {plan.hasDiscount ? (
+                {idx === 2 || idx === 3 ? (
                   <Badge className="text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100 hover:text-yellow-800">
                     * Available soon
                   </Badge>
@@ -351,9 +351,9 @@ export default function PricingPage() {
 
       {/* Enterprise plan in full width */}
       <div className="mb-16">
-        <div className="rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg max-w-4xl mx-auto grid md:grid-cols-[2fr_3fr] gap-6">
+        <div className="rounded-xl p-6 border shadow-sm relative overflow-hidden transition-all hover:shadow-lg max-w-4xl mx-auto grid md:grid-cols-[2fr_3fr] gap-6 bg-card">
           <div>
-            <h3 className="text-xl font-bold mb-2">{pricingPlans[4].name}</h3>
+            <h3 className="text-xl font-semibold mb-2">{pricingPlans[4].name}</h3>
             <p className="text-sm text-muted-foreground mb-4">{pricingPlans[4].description}</p>
 
             <div className="mb-4">
@@ -368,8 +368,8 @@ export default function PricingPage() {
           <div className="space-y-3">
             {pricingPlans[4].features.map((feature, idx) => (
               <div key={idx} className="flex items-start">
-                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                <span className="text-sm">{feature}</span>
+                <Check className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mr-2" />
+                <span className="text-sm text-muted-foreground leading-relaxed">{feature}</span>
               </div>
             ))}
           </div>
@@ -378,40 +378,40 @@ export default function PricingPage() {
 
       {/* FAQ Section */}
       <div className="max-w-3xl mx-auto mt-20">
-        <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium mb-2">Can I switch plans later?</h3>
-            <p className="text-muted-foreground">
+            <h3 className="text-lg font-semibold mb-2">Can I switch plans later?</h3>
+            <p className="text-muted-foreground leading-relaxed">
               Yes, you can upgrade, downgrade, or cancel your plan at any time. Changes to your subscription will be
               applied immediately.
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-2">What happens if I exceed my monthly response limit?</h3>
-            <p className="text-muted-foreground">
+            <h3 className="text-lg font-semibold mb-2">What happens if I exceed my monthly response limit?</h3>
+            <p className="text-muted-foreground leading-relaxed">
               If you reach your monthly response limit, you&apos;ll be notified and have the option to upgrade to a
               higher plan. No data will be lost.
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-2">Is there a free trial?</h3>
-            <p className="text-muted-foreground">
+            <h3 className="text-lg font-semibold mb-2">Is there a free trial?</h3>
+            <p className="text-muted-foreground leading-relaxed">
               Yes! The Tinker plan is free forever with limited features. For paid plans, we offer a 14-day free trial
               so you can test all features before committing.
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-2">
+            <h3 className="text-lg font-semibold mb-2">
               Do you offer discounts for nonprofits or educational institutions?
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground leading-relaxed">
               Yes, we offer special pricing for nonprofit organizations and educational institutions. Please{' '}
-              <Link href="/contact" className="text-primary hover:underline">
+              <Link href="/contact" className="font-semibold underline">
                 contact our sales team
               </Link>{' '}
               for more information.
@@ -421,8 +421,8 @@ export default function PricingPage() {
       </div>
 
       {/* Contact Section */}
-      <div className="bg-primary/5 rounded-lg p-8 mt-16 text-center">
-        <h2 className="text-xl font-bold mb-2">Still have questions?</h2>
+      <div className="bg-primary/5 rounded-xl p-8 mt-16 text-center shadow-sm">
+        <h2 className="text-xl md:text-2xl font-semibold mb-2">Still have questions?</h2>
         <p className="text-muted-foreground mb-4">
           Our team is here to help with any questions you might have about our pricing plans.
         </p>

@@ -199,7 +199,7 @@ export default function ContactPage() {
         <CardFooter className="justify-between flex-col sm:flex-row border-t pt-6">
           <div className="text-sm text-muted-foreground mb-4 sm:mb-0">
             <p className="mb-1">Or reach out directly:</p>
-            <a href="mailto:support@turboform.ai" className="text-primary hover:underline">
+            <a href="mailto:support@turboform.ai" className="font-semibold underline">
               support@turboform.ai
             </a>
           </div>
