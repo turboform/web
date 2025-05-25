@@ -73,7 +73,7 @@ export default async function FormShortPage({ params }: { params: FormPageProps 
         </Suspense>
 
         <CardFooter className="flex justify-center pt-6 pb-4 text-xs text-muted-foreground mt-auto">
-          <Link href="/" className="hover:text-primary transition-colors underline">
+          <Link href="https://turboform.ai" target="_blank" className="hover:text-primary transition-colors underline">
             Powered by TurboForm
           </Link>
         </CardFooter>
