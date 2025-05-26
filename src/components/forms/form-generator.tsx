@@ -120,7 +120,7 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
           <CardContent>
             <Textarea
               placeholder={`Describe your form here... (e.g., A customer feedback form with questions about product quality, delivery experience, and suggestions for improvement)`}
-              className="min-h-[200px] text-lg"
+              className="min-h-[200px] text-lg border border-gray-200"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onKeyDown={handleKeyDown}

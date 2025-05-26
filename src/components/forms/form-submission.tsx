@@ -15,6 +15,7 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import type { FormData } from '@/lib/supabase/actions'
 import axios from 'axios'
 import { FormField } from '@/lib/types/form'
+import { isDarkColor } from '@/lib/utils'
 
 const isFormExpired = (form: FormData): boolean => {
   if (!form.expires_at) return false
@@ -257,10 +258,10 @@ export function FormSubmission({ form }: { form: FormData }) {
               {field.options.map((option: string) => (
                 <div
                   key={option}
-                  className="flex items-center space-x-3 p-3 border rounded-md hover:bg-gray-50 transition-colors"
+                  className="flex items-center space-x-3 border pl-3 rounded-md hover:bg-gray-50 transition-colors"
                 >
-                  <RadioGroupItem value={option} id={`${field.id}-${option}`} />
-                  <Label htmlFor={`${field.id}-${option}`} className="text-lg cursor-pointer flex-1">
+                  <RadioGroupItem value={option} id={`${field.id}-${option}`} className="p-3 bg-gray-200" />
+                  <Label htmlFor={`${field.id}-${option}`} className="text-lg cursor-pointer flex-1 p-3">
                     {option}
                   </Label>
                 </div>
@@ -309,7 +310,14 @@ export function FormSubmission({ form }: { form: FormData }) {
             Previous
           </Button>
 
-          <Button type="submit" className="flex items-center gap-2">
+          <Button
+            type="submit"
+            className="flex items-center gap-2"
+            style={{
+              backgroundColor: form.primary_color || '#000000',
+              color: isDarkColor(form.primary_color || '#000000') ? '#ffffff' : '#000000',
+            }}
+          >
             {currentStep < form.schema.length - 1 ? (
               <>
                 Next

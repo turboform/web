@@ -14,6 +14,9 @@ export type FormData = {
   expires_at?: string
   is_public?: boolean
   is_draft?: boolean
+  primary_color?: string
+  secondary_color?: string
+  logo_url?: string
 }
 
 // Use cache to prevent redundant fetches during server rendering cycle

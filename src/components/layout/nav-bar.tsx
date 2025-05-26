@@ -76,8 +76,9 @@ export default function NavBar() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
+                      asChild
                       variant="ghost"
-                      size="sm"
+                      size="icon"
                       className="flex items-center gap-2 rounded-full p-0 overflow-hidden"
                     >
                       <Avatar>

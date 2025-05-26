@@ -137,10 +137,10 @@ function Dashboard() {
   }, [searchParams])
 
   return (
-    <div className="container py-12 mx-auto max-w-7xl px-4 sm:px-6">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Your Forms</h1>
-        <Button onClick={() => router.push('/create-form')} size="default">
+    <div className="container py-16 mx-auto max-w-7xl px-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Your Forms</h1>
+        <Button onClick={() => router.push('/create-form')} size="lg" className="rounded-lg font-semibold shadow-sm">
           <PlusCircle className="w-4 h-4 mr-2" />
           Create New Form
         </Button>
@@ -149,29 +149,29 @@ function Dashboard() {
       {isLoading ? (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="overflow-hidden shadow-sm border-gray-200">
+            <Card key={i} className="overflow-hidden shadow-sm border border-border bg-card">
               <CardHeader className="p-6">
-                <Skeleton className="h-6 w-3/4 mb-2" />
-                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-6 w-3/4 mb-2 rounded" />
+                <Skeleton className="h-4 w-full rounded" />
               </CardHeader>
               <CardContent className="p-6 pt-2">
-                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full rounded" />
               </CardContent>
               <CardFooter className="flex justify-between p-6 pt-4 gap-3">
-                <Skeleton className="h-9 w-28" />
-                <Skeleton className="h-9 w-28" />
-                <Skeleton className="h-9 w-28" />
+                <Skeleton className="h-9 w-28 rounded" />
+                <Skeleton className="h-9 w-28 rounded" />
+                <Skeleton className="h-9 w-28 rounded" />
               </CardFooter>
             </Card>
           ))}
         </div>
       ) : data?.forms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center bg-gray-50 rounded-lg border border-gray-200">
-          <h3 className="mb-3 text-xl font-medium">You haven&apos;t created any forms yet</h3>
-          <p className="mb-8 text-gray-600 max-w-md">
+        <div className="flex flex-col items-center justify-center p-12 text-center bg-muted/60 rounded-xl border border-border shadow-sm">
+          <h3 className="mb-3 text-xl font-semibold">You haven&apos;t created any forms yet</h3>
+          <p className="mb-8 text-muted-foreground max-w-md">
             Get started by creating your first form to collect data from users
           </p>
-          <Button onClick={() => router.push('/create-form')} size="lg">
+          <Button onClick={() => router.push('/create-form')} size="lg" className="rounded-lg font-semibold shadow">
             <PlusCircle className="w-5 h-5 mr-2" />
             Create Form
           </Button>
@@ -179,19 +179,24 @@ function Dashboard() {
       ) : (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {(data?.forms || []).map((form) => (
-            <Card key={form.id} className="relative overflow-hidden shadow-sm border-gray-200 flex flex-col">
+            <Card
+              key={form.id}
+              className="relative overflow-hidden shadow-sm border border-border bg-card flex flex-col"
+            >
               <CardHeader className="p-6 pb-3">
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-xl font-semibold truncate">{form.title}</CardTitle>
+                  <CardTitle className="text-xl font-bold truncate text-foreground whitespace-break-spaces">
+                    {form.title}
+                  </CardTitle>
                   <div
-                    className={`px-2 py-1 text-xs rounded-full absolute top-2 right-2 ${
+                    className={`px-2 py-1 text-xs rounded-full absolute top-2 right-2 font-semibold shadow-sm ${
                       form.is_draft ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
                     }`}
                   >
                     {form.is_draft ? 'Draft' : 'Published'}
                   </div>
                 </div>
-                <CardDescription className="text-sm text-gray-500 mt-1 line-clamp-1">
+                <CardDescription className="text-sm text-muted-foreground mt-1 line-clamp-1">
                   Created{' '}
                   {new Date(form.created_at || '').toLocaleString(undefined, {
                     year: 'numeric',
@@ -203,9 +208,11 @@ function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-2 flex-grow">
-                <p className="mb-3 text-sm text-gray-600 line-clamp-2">{form.description || 'No description'}</p>
+                <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
+                  {form.description || 'No description'}
+                </p>
                 <div className="flex justify-between">
-                  <div className="text-xs text-gray-500 font-medium">
+                  <div className="text-xs text-muted-foreground font-medium">
                     {form.schema && Array.isArray(form.schema) ? (
                       <span>
                         {form.schema.length} question{form.schema.length === 1 ? '' : 's'}
@@ -214,7 +221,7 @@ function Dashboard() {
                       <span>Custom form</span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium">
+                  <div className="text-xs text-muted-foreground font-medium">
                     <span>
                       {form.responseCount} response{form.responseCount === 1 ? '' : 's'}
                     </span>
@@ -225,7 +232,7 @@ function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-center"
+                  className="w-full justify-center rounded-md"
                   onClick={() => copyShortLink(form.short_id)}
                   title="Copy form link"
                 >
@@ -236,7 +243,7 @@ function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-center"
+                  className="w-full justify-center rounded-md"
                   onClick={() => handleTogglePublish(form.id, !form.is_draft)}
                   title={form.is_draft ? 'Publish this form' : 'Unpublish this form'}
                 >
@@ -246,7 +253,7 @@ function Dashboard() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="w-full justify-center">
+                    <Button variant="outline" size="sm" className="w-full justify-center rounded-md">
                       <MoreVertical className="w-4 h-4" />
                       <span className="sr-only">More options</span>
                     </Button>
@@ -288,19 +295,25 @@ function Dashboard() {
                     <DialogHeader>
                       <div className="flex items-center gap-2 text-amber-500">
                         <AlertTriangle className="h-5 w-5" />
-                        <DialogTitle>Confirm deletion</DialogTitle>
+                        <DialogTitle className="font-bold">Confirm deletion</DialogTitle>
                       </div>
-                      <DialogDescription className="pt-2">
+                      <DialogDescription className="pt-2 text-muted-foreground">
                         Are you sure you want to delete this form? This action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex justify-end gap-2 pt-2">
-                      <Button size="sm" variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded"
+                        onClick={() => setDeleteDialogOpen(false)}
+                      >
                         Cancel
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
+                        className="rounded"
                         onClick={() => formToDelete && handleDeleteForm(formToDelete)}
                       >
                         Delete
@@ -310,7 +323,7 @@ function Dashboard() {
                 </Dialog>
               </CardFooter>
               {!!form.expires_at && (
-                <p className="text-xs text-gray-700 text-center">
+                <p className="text-xs text-muted-foreground text-center">
                   Form responses accepted until {new Date(form.expires_at).toLocaleDateString()} at{' '}
                   {new Date(form.expires_at).toLocaleTimeString('en-US', { hour12: false })}
                 </p>

@@ -2,6 +2,25 @@ import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import axios from 'axios'
 
+/**
+ * Determines if a given hex color is "dark" (for contrast purposes)
+ * Supports 3 or 6 digit hex strings, with or without leading '#'
+ * Returns true if color is dark, false otherwise
+ */
+export function isDarkColor(hex: string): boolean {
+  let c = hex.replace('#', '')
+  if (c.length === 3) {
+    c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2]
+  }
+  if (c.length !== 6) return false // fallback: treat as not dark
+  const r = parseInt(c.slice(0, 2), 16)
+  const g = parseInt(c.slice(2, 4), 16)
+  const b = parseInt(c.slice(4, 6), 16)
+  // Perceived brightness formula
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000
+  return brightness < 128
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

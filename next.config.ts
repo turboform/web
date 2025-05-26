@@ -22,6 +22,22 @@ const nextConfig: NextConfig = {
   },
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'wmghucwmjnbqpsujncee.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'krleqnhlvnyqtkqoyogw.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 }
 
 if (process.env.NODE_ENV === 'development') {
