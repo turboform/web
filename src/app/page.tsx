@@ -46,8 +46,8 @@ export default function Home() {
           <FAQ />
 
           {/* Form Generator Section */}
-          <section id="form-generator" className="py-24 sm:py-32 scroll-mt-16">
-            <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <section className="py-24 sm:py-32 scroll-mt-16">
+            <div id="form-generator" className="mx-auto max-w-6xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl lg:text-center mb-12">
                 <h2 className="text-lg font-semibold leading-7 text-secondary">Start Building</h2>
                 <p className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
