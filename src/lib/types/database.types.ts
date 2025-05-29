@@ -3,6 +3,76 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          created_at: string | null
+          form_id: string
+          id: string
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          form_id: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          form_id?: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'chat_conversations_form_id_fkey'
+            columns: ['form_id']
+            isOneToOne: false
+            referencedRelation: 'forms'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'chat_messages_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'chat_conversations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       form_integrations: {
         Row: {
           config: Json
@@ -81,7 +151,10 @@ export type Database = {
           id: string
           is_draft: boolean | null
           is_public: boolean | null
+          logo_url: string | null
+          primary_color: string | null
           schema: Json
+          secondary_color: string | null
           short_id: string | null
           title: string
           updated_at: string | null
@@ -94,7 +167,10 @@ export type Database = {
           id?: string
           is_draft?: boolean | null
           is_public?: boolean | null
+          logo_url?: string | null
+          primary_color?: string | null
           schema: Json
+          secondary_color?: string | null
           short_id?: string | null
           title: string
           updated_at?: string | null
@@ -107,7 +183,10 @@ export type Database = {
           id?: string
           is_draft?: boolean | null
           is_public?: boolean | null
+          logo_url?: string | null
+          primary_color?: string | null
           schema?: Json
+          secondary_color?: string | null
           short_id?: string | null
           title?: string
           updated_at?: string | null
