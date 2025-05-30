@@ -378,41 +378,45 @@ export function ChatInterface({ formId, authToken }: ChatInterfaceProps) {
                 <SheetTitle>Chat History</SheetTitle>
                 <SheetDescription>Your previous conversations about this form</SheetDescription>
               </SheetHeader>
-              <div className="mt-6 space-y-2">
-                {loadingConversations && (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                  </div>
-                )}
-                {!loadingConversations && conversations.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No conversations yet</p>
-                )}
-                {!loadingConversations &&
-                  conversations.map((conv) => (
-                    <div key={conv.id} className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer group">
-                      <div onClick={() => loadConversation(conv.id)} className="flex-1">
-                        <h4 className="font-medium text-sm">{conv.title || 'Untitled Conversation'}</h4>
-                        {conv.last_message && (
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{conv.last_message.content}</p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(conv.updated_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity mt-2"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setConversationToDelete(conv.id)
-                        }}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+              <ScrollArea className="mt-6 h-[calc(100vh-180px)]">
+                <div className="px-4 space-y-2">
+                  {loadingConversations && (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                     </div>
-                  ))}
-              </div>
+                  )}
+                  {!loadingConversations && conversations.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No conversations yet</p>
+                  )}
+                  {!loadingConversations &&
+                    conversations.map((conv) => (
+                      <div key={conv.id} className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer group">
+                        <div onClick={() => loadConversation(conv.id)} className="flex-1">
+                          <h4 className="font-medium text-sm">{conv.title || 'Untitled Conversation'}</h4>
+                          {conv.last_message && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {conv.last_message.content}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(conv.updated_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity mt-2"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setConversationToDelete(conv.id)
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                </div>
+              </ScrollArea>
             </SheetContent>
           </Sheet>
         </div>
@@ -435,7 +439,7 @@ export function ChatInterface({ formId, authToken }: ChatInterfaceProps) {
                   className={cn('flex gap-3', message.role === 'user' ? 'justify-end' : 'justify-start')}
                 >
                   {message.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary">
                       <Bot className="w-4 h-4 text-primary" />
                     </div>
                   )}
@@ -484,7 +488,7 @@ export function ChatInterface({ formId, authToken }: ChatInterfaceProps) {
             )}
           </div>
         </ScrollArea>
-        <div className="p-4 border-t flex-shrink-0">
+        <div className="p-4 flex-shrink-0">
           <div className="flex gap-2">
             <Input
               ref={inputRef}

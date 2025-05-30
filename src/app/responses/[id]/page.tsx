@@ -49,6 +49,7 @@ const ResponsesPage = () => {
   const [visibleColumns, setVisibleColumns] = useState<string[]>([])
   const [selectedResponse, setSelectedResponse] = useState<Response | null>(null)
   const [showResponseDetails, setShowResponseDetails] = useState(false)
+  const [activeTab, setActiveTab] = useState('chat')
 
   // Fetch form details using SWR
   const {
@@ -392,7 +393,7 @@ const ResponsesPage = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-7xl">
-      <Card className="h-[calc(100vh-2rem)]">
+      <Card className="h-[calc(100vh-2rem)] bg-transparent border-none shadow-none">
         <CardHeader className="pb-2">
           <div className="flex flex-row items-center justify-between">
             <div>
@@ -402,6 +403,10 @@ const ResponsesPage = () => {
               </CardDescription>
             </div>
             <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={exportToCSV}>
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
               <Button variant="outline" size="sm" onClick={() => router.push(`/responses/${formId}/analytics`)}>
                 <BarChart className="w-4 h-4 mr-2" />
                 Analytics
@@ -410,68 +415,67 @@ const ResponsesPage = () => {
           </div>
         </CardHeader>
         <CardContent className="h-[calc(100%-5rem)] p-0">
-          <Tabs defaultValue="table" className="h-full">
-            <div className="px-6 pt-2">
+          <Tabs defaultValue="chat" className="h-full" onValueChange={(value) => setActiveTab(value)}>
+            <div className="px-6 pt-2 flex items-center justify-between flex-row">
               <TabsList className="grid w-full max-w-md grid-cols-2">
-                <TabsTrigger value="table" className="flex items-center gap-2">
-                  <TableIcon className="w-4 h-4" />
-                  Table View
-                </TabsTrigger>
                 <TabsTrigger value="chat" className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
                   Chat with Data
                 </TabsTrigger>
+                <TabsTrigger value="table" className="flex items-center gap-2">
+                  <TableIcon className="w-4 h-4" />
+                  All responses
+                </TabsTrigger>
               </TabsList>
+
+              {activeTab === 'table' && (
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Search responses..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 w-64"
+                    />
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Sliders className="w-4 h-4 mr-2" />
+                        Columns ({visibleColumns.length})
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-sm">Toggle columns</h4>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {columns.map((column) => (
+                            <div key={column} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={column}
+                                checked={visibleColumns.includes(column)}
+                                onCheckedChange={() => toggleColumnVisibility(column)}
+                              />
+                              <label htmlFor={column} className="text-sm font-normal cursor-pointer flex-1">
+                                {getFieldDisplayName(column)}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
             </div>
 
-            <TabsContent value="table" className="h-[calc(100%-4rem)] mt-0">
-              <div className="h-full flex flex-col">
-                {/* Search and filter controls */}
-                <div className="p-6 pb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Search responses..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9 w-64"
-                      />
-                    </div>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Sliders className="w-4 h-4 mr-2" />
-                          Columns ({visibleColumns.length})
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80">
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-sm">Toggle columns</h4>
-                          <div className="space-y-2 max-h-64 overflow-y-auto">
-                            {columns.map((column) => (
-                              <div key={column} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={column}
-                                  checked={visibleColumns.includes(column)}
-                                  onCheckedChange={() => toggleColumnVisibility(column)}
-                                />
-                                <label htmlFor={column} className="text-sm font-normal cursor-pointer flex-1">
-                                  {getFieldDisplayName(column)}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={exportToCSV}>
-                    <Download className="w-4 h-4 mr-2" />
-                    Export CSV
-                  </Button>
-                </div>
+            <TabsContent value="chat" className="h-[calc(100%-4rem)] mt-0 p-6 overflow-hidden">
+              {session?.access_token && <ChatInterface formId={formId} authToken={session.access_token} />}
+            </TabsContent>
 
+            <TabsContent value="table" className="h-[calc(100%-4rem)] mt-4">
+              <div className="h-full flex flex-col">
                 {/* Table content */}
                 <div className="flex-1 overflow-hidden">
                   {responses.length === 0 ? (
@@ -480,7 +484,7 @@ const ResponsesPage = () => {
                       <p className="text-sm mt-2">Share your form to start collecting responses</p>
                     </div>
                   ) : (
-                    <div className="overflow-auto h-full">
+                    <div className="overflow-auto h-full px-6">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -544,10 +548,6 @@ const ResponsesPage = () => {
                   </div>
                 )}
               </div>
-            </TabsContent>
-
-            <TabsContent value="chat" className="h-[calc(100%-4rem)] mt-0 p-6 overflow-hidden">
-              {session?.access_token && <ChatInterface formId={formId} authToken={session.access_token} />}
             </TabsContent>
           </Tabs>
         </CardContent>
