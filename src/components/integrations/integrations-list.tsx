@@ -8,7 +8,19 @@ import { toast } from 'sonner'
 import { useAuth } from '@/components/auth/auth-provider'
 import { FormIntegration } from '@/lib/types/integration'
 import { IntegrationForm } from './integration-form'
-import { Loader2, Plus, Trash2, Settings, Mail, MessageSquare, Webhook, ExternalLink } from 'lucide-react'
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  Settings,
+  LibraryIcon,
+  LoaderIcon,
+  SlackIcon,
+  SendIcon,
+  WebhookIcon,
+  SettingsIcon,
+  MailIcon,
+} from 'lucide-react'
 import axios from 'axios'
 import {
   AlertDialog,
@@ -155,17 +167,19 @@ export function IntegrationsList({ formId }: IntegrationsListProps) {
   const getIntegrationIcon = (type: string) => {
     switch (type) {
       case 'email':
-        return <Mail className="h-5 w-5" />
+        return <MailIcon className="h-5 w-5" />
       case 'slack':
+        return <SlackIcon className="h-5 w-5" />
       case 'telegram':
-        return <MessageSquare className="h-5 w-5" />
+        return <SendIcon className="h-5 w-5" />
       case 'zapier':
+        return <LoaderIcon className="h-5 w-5" />
       case 'make':
-        return <ExternalLink className="h-5 w-5" />
+        return <LibraryIcon className="h-5 w-5" />
       case 'webhook':
-        return <Webhook className="h-5 w-5" />
+        return <WebhookIcon className="h-5 w-5" />
       default:
-        return <Settings className="h-5 w-5" />
+        return <SettingsIcon className="h-5 w-5" />
     }
   }
 
