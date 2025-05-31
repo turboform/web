@@ -17,10 +17,10 @@ interface FormGeneratorProps {
 }
 
 const examplePrompts = [
-  'Customer satisfaction survey with ratings and open feedback questions',
-  'Job application form with experience, education, and skills sections',
-  'Event registration form with attendee details and meal preferences',
-  'Product feedback form with ratings and improvement suggestions',
+  'SaaS churn survey with questions about product quality, delivery experience, and suggestions for improvement',
+  'Customer satisfaction survey with questions about general feedback, product features, and areas for improvement',
+  'Lead generation form with questions about company size, industry, and contact information',
+  'Research questionnaire about what problems users face when using a product',
 ]
 
 export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
@@ -138,7 +138,11 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
                   transition={{ delay: 0.2, duration: 0.5 }}
                 >
                   <Textarea
-                    placeholder={`Describe your form here... (e.g., A customer feedback form with questions about product quality, delivery experience, and suggestions for improvement)`}
+                    placeholder={`A customer feedback form with questions about product quality, delivery experience, and suggestions for improvement
+
+- How was the product quality?
+- How was the delivery experience?
+- What suggestions do you have for improvement?`}
                     className="min-h-[220px] text-lg border-2 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all shadow-sm"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -218,7 +222,7 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
           <div className="pt-2 pb-6 px-6">
             <div className="flex items-center gap-2 mb-4">
               <Lightbulb className="h-4 w-4 text-amber-500" />
-              <p className="text-sm font-medium">Try describing something like:</p>
+              <p className="text-sm font-medium">Try one of these examples:</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {examplePrompts.map((prompt, index) => (
