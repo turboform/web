@@ -7,7 +7,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from 'sonner'
 import { useAuth } from '@/components/auth/auth-provider'
 import { Turnstile } from '@marsidev/react-turnstile'
+import { motion } from 'framer-motion'
+import { Sparkles, Wand2, ArrowRight, Lightbulb } from 'lucide-react'
 import axios from 'axios'
+import { cn } from '@/lib/utils'
 
 interface FormGeneratorProps {
   onFormGenerated: (form: any) => void
@@ -108,81 +111,152 @@ export function FormGenerator({ onFormGenerated }: FormGeneratorProps) {
   }
 
   return (
-    <>
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Create a new form</CardTitle>
-          <CardDescription>
-            Describe the form you want to create with all the questions you need. Start each question on a new line.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <CardContent>
-            <Textarea
-              placeholder={`Describe your form here... (e.g., A customer feedback form with questions about product quality, delivery experience, and suggestions for improvement)`}
-              className="min-h-[200px] text-lg border border-gray-200"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
+    <div className="w-full max-w-4xl mx-auto">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <Card className="w-full overflow-hidden border-2 bg-gradient-to-b from-background to-background/80 backdrop-blur-sm shadow-xl">
+          <CardHeader className="pb-4 space-y-2">
+            <div className="flex items-center gap-2 justify-center">
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+              >
+                <CardTitle className="text-4xl font-bold">Create a new form</CardTitle>
+              </motion.div>
+            </div>
+            <CardDescription className="text-base text-center">
+              Describe the form you want to create with all the questions you need. Start each question on a new line.
+            </CardDescription>
+          </CardHeader>
 
-            {showCaptcha && (
-              <div className="mt-4">
-                <div className="flex flex-col items-center p-4 border border-border rounded-md bg-muted/20">
-                  <Turnstile
-                    className="w-full flex items-center justify-center"
-                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-                    onSuccess={(token) => {
-                      setCaptchaToken(token)
-                    }}
-                    onError={(error) => {
-                      console.error('Turnstile error:', error)
-                      setCaptchaToken('') // Clear token on error
-                    }}
-                    options={{
-                      size: showCaptcha ? 'normal' : 'invisible',
-                      theme: 'light',
-                    }}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <CardContent>
+              <div className="relative">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                  <Textarea
+                    placeholder={`Describe your form here... (e.g., A customer feedback form with questions about product quality, delivery experience, and suggestions for improvement)`}
+                    className="min-h-[220px] text-lg border-2 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all shadow-sm"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    onKeyDown={handleKeyDown}
                   />
+                </motion.div>
+                <div className="absolute bottom-3 right-3 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md backdrop-blur-sm">
+                  Cmd+Enter to generate
                 </div>
               </div>
-            )}
-          </CardContent>
-          <CardFooter className="flex-col gap-4">
-            <Button type="submit" className="w-full" size="lg" disabled={isGenerating}>
-              {isGenerating ? 'Generating...' : 'Generate Form (Cmd+Enter)'}
-            </Button>
-          </CardFooter>
-        </form>
 
-        <div className="mt-8 px-4">
-          <p className="text-sm font-medium mb-3">Try describing something like:</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {examplePrompts.map((prompt, index) => (
-              <div
-                key={index}
-                className="text-sm p-3 bg-card rounded-lg border border-border hover:border-primary/50 hover:bg-accent cursor-pointer transition-all shadow-sm hover:shadow"
-                onClick={() => {
-                  setDescription(prompt)
+              {showCaptcha && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-6"
+                >
+                  <div className="flex flex-col items-center p-5 border-2 border-primary/20 rounded-xl bg-primary/5">
+                    <p className="text-sm mb-3 font-medium">Please verify you're human</p>
+                    <Turnstile
+                      className="w-full flex items-center justify-center"
+                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                      onSuccess={(token) => {
+                        setCaptchaToken(token)
+                      }}
+                      onError={(error) => {
+                        console.error('Turnstile error:', error)
+                        setCaptchaToken('') // Clear token on error
+                      }}
+                      options={{
+                        size: showCaptcha ? 'normal' : 'invisible',
+                        theme: 'light',
+                      }}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </CardContent>
 
-                  // Only directly submit if user is already signed in
-                  // or if we already have a captcha token
-                  if (user || captchaToken) {
-                    const event = new Event('submit') as unknown as React.FormEvent
-                    handleSubmit(event, prompt)
-                  } else {
-                    // If not signed in and no token, follow the normal flow
-                    // which will show captcha if needed
-                    setShowCaptcha(true)
-                  }
-                }}
+            <CardFooter className="flex-col gap-4 pb-6 px-6">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="w-full"
               >
-                "{prompt}"
-              </div>
-            ))}
+                <Button
+                  type="submit"
+                  className={cn(
+                    'w-full group transition-all',
+                    isGenerating
+                      ? 'bg-primary/80'
+                      : 'bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.01]'
+                  )}
+                  size="lg"
+                  disabled={isGenerating}
+                >
+                  <span className="flex items-center gap-2">
+                    {isGenerating ? (
+                      <>
+                        <div className="h-4 w-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+                        <span>Creating your form...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 group-hover:animate-pulse" />
+                        <span>Generate Form</span>
+                        <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </motion.div>
+            </CardFooter>
+          </form>
+
+          <div className="pt-2 pb-6 px-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Lightbulb className="h-4 w-4 text-amber-500" />
+              <p className="text-sm font-medium">Try describing something like:</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {examplePrompts.map((prompt, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index + 0.4, duration: 0.4 }}
+                >
+                  <div
+                    className="text-sm p-4 bg-muted/40 rounded-xl border-2 border-muted hover:border-primary/40 hover:bg-primary/5 cursor-pointer transition-all shadow-sm hover:shadow-md relative overflow-hidden group"
+                    onClick={() => {
+                      setDescription(prompt)
+
+                      // Only directly submit if user is already signed in
+                      // or if we already have a captcha token
+                      if (user || captchaToken) {
+                        const event = new Event('submit') as unknown as React.FormEvent
+                        handleSubmit(event, prompt)
+                      } else {
+                        // If not signed in and no token, follow the normal flow
+                        // which will show captcha if needed
+                        setShowCaptcha(true)
+                      }
+                    }}
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="pr-8">"{prompt}"</span>
+                      <Wand2 className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-primary/40 to-primary group-hover:w-full transition-all duration-300" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </Card>
-    </>
+        </Card>
+      </motion.div>
+    </div>
   )
 }
