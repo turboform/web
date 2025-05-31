@@ -58,20 +58,21 @@ export default function NavBar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-4">
-          <Link href="/pricing">
-            <Button variant="ghost" size="sm">
+          <Button variant="outline" size="default" asChild>
+            <Link href="/pricing">
+              <Flame className="w-4 h-4" />
               Pricing
-            </Button>
-          </Link>
+            </Link>
+          </Button>
 
           {isEffectivelySignedIn ? (
             <>
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <Button variant="outline" size="default" className="flex items-center gap-2" asChild>
+                <Link href="/dashboard">
                   <LayoutDashboard className="w-4 h-4" />
                   My Forms
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <div className="relative">
                 <Popover>
                   <PopoverTrigger asChild>
@@ -128,10 +129,10 @@ export default function NavBar() {
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2">
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Button variant="outline" size="default" className="w-full" asChild>
                     <Link href="/account">Account</Link>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={signOut} className="w-full">
+                  <Button variant="outline" size="default" onClick={signOut} className="w-full">
                     Sign Out
                   </Button>
                 </div>
@@ -159,7 +160,7 @@ export default function NavBar() {
         <div className="md:hidden bg-background border-t border-border py-3 px-4 shadow-md animate-in fade-in-50 slide-in-from-top-5 duration-200">
           <nav className="flex flex-col space-y-2">
             <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" size="sm" className="w-full justify-start">
+              <Button variant="outline" size="default" className="w-full justify-start">
                 <Flame className="w-4 h-4" />
                 Pricing
               </Button>
@@ -167,7 +168,7 @@ export default function NavBar() {
 
             {isEffectivelySignedIn && (
               <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" size="sm" className="w-full justify-start flex items-center gap-2">
+                <Button variant="outline" size="default" className="w-full justify-start flex items-center gap-2">
                   <LayoutDashboard className="w-4 h-4" />
                   My Forms
                 </Button>

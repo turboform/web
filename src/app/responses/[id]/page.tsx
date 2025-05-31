@@ -9,7 +9,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, Download, Search, SortAsc, SortDesc, BarChart, Sliders, Eye } from 'lucide-react'
+import {
+  ArrowLeft,
+  Download,
+  Search,
+  SortAsc,
+  SortDesc,
+  BarChart,
+  Sliders,
+  Eye,
+  MessageSquare,
+  TableIcon,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { ProtectedPage } from '@/components/auth/protected-page'
 import { useAuth } from '@/components/auth/auth-provider'
@@ -17,6 +28,8 @@ import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form } from '@/lib/types/form'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ChatInterface } from '@/components/chat/chat-interface'
 
 interface Response {
   id: string
@@ -36,6 +49,7 @@ const ResponsesPage = () => {
   const [visibleColumns, setVisibleColumns] = useState<string[]>([])
   const [selectedResponse, setSelectedResponse] = useState<Response | null>(null)
   const [showResponseDetails, setShowResponseDetails] = useState(false)
+  const [activeTab, setActiveTab] = useState('chat')
 
   // Fetch form details using SWR
   const {
@@ -378,161 +392,168 @@ const ResponsesPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <Button variant="outline" size="sm" onClick={() => router.push('/dashboard')} className="self-start">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
-        </Button>
-        <h1 className="text-2xl font-bold">{form?.title || 'Form Responses'}</h1>
-      </div>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+    <div className="container mx-auto p-4 max-w-7xl">
+      <Card className="h-[calc(100vh-2rem)] bg-transparent border-none shadow-none">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Responses</CardTitle>
+              <CardTitle>{form?.title || 'Form'} Responses</CardTitle>
               <CardDescription>
-                {responseStats ? (
-                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                    <span>{responseStats.total} total submissions</span>
-                  </div>
-                ) : null}
+                {responses.length} {responses.length === 1 ? 'response' : 'responses'} collected
               </CardDescription>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search responses..."
-                  className="pl-8 w-full sm:w-[200px] md:w-[260px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-0">
-          <div className="flex justify-between items-center p-4 border-t border-b">
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => exportToCSV()}>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={exportToCSV}>
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
-
-              {/* Column visibility selector */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Sliders className="w-4 h-4 mr-2" />
-                    Columns
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="start" className="w-64 p-2">
-                  <div className="space-y-1 max-h-[300px] overflow-y-auto">
-                    {columns.map((column) => (
-                      <div key={column} className="flex items-center space-x-2 py-1">
-                        <Checkbox
-                          id={`col-${column}`}
-                          checked={visibleColumns.includes(column)}
-                          onCheckedChange={() => toggleColumnVisibility(column)}
-                        />
-                        <label
-                          htmlFor={`col-${column}`}
-                          className="text-sm flex-1 cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {getFieldDisplayName(column)}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </PopoverContent>
-              </Popover>
-
               <Button variant="outline" size="sm" onClick={() => router.push(`/responses/${formId}/analytics`)}>
                 <BarChart className="w-4 h-4 mr-2" />
-                View Analytics
+                Analytics
               </Button>
             </div>
           </div>
+        </CardHeader>
+        <CardContent className="h-[calc(100%-5rem)] p-0">
+          <Tabs defaultValue="chat" className="h-full" onValueChange={(value) => setActiveTab(value)}>
+            <div className="px-6 pt-2 flex items-center justify-between flex-row">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="chat" className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Chat with Data
+                </TabsTrigger>
+                <TabsTrigger value="table" className="flex items-center gap-2">
+                  <TableIcon className="w-4 h-4" />
+                  All responses
+                </TabsTrigger>
+              </TabsList>
 
-          <div className="border-b">
-            {responses.length === 0 ? (
-              <div className="py-16 text-center">
-                <h3 className="font-medium text-xl mb-2">No responses yet</h3>
-                <p className="text-muted-foreground">Your form hasn&apos;t received any submissions.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {visibleColumns.map((column) => (
-                        <TableHead key={column} className="whitespace-nowrap">
-                          <button
-                            className="flex items-center gap-1 hover:text-primary"
-                            onClick={() => handleSort(column)}
-                          >
-                            {getFieldDisplayName(column)}
-                            {sortConfig?.key === column &&
-                              (sortConfig.direction === 'asc' ? (
-                                <SortAsc className="w-3 h-3" />
-                              ) : (
-                                <SortDesc className="w-3 h-3" />
-                              ))}
-                          </button>
-                        </TableHead>
-                      ))}
-                      <TableHead className="w-10"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAndSortedResponses.map((response) => (
-                      <TableRow key={response.id}>
-                        {visibleColumns.map((column) => {
-                          const value = column === 'created_at' ? response.created_at : response.responses?.[column]
-
-                          return (
-                            <TableCell key={`${response.id}-${column}`} className="whitespace-nowrap">
-                              {formatCellValue(column, value)}
-                            </TableCell>
-                          )
-                        })}
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 p-0"
-                            onClick={() => viewResponseDetails(response)}
-                            title="View response details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </div>
-
-          {/* Pagination controls */}
-          {responses.length > 0 && (
-            <div className="p-4 flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Showing {responses.length} of {filteredAndSortedResponses.length} responses
-              </div>
-              {/* TODO: add proper pagination with API filtering */}
+              {activeTab === 'table' && (
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Search responses..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 w-64"
+                    />
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Sliders className="w-4 h-4 mr-2" />
+                        Columns ({visibleColumns.length})
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-sm">Toggle columns</h4>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {columns.map((column) => (
+                            <div key={column} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={column}
+                                checked={visibleColumns.includes(column)}
+                                onCheckedChange={() => toggleColumnVisibility(column)}
+                              />
+                              <label htmlFor={column} className="text-sm font-normal cursor-pointer flex-1">
+                                {getFieldDisplayName(column)}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
             </div>
-          )}
+
+            <TabsContent value="chat" className="h-[calc(100%-4rem)] mt-0 p-6 overflow-hidden">
+              {session?.access_token && <ChatInterface formId={formId} authToken={session.access_token} />}
+            </TabsContent>
+
+            <TabsContent value="table" className="h-[calc(100%-4rem)] mt-4">
+              <div className="h-full flex flex-col">
+                {/* Table content */}
+                <div className="flex-1 overflow-hidden">
+                  {responses.length === 0 ? (
+                    <div className="p-6 text-center text-muted-foreground">
+                      <p>No responses yet</p>
+                      <p className="text-sm mt-2">Share your form to start collecting responses</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-auto h-full px-6">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            {visibleColumns.map((column) => (
+                              <TableHead key={column} className="whitespace-nowrap">
+                                <button
+                                  className="flex items-center gap-1 hover:text-primary"
+                                  onClick={() => handleSort(column)}
+                                >
+                                  {getFieldDisplayName(column)}
+                                  {sortConfig?.key === column &&
+                                    (sortConfig.direction === 'asc' ? (
+                                      <SortAsc className="w-3 h-3" />
+                                    ) : (
+                                      <SortDesc className="w-3 h-3" />
+                                    ))}
+                                </button>
+                              </TableHead>
+                            ))}
+                            <TableHead className="w-10"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredAndSortedResponses.map((response) => (
+                            <TableRow key={response.id}>
+                              {visibleColumns.map((column) => {
+                                const value =
+                                  column === 'created_at' ? response.created_at : response.responses?.[column]
+
+                                return (
+                                  <TableCell key={`${response.id}-${column}`} className="whitespace-nowrap">
+                                    {formatCellValue(column, value)}
+                                  </TableCell>
+                                )
+                              })}
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => viewResponseDetails(response)}
+                                  title="View response details"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Pagination controls */}
+                {responses.length > 0 && (
+                  <div className="p-4 flex items-center justify-between border-t">
+                    <div className="text-sm text-muted-foreground">
+                      Showing {filteredAndSortedResponses.length} of {responses.length} responses
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
-      {/* Response details dialog - moved outside of table cell */}
+      {/* Response details dialog */}
       <Dialog open={showResponseDetails} onOpenChange={setShowResponseDetails}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>

@@ -13,7 +13,17 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { PlusCircle, Eye, Edit, Trash2, AlertTriangle, BarChart, Globe, Lock, MoreVertical, Link } from 'lucide-react'
+import {
+  PlusCircle,
+  Edit,
+  Trash2,
+  AlertTriangle,
+  Lock,
+  MoreVertical,
+  Share2Icon,
+  SendHorizonalIcon,
+  ChartNoAxesCombinedIcon,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { ProtectedPage } from '@/components/auth/protected-page'
 import { useAuth } from '@/components/auth/auth-provider'
@@ -23,6 +33,7 @@ import { Form } from '@/lib/types/form'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { linkAnonymousAccountToUser } from '@/lib/utils/auth'
+import Link from 'next/link'
 
 function Dashboard() {
   const router = useRouter()
@@ -140,9 +151,11 @@ function Dashboard() {
     <div className="container py-16 mx-auto max-w-7xl px-4">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-4">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Your Forms</h1>
-        <Button onClick={() => router.push('/create-form')} size="lg" className="rounded-lg font-semibold shadow-sm">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Create New Form
+        <Button asChild size="lg" className="rounded-lg font-semibold shadow-sm">
+          <Link href="/create-form">
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Create New Form
+          </Link>
         </Button>
       </div>
 
@@ -171,9 +184,11 @@ function Dashboard() {
           <p className="mb-8 text-muted-foreground max-w-md">
             Get started by creating your first form to collect data from users
           </p>
-          <Button onClick={() => router.push('/create-form')} size="lg" className="rounded-lg font-semibold shadow">
-            <PlusCircle className="w-5 h-5 mr-2" />
-            Create Form
+          <Button asChild size="lg" className="rounded-lg font-semibold shadow">
+            <Link href="/create-form">
+              <PlusCircle className="w-5 h-5 mr-2" />
+              Create Form
+            </Link>
           </Button>
         </div>
       ) : (
@@ -229,27 +244,58 @@ function Dashboard() {
                 </div>
               </CardContent>
               <CardFooter className="grid grid-cols-3 gap-2 p-6 pt-0">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-center rounded-md"
-                  onClick={() => copyShortLink(form.short_id)}
-                  title="Copy form link"
-                >
-                  <Link className="w-4 h-4 mr-1" />
-                  Share
-                </Button>
+                {form.is_draft ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center rounded-md"
+                    onClick={() => handleTogglePublish(form.id, !form.is_draft)}
+                    title="Publish this form"
+                  >
+                    <SendHorizonalIcon className="w-4 h-4 mr-1" />
+                    Publish
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center rounded-md"
+                    onClick={() => copyShortLink(form.short_id)}
+                    title="Copy form link"
+                  >
+                    <Share2Icon className="w-4 h-4 mr-1" />
+                    Share
+                  </Button>
+                )}
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-center rounded-md"
-                  onClick={() => handleTogglePublish(form.id, !form.is_draft)}
-                  title={form.is_draft ? 'Publish this form' : 'Unpublish this form'}
-                >
-                  {form.is_draft ? <Globe className="w-4 h-4 mr-1" /> : <Lock className="w-4 h-4 mr-1" />}
-                  {form.is_draft ? 'Publish' : 'Draft'}
-                </Button>
+                {/* Show View Responses button if form is published, otherwise show Edit */}
+                {!form.is_draft ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center rounded-md"
+                    asChild
+                    title="View form responses"
+                  >
+                    <Link href={`/responses/${form.id}`}>
+                      <ChartNoAxesCombinedIcon className="w-4 h-4 mr-1" />
+                      Responses
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center rounded-md"
+                    asChild
+                    title="Edit this form"
+                  >
+                    <Link href={`/edit-form/${form.id}`}>
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </Link>
+                  </Button>
+                )}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -259,18 +305,22 @@ function Dashboard() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => router.push(`/form/${form.id}`)}>
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Form
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push(`/edit-form/${form.id}`)}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Form
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push(`/responses/${form.id}`)}>
-                      <BarChart className="w-4 h-4 mr-2" />
-                      Analyze Responses
-                    </DropdownMenuItem>
+                    {!form.is_draft && (
+                      <DropdownMenuItem asChild>
+                        <Link href={`/edit-form/${form.id}`}>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Form
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+
+                    {/* Only show unpublish option in dropdown if form is published */}
+                    {!form.is_draft && (
+                      <DropdownMenuItem onClick={() => handleTogglePublish(form.id, true)}>
+                        <Lock className="w-4 h-4 mr-2" />
+                        Unpublish Form
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                       className="text-red-500 focus:text-red-500"
                       onClick={() => {

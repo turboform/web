@@ -20,8 +20,8 @@
   --destructive: #ff3737;
   --destructive-foreground: #ffffff;
   --border: #dddddd;
-  --input: #ffffff;
-  --ring: #fae512;
+  --input: #d1d5dc;
+  --ring: #333333;
   --chart-1: #fae512;
   --chart-2: #ffc107;
   --chart-3: #ffd700;
@@ -68,8 +68,8 @@
   --destructive: #ff3737;
   --destructive-foreground: #ffffff;
   --border: #555555;
-  --input: #444444;
-  --ring: #fae512;
+  --input: #364153;
+  --ring: #ffffff;
   --chart-1: #fae512;
   --chart-2: #ffc107;
   --chart-3: #ffd700;

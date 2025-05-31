@@ -48,16 +48,12 @@ export default function Home() {
           {/* Form Generator Section */}
           <section className="py-24 sm:py-32 scroll-mt-16">
             <div id="form-generator" className="mx-auto max-w-6xl px-6 lg:px-8">
-              <div className="mx-auto max-w-2xl lg:text-center mb-12">
-                <h2 className="text-lg font-semibold leading-7 text-secondary">Start Building</h2>
-                <p className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                  Create Your Form Now
-                </p>
-                <p className="mt-6 text-lg leading-8 text-muted-foreground">
-                  Describe your form in plain English and our AI will generate it for you instantly. No coding required.
-                </p>
+              <div className="mx-auto max-w-2xl lg:text-center flex justify-center">
+                <h2 className="text-base font-semibold leading-7 text-secondary bg-primary/10 py-2 rounded-full px-4 border border-secondary">
+                  Start Building
+                </h2>
               </div>
-              <div className="mx-auto max-w-3xl border border-border rounded-xl shadow-lg p-6 bg-card">
+              <div className="mx-auto max-w-3xl p-6">
                 <FormGenerator onFormGenerated={setGeneratedForm} />
               </div>
             </div>
