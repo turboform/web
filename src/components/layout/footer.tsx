@@ -120,7 +120,7 @@ export function Footer() {
           <div className="col-span-3 grid grid-cols-2 md:grid-cols-3 gap-8">
             {/* Product */}
             <div className="flex flex-col space-y-3">
-              <h3 className="font-medium text-sm">Product</h3>
+              <h3 className="font-semibold text-sm">Product</h3>
               <div className="flex flex-col space-y-2.5">
                 <FooterLink href="/pricing">Pricing</FooterLink>
                 <FooterLink href="/changelog">Changelog</FooterLink>
@@ -133,7 +133,7 @@ export function Footer() {
 
             {/* Resources */}
             <div className="flex flex-col space-y-3">
-              <h3 className="font-medium text-sm">Resources</h3>
+              <h3 className="font-semibold text-sm">Resources</h3>
               <div className="flex flex-col space-y-2.5">
                 <FooterLink href="/contact">Contact</FooterLink>
                 <FooterLink href="https://github.com/turboform" external>
@@ -147,7 +147,7 @@ export function Footer() {
 
             {/* Company */}
             <div className="flex flex-col space-y-3">
-              <h3 className="font-medium text-sm">Company</h3>
+              <h3 className="font-semibold text-sm">Company</h3>
               <div className="flex flex-col space-y-2.5">
                 <FooterLink href="/about">About</FooterLink>
                 <FooterLink href="/privacy">Privacy Policy</FooterLink>
