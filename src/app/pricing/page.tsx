@@ -340,34 +340,35 @@ export default function PricingPage() {
             </div>
 
             <div className="mt-auto">
-              <Button
-                variant={plan.buttonVariant}
-                className={cn(
-                  'w-full',
-                  plan.isPopular ? 'bg-primary hover:bg-primary/90' : '',
-                  isLoading && loadingPlanId === plan.name ? 'bg-primary/50 text-primary-foreground' : ''
-                )}
-                onClick={() => handlePlanSelect(plan)}
-                disabled={isLoading && loadingPlanId === plan.name}
-              >
-                {isLoading && loadingPlanId === plan.name ? (
-                  <div className="flex items-center justify-center">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="ml-2">Processing...</span>
-                  </div>
-                ) : (
-                  plan.buttonText
-                )}
-              </Button>
+              {plan.buttonText !== 'Get Started Free' && (
+                <Button
+                  variant={plan.buttonVariant}
+                  className={cn(
+                    'w-full',
+                    plan.isPopular ? 'bg-primary hover:bg-primary/90' : '',
+                    isLoading && loadingPlanId === plan.name ? 'bg-primary/50 text-primary-foreground' : ''
+                  )}
+                  onClick={() => handlePlanSelect(plan)}
+                  disabled={isLoading && loadingPlanId === plan.name}
+                >
+                  {isLoading && loadingPlanId === plan.name ? (
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="ml-2">Processing...</span>
+                    </div>
+                  ) : (
+                    plan.buttonText
+                  )}
+                </Button>
+              )}
 
               <div className="mt-4 text-right">
-                {idx === 2 || idx === 3 ? (
-                  <Badge className="text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100 hover:text-yellow-800">
-                    * Available soon
-                  </Badge>
-                ) : (
-                  <Badge className={plan.color}></Badge>
-                )}
+                {idx === 2 ||
+                  (idx === 3 && (
+                    <Badge className="text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100 hover:text-yellow-800">
+                      * Available soon
+                    </Badge>
+                  ))}
               </div>
             </div>
           </motion.div>
