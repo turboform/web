@@ -136,7 +136,7 @@ export default function PrivacyPage() {
           <ul className="list-disc pl-8 mb-4 space-y-2 leading-relaxed">
             <li>
               By email:{' '}
-              <a href="mailto:privacy@turboform.ai" className="text-primary hover:underline">
+              <a href="mailto:privacy@turboform.ai" className="text-secondary underline">
                 privacy@turboform.ai
               </a>
             </li>
