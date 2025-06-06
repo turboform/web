@@ -14,6 +14,7 @@ import { Customization } from '@/components/landing/customization'
 import { Testimonial } from '@/components/landing/testimonial'
 import { UseCases } from '@/components/landing/use-cases'
 import { FAQ } from '@/components/landing/faq'
+import { Rocket } from 'lucide-react'
 
 export default function Home() {
   const router = useRouter()
@@ -49,7 +50,8 @@ export default function Home() {
           <section className="py-24 sm:py-32 scroll-mt-16">
             <div id="form-generator" className="mx-auto max-w-6xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl lg:text-center flex justify-center">
-                <h2 className="text-base font-semibold leading-7 text-secondary bg-primary/10 py-2 rounded-full px-4 border border-secondary">
+                <h2 className="px-3 py-1 text-sm font-medium text-gray-800 bg-primary rounded-full mb-4 flex items-center gap-2 shadow-md">
+                  <Rocket className="h-4 w-4" />
                   Start Building
                 </h2>
               </div>

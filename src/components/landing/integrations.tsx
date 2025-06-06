@@ -1,9 +1,18 @@
+import { Workflow } from 'lucide-react'
+
 export function Integrations() {
   return (
-    <section className="py-16 mb-16 border-y border-border bg-muted/30">
+    <section className="py-24 sm:py-32 relative overflow-hidden bg-gradient-to-b from-background via-primary/5 to-background border-y border-border">
       <div className="container max-w-6xl mx-auto px-4">
-        <div className="flex flex-col items-center text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Connect TurboForm to Your Favorite Tools</h2>
+        <div className="flex flex-col items-center text-center mb-16">
+          <span className="px-3 py-1 text-sm font-medium text-gray-800 bg-primary rounded-full mb-4 flex items-center gap-2 shadow-md">
+            <Workflow className="h-4 w-4" />
+            Integrations
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 tracking-tight text-foreground relative">
+            Connect TurboForm to Your Favorite Tools
+            <div className="h-1 w-20 bg-gradient-to-r from-primary to-secondary rounded-full mx-auto mt-3"></div>
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl">
             Supercharge your workflow by integrating with the apps you already use. Automate notifications, streamline
             data, and never miss a response.
