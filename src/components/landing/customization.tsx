@@ -12,7 +12,7 @@ export function Customization() {
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Make Every Form Uniquely Yours
           </h2>
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">
+          <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl">
             Stand out and stay on brand. Upload your logo and choose your colors for a form experience that feels truly
             yours and reflects your brand identity.
           </p>
