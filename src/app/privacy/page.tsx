@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="flex justify-center py-16 px-4 bg-muted/30">
-      <div className="max-w-2xl bg-background rounded-xl shadow-sm p-8 md:p-12">
+      <div className="max-w-3xl bg-background rounded-xl shadow-sm p-8 md:p-12">
         <h1 className="text-4xl font-bold mb-6 text-center">Privacy Policy</h1>
         <p className="text-muted-foreground mb-8 text-center">Last Updated: March 31, 2025</p>
 
@@ -136,7 +136,7 @@ export default function PrivacyPage() {
           <ul className="list-disc pl-8 mb-4 space-y-2 leading-relaxed">
             <li>
               By email:{' '}
-              <a href="mailto:privacy@turboform.ai" className="text-primary hover:underline">
+              <a href="mailto:privacy@turboform.ai" className="text-secondary underline">
                 privacy@turboform.ai
               </a>
             </li>

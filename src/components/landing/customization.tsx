@@ -4,12 +4,15 @@ export function Customization() {
   return (
     <section className="py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl lg:text-center mb-12">
-          <h2 className="text-xl font-semibold leading-7 text-secondary">Personalization</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+        <div className="flex flex-col items-center text-center mb-16">
+          <span className="px-3 py-1 text-sm font-medium text-gray-800 bg-primary rounded-full mb-4 flex items-center gap-2 shadow-md">
+            <PaletteIcon className="h-4 w-4" />
+            Personalization
+          </span>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Make Every Form Uniquely Yours
-          </p>
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">
+          </h2>
+          <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl">
             Stand out and stay on brand. Upload your logo and choose your colors for a form experience that feels truly
             yours and reflects your brand identity.
           </p>
