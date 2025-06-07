@@ -8,26 +8,16 @@ async function createHmac(key: string, data: string): Promise<string> {
   const encoder = new TextEncoder()
   const keyData = encoder.encode(key)
   const dataToSign = encoder.encode(data)
-  
+
   // Import the key
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    keyData,
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  )
-  
+  const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+
   // Sign the data
-  const signature = await crypto.subtle.sign(
-    'HMAC',
-    cryptoKey,
-    dataToSign
-  )
-  
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, dataToSign)
+
   // Convert to hex string
   return Array.from(new Uint8Array(signature))
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
 }
 
