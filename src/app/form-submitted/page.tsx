@@ -23,7 +23,7 @@ function FormSubmittedContent() {
         )}
       >
         <CheckCircle2
-          className="h-24 w-24 text-primary/90"
+          className="h-24 w-24 text-secondary/90"
           strokeWidth={1.5}
           onAnimationEnd={() => setAnimateCheckmark(false)}
         />
@@ -44,7 +44,7 @@ function FormSubmittedContent() {
           <div className="flex-1 text-left">
             <h2 className="text-xl md:text-2xl font-bold mb-2">Create Your Own Forms with TurboForm</h2>
             <p className="text-muted-foreground mb-4">
-              Build beautiful, intelligent forms like this one in seconds using AI—no design skills required.
+              Build beautiful, intelligent forms like this one in seconds using AI
             </p>
             <Link href="/">
               <Button className="gap-1">
@@ -57,7 +57,7 @@ function FormSubmittedContent() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-10">
         <div className="flex flex-col items-center p-4 rounded-lg border border-border">
-          <Sparkles className="h-10 w-10 text-primary/70 mb-3" />
+          <Sparkles className="h-10 w-10 text-secondary/70 mb-3" />
           <h3 className="font-medium mb-1">AI-Powered</h3>
           <p className="text-sm text-muted-foreground text-center">
             Describe your form in plain language and AI does the rest
@@ -67,7 +67,7 @@ function FormSubmittedContent() {
         <div className="flex flex-col items-center p-4 rounded-lg border border-border">
           <svg
             viewBox="0 0 24 24"
-            className="h-10 w-10 text-primary/70 mb-3"
+            className="h-10 w-10 text-secondary/70 mb-3"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
@@ -82,7 +82,7 @@ function FormSubmittedContent() {
         <div className="flex flex-col items-center p-4 rounded-lg border border-border">
           <svg
             viewBox="0 0 24 24"
-            className="h-10 w-10 text-primary/70 mb-3"
+            className="h-10 w-10 text-secondary/70 mb-3"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"

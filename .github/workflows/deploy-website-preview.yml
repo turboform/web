@@ -31,6 +31,7 @@ jobs:
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           NEXT_PUBLIC_POSTHOG_KEY: ${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          FORM_SUBMISSION_SECRET: ${{ secrets.FORM_SUBMISSION_SECRET }}
       - uses: actions/upload-artifact@v4
         with:
           name: site

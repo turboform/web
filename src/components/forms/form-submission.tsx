@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { CalendarX2, ChevronDown, ChevronUp, ChevronRight, Loader2, CheckCircle } from 'lucide-react'
+import { CalendarX2, ChevronRight, Loader2, CheckCircle, ChevronLeft } from 'lucide-react'
 import { CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -306,7 +306,7 @@ export function FormSubmission({ form }: { form: FormData }) {
             disabled={currentStep === 0}
             className="flex items-center gap-2"
           >
-            <ChevronUp className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
 
@@ -321,7 +321,7 @@ export function FormSubmission({ form }: { form: FormData }) {
             {currentStep < form.schema.length - 1 ? (
               <>
                 Next
-                <ChevronDown className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" />
               </>
             ) : (
               <>

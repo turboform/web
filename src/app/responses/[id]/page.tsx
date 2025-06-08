@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Form } from '@/lib/types/form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChatInterface } from '@/components/chat/chat-interface'
+import Link from 'next/link'
 
 interface Response {
   id: string
@@ -385,7 +386,9 @@ const ResponsesPage = () => {
         <div className="p-12 text-center">
           <h2 className="text-2xl font-bold mb-4">Form Not Found</h2>
           <p className="text-muted-foreground mb-8">The form you are looking for could not be found.</p>
-          <Button onClick={() => router.push('/dashboard')}>Return to Dashboard</Button>
+          <Button asChild>
+            <Link href="/dashboard">Return to Dashboard</Link>
+          </Button>
         </div>
       </div>
     )
@@ -407,9 +410,11 @@ const ResponsesPage = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
-              <Button variant="outline" size="sm" onClick={() => router.push(`/responses/${formId}/analytics`)}>
-                <BarChart className="w-4 h-4 mr-2" />
-                Analytics
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/responses/${formId}/analytics`}>
+                  <BarChart className="w-4 h-4 mr-2" />
+                  Analytics
+                </Link>
               </Button>
             </div>
           </div>
