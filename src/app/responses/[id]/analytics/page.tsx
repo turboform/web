@@ -12,6 +12,7 @@ import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Form } from '@/lib/types/form'
+import Link from 'next/link'
 
 interface Response {
   id: string
@@ -186,9 +187,11 @@ const AnalyticsPage = () => {
     return (
       <div className="container py-12 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col gap-6">
-          <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')} className="self-start">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to dashboard
+          <Button variant="ghost" size="sm" className="self-start" asChild>
+            <Link href="/dashboard">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to dashboard
+            </Link>
           </Button>
           <Card className="py-12">
             <CardContent>
@@ -197,7 +200,9 @@ const AnalyticsPage = () => {
                 <p className="text-muted-foreground mb-6">
                   The form you're looking for doesn't exist or you don't have access to it.
                 </p>
-                <Button onClick={() => router.push('/dashboard')}>Go back to dashboard</Button>
+                <Button asChild>
+                  <Link href="/dashboard">Go back to dashboard</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -211,14 +216,11 @@ const AnalyticsPage = () => {
       <div className="container py-12 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/responses/${formId}`)}
-              className="self-start"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Responses
+            <Button variant="outline" size="sm" asChild className="self-start">
+              <Link href={`/responses/${formId}`}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Responses
+              </Link>
             </Button>
             <h1 className="text-2xl font-bold">{form?.title || 'Form Analytics'}</h1>
           </div>
@@ -230,7 +232,9 @@ const AnalyticsPage = () => {
                 <p className="text-muted-foreground mb-6">
                   This form hasn't received any submissions yet, or the submissions don't contain analyzable data.
                 </p>
-                <Button onClick={() => router.push(`/responses/${formId}`)}>Back to responses</Button>
+                <Button asChild>
+                  <Link href={`/responses/${formId}`}>Back to responses</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -242,9 +246,11 @@ const AnalyticsPage = () => {
   return (
     <div className="container mx-auto py-6 px-4 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <Button variant="outline" size="sm" onClick={() => router.push(`/responses/${formId}`)} className="self-start">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Responses
+        <Button variant="outline" size="sm" asChild className="self-start">
+          <Link href={`/responses/${formId}`}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Responses
+          </Link>
         </Button>
         <h1 className="text-2xl font-bold">{form?.title || 'Form Analytics'}</h1>
       </div>

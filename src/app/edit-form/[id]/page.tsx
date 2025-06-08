@@ -17,6 +17,7 @@ import { fetcher } from '@/lib/utils'
 import { ProtectedPage } from '@/components/auth/protected-page'
 import axios from 'axios'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 export const runtime = 'edge'
 
@@ -162,8 +163,8 @@ function EditFormPage() {
                 />
 
                 <div className="flex justify-end space-x-4 mt-6">
-                  <Button variant="outline" onClick={() => router.push('/dashboard')}>
-                    Cancel
+                  <Button variant="outline" asChild>
+                    <Link href="/dashboard">Cancel</Link>
                   </Button>
                   <Button onClick={handleSaveForm} disabled={saving}>
                     {saving ? (
@@ -182,8 +183,8 @@ function EditFormPage() {
                 <FormCustomization form={form} onFormChange={(updatedForm) => setForm(updatedForm)} />
 
                 <div className="flex justify-end space-x-4 mt-6">
-                  <Button variant="outline" onClick={() => router.push('/dashboard')}>
-                    Cancel
+                  <Button variant="outline" asChild>
+                    <Link href="/dashboard">Cancel</Link>
                   </Button>
                   <Button onClick={handleSaveForm} disabled={saving}>
                     {saving ? (
