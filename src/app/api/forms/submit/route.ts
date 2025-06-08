@@ -39,8 +39,6 @@ export async function POST(request: NextRequest) {
     const signature = await createHmac(sharedSecret, dataToSign)
 
     // Forward the request to the worker endpoint with the security headers
-    console.log('Timestamp:', timestamp)
-    console.log('Signature:', signature)
     const response = await axios.post(`${process.env.API_BASE_URL}/api/v1/form/submit`, body, {
       headers: {
         'Content-Type': 'application/json',
