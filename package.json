@@ -74,9 +74,13 @@
     "@cloudflare/next-on-pages": "1.13.16",
     "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
     "prettier": "3.7.1",
     "wrangler": "4.51.0"
+  },
+  "overrides": {
+    "cookie": "^0.7.2",
+    "esbuild": "^0.25.10"
   },
   "optionalDependencies": {
     "@tailwindcss/oxide-linux-x64-gnu": "4.0.17",
