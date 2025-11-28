@@ -186,8 +186,13 @@ export default function PricingPage() {
         return
       }
 
-      if (result.data?.sessionId) {
-        await stripe.redirectToCheckout({ sessionId: result.data.sessionId })
+      if (result.data?.url) {
+        // Redirect to the Stripe Checkout URL
+        window.location.href = result.data.url
+      } else if (result.data?.sessionId) {
+        // Fallback: construct URL from session ID (for backward compatibility)
+        const checkoutUrl = `https://checkout.stripe.com/c/pay/${result.data.sessionId}`
+        window.location.href = checkoutUrl
       } else {
         toast.error('Invalid response from server')
       }

@@ -59,7 +59,6 @@ TurboForm's web frontend is built with:
    ```
 
 3. Set up environment variables:
-
    - Copy `.env.example` to `.env.local` (create it if it doesn't exist)
    - Fill in the required variables:
 

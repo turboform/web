@@ -56,6 +56,7 @@ export default function NavBar() {
           <span className="font-bold text-lg">TurboForm</span>
         </Link>
 
+        {/* TODO: Give this component some love */}
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-4">
           <Button variant="outline" size="default" asChild>
